@@ -20,7 +20,7 @@ function SettingsPage() {
         </p>
       </div>
 
-      <div className="rounded-xl border border-border bg-card p-6 shadow-card space-y-6">
+      <div className="rounded-2xl border border-white/10 bg-[#121E16]/40 backdrop-blur-md shadow-[inset_0_1px_0_0_rgba(255,255,255,0.12)] p-6 space-y-6">
         <h2 className="font-semibold font-display">{t("Profile", "প্রোফাইল")}</h2>
 
         <div className="flex items-center gap-4">
@@ -64,7 +64,7 @@ function SettingsPage() {
         </div>
       </div>
 
-      <div className="rounded-xl border border-border bg-card p-6 shadow-card space-y-4">
+      <div className="rounded-2xl border border-white/10 bg-[#121E16]/40 backdrop-blur-md shadow-[inset_0_1px_0_0_rgba(255,255,255,0.12)] p-6 space-y-4">
         <h2 className="font-semibold font-display">{t("Preferences", "পছন্দ")}</h2>
 
         <div className="flex items-center justify-between py-2">
@@ -95,7 +95,7 @@ function SettingsPage() {
         </div>
       </div>
 
-      <div className="rounded-xl border border-border bg-card p-6 shadow-card">
+      <div className="rounded-2xl border border-white/10 bg-[#121E16]/40 backdrop-blur-md shadow-[inset_0_1px_0_0_rgba(255,255,255,0.12)] p-6">
         <h2 className="font-semibold font-display mb-4">{t("Account", "অ্যাকাউন্ট")}</h2>
         <button
           onClick={signOut}

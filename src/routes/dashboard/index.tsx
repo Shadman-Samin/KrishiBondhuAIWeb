@@ -27,7 +27,7 @@ function StatCard({
 }) {
   const { t } = useLang();
   return (
-    <div className="rounded-xl border border-white/[0.06] bg-[rgba(19,31,23,0.5)] backdrop-blur-md p-5 shadow-card hover:shadow-elevated hover:border-primary/20 transition-all duration-300">
+    <div className="rounded-2xl border border-white/10 bg-[#121E16]/40 backdrop-blur-md shadow-[inset_0_1px_0_0_rgba(255,255,255,0.12)] p-5 hover:shadow-elevated transition-all duration-300">
       <div className="flex items-center justify-between">
         <div className={`flex h-10 w-10 items-center justify-center rounded-lg ${color}`}>
           <Icon className="h-5 w-5" />
@@ -111,7 +111,7 @@ function DashboardHome() {
       </div>
 
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-        <div className="rounded-xl border border-border bg-card p-5 shadow-card">
+        <div className="rounded-2xl border border-white/10 bg-[#121E16]/40 backdrop-blur-md shadow-[inset_0_1px_0_0_rgba(255,255,255,0.12)] p-5">
           <h2 className="font-semibold font-display mb-4">{t("Quick Actions", "দ্রুত কাজ")}</h2>
           <div className="grid grid-cols-2 gap-3">
             {[
@@ -156,7 +156,7 @@ function DashboardHome() {
           </div>
         </div>
 
-        <div className="rounded-xl border border-border bg-card p-5 shadow-card">
+        <div className="rounded-2xl border border-white/10 bg-[#121E16]/40 backdrop-blur-md shadow-[inset_0_1px_0_0_rgba(255,255,255,0.12)] p-5">
           <h2 className="font-semibold font-display mb-4">
             {t("Market Overview", "বাজার পরিসংখ্যান")}
           </h2>
@@ -194,7 +194,7 @@ function DashboardHome() {
         </div>
       </div>
 
-      <div className="rounded-xl border border-border bg-card p-5 shadow-card">
+      <div className="rounded-2xl border border-white/10 bg-[#121E16]/40 backdrop-blur-md shadow-[inset_0_1px_0_0_rgba(255,255,255,0.12)] p-5">
         <h2 className="font-semibold font-display mb-4">{t("Seasonal Tips", "মৌসুমি টিপস")}</h2>
         <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
           {[

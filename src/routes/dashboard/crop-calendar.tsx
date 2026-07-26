@@ -53,7 +53,7 @@ function CropCalendarPage() {
         {filtered.map((crop: Crop) => (
           <div
             key={crop.name}
-            className="rounded-xl border border-border bg-card p-5 shadow-card hover:shadow-elevated transition-shadow"
+            className="rounded-2xl border border-white/10 bg-[#121E16]/40 backdrop-blur-md shadow-[inset_0_1px_0_0_rgba(255,255,255,0.12)] p-5 hover:shadow-elevated transition-shadow"
           >
             <div className="flex items-start justify-between">
               <div>

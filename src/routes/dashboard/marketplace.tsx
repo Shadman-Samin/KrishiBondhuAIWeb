@@ -65,7 +65,10 @@ function MarketplacePage() {
       </div>
       <div className="grid grid-cols-2 md:grid-cols-4 gap-3">
         {priceItems.map((item) => (
-          <div key={item.crop} className="rounded-xl border border-border bg-card p-4 shadow-card">
+          <div
+            key={item.crop}
+            className="rounded-2xl border border-white/10 bg-[#121E16]/40 backdrop-blur-md shadow-[inset_0_1px_0_0_rgba(255,255,255,0.12)] p-4"
+          >
             <div className="text-sm font-medium">{t(item.crop, item.cropBn)}</div>
             <div className="text-xl font-bold font-display mt-1">৳{item.price}</div>
             <div className="text-xs text-muted-foreground mt-1">
@@ -100,7 +103,7 @@ function MarketplacePage() {
 
       <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
         {listings.length === 0 && (
-          <div className="col-span-full rounded-xl border border-border bg-card p-8 text-center">
+          <div className="col-span-full rounded-2xl border border-white/10 bg-[#121E16]/40 backdrop-blur-md shadow-[inset_0_1px_0_0_rgba(255,255,255,0.12)] p-8 text-center">
             <p className="text-muted-foreground">
               {t("No listings match this filter.", "এই ফিল্টারে কোনো তালিকা নেই।")}
             </p>
@@ -109,7 +112,7 @@ function MarketplacePage() {
         {listings.map((listing) => (
           <div
             key={listing.id}
-            className="rounded-xl border border-border bg-card p-5 shadow-card hover:shadow-elevated transition-shadow"
+            className="rounded-2xl border border-white/10 bg-[#121E16]/40 backdrop-blur-md shadow-[inset_0_1px_0_0_rgba(255,255,255,0.12)] p-5 hover:shadow-elevated transition-shadow"
           >
             <div className="flex items-start justify-between">
               <div>

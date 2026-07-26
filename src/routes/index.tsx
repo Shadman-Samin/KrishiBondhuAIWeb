@@ -246,7 +246,7 @@ function LangToggle() {
     <button
       onClick={() => setLang(lang === "en" ? "bn" : "en")}
       aria-label="Toggle language"
-      className="inline-flex items-center gap-1.5 rounded-full border border-white/[0.08] bg-white/[0.04] px-3 py-1.5 text-xs font-medium text-foreground hover:border-primary/40 hover:text-primary transition"
+      className="inline-flex items-center gap-1.5 rounded-full border border-white/10 bg-white/5 px-3 py-1.5 text-xs font-medium text-foreground hover:border-primary/40 hover:text-primary transition"
     >
       <Languages className="h-3.5 w-3.5" />
       <span className={lang === "en" ? "text-primary font-semibold" : "text-muted-foreground"}>
@@ -356,7 +356,7 @@ function Nav() {
 
           <nav ref={navRef} className="hidden md:flex relative items-center gap-1 text-sm">
             <div
-              className="absolute top-1/2 -translate-y-1/2 h-9 rounded-full bg-white/[0.08] backdrop-blur-md border border-white/[0.1] transition-all duration-300 ease-out"
+              className="absolute top-1/2 -translate-y-1/2 h-9 rounded-full bg-white/[0.08] backdrop-blur-md border border-white/10 transition-all duration-300 ease-out"
               style={{
                 left: pillStyle.left,
                 width: pillStyle.width || 0,
@@ -383,7 +383,7 @@ function Nav() {
             <LangToggle />
             <button
               onClick={toggle}
-              className="inline-flex items-center justify-center rounded-full border border-white/[0.08] bg-white/[0.04] p-2 text-foreground hover:border-primary/40 hover:text-primary transition"
+              className="inline-flex items-center justify-center rounded-full border border-white/10 bg-white/5 p-2 text-foreground hover:border-primary/40 hover:text-primary transition"
               aria-label="Toggle theme"
             >
               {theme === "dark" ? <Sun className="h-4 w-4" /> : <Moon className="h-4 w-4" />}

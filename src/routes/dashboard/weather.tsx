@@ -38,7 +38,7 @@ const CONDITION_COLOR: Record<WeatherDay["condition"], string> = {
 
 function SkeletonCard() {
   return (
-    <div className="rounded-xl border border-border bg-card p-4 text-center animate-pulse">
+    <div className="rounded-2xl border border-white/10 bg-[#121E16]/40 backdrop-blur-md shadow-[inset_0_1px_0_0_rgba(255,255,255,0.12)] p-4 text-center animate-pulse">
       <div className="h-3 bg-muted rounded w-8 mx-auto" />
       <div className="h-8 w-8 bg-muted rounded-full mx-auto my-2" />
       <div className="h-4 bg-muted rounded w-10 mx-auto" />
@@ -49,7 +49,7 @@ function SkeletonCard() {
 
 function SkeletonAdvisory() {
   return (
-    <div className="rounded-xl border border-border bg-card p-5 shadow-card animate-pulse space-y-3">
+    <div className="rounded-2xl border border-white/10 bg-[#121E16]/40 backdrop-blur-md shadow-[inset_0_1px_0_0_rgba(255,255,255,0.12)] p-5 animate-pulse space-y-3">
       <div className="h-5 bg-muted rounded w-48" />
       {[1, 2, 3].map((i) => (
         <div key={i} className="flex gap-3 py-3">
@@ -118,7 +118,7 @@ function WeatherPage() {
 
       {isLoading ? (
         <>
-          <div className="rounded-xl border border-border bg-card p-6 shadow-card animate-pulse">
+          <div className="rounded-2xl border border-white/10 bg-[#121E16]/40 backdrop-blur-md shadow-[inset_0_1px_0_0_rgba(255,255,255,0.12)] p-6 animate-pulse">
             <div className="h-4 bg-muted rounded w-24 mb-4" />
             <div className="flex items-center gap-6">
               <div className="h-12 bg-muted rounded w-24" />
@@ -137,7 +137,7 @@ function WeatherPage() {
         </>
       ) : (
         <>
-          <div className="rounded-xl border border-border bg-card p-6 shadow-card">
+          <div className="rounded-2xl border border-white/10 bg-[#121E16]/40 backdrop-blur-md shadow-[inset_0_1px_0_0_rgba(255,255,255,0.12)] p-6">
             <div className="flex items-center gap-2 text-muted-foreground mb-4">
               <MapPin className="h-4 w-4" />
               <span className="text-sm">{t(location.name, location.nameBn)}</span>
@@ -172,7 +172,7 @@ function WeatherPage() {
                   className={`rounded-xl border p-4 text-center transition-all ${
                     i === 0
                       ? "border-primary bg-primary/5 shadow-glow"
-                      : "border-border bg-card hover:border-primary/30"
+                      : "border-white/10 bg-[#121E16]/40 hover:border-primary/30"
                   }`}
                 >
                   <div className="text-xs text-muted-foreground">{day.day}</div>
@@ -187,7 +187,7 @@ function WeatherPage() {
             })}
           </div>
 
-          <div className="rounded-xl border border-border bg-card p-5 shadow-card">
+          <div className="rounded-2xl border border-white/10 bg-[#121E16]/40 backdrop-blur-md shadow-[inset_0_1px_0_0_rgba(255,255,255,0.12)] p-5">
             <h2 className="font-semibold font-display mb-3">
               {t("Farming Advisory", "কৃষি পরামর্শ")}
             </h2>

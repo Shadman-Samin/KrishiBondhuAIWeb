@@ -42,13 +42,13 @@ export function Sidebar({ collapsed, onToggle }: { collapsed: boolean; onToggle:
   return (
     <aside
       className={cn(
-        "hidden md:flex flex-col h-screen border-r border-white/[0.08] bg-[rgba(15,26,19,0.6)] backdrop-blur-xl transition-all duration-300 sticky top-0",
+        "hidden md:flex flex-col h-screen border-r border-white/10 bg-[#0B150F]/80 backdrop-blur-xl transition-all duration-300 sticky top-0",
         collapsed ? "w-[68px]" : "w-64",
       )}
     >
       <div
         className={cn(
-          "flex items-center gap-2 border-b border-border px-4 h-16",
+          "flex items-center gap-2 border-b border-white/10 px-4 h-16",
           collapsed && "justify-center px-0",
         )}
       >
@@ -92,7 +92,7 @@ export function Sidebar({ collapsed, onToggle }: { collapsed: boolean; onToggle:
         })}
       </nav>
 
-      <div className="border-t border-border px-2 py-2 space-y-1">
+      <div className="border-t border-white/10 px-2 py-2 space-y-1">
         {BOTTOM_ITEMS.map(({ to, label, labelBn, icon: Icon }) => {
           const active = matchRoute({ to });
           return (
@@ -163,14 +163,14 @@ export function MobileSidebar({
       )}
       <aside
         className={cn(
-          "fixed inset-y-0 left-0 z-50 flex flex-col w-64 bg-[rgba(15,26,19,0.85)] backdrop-blur-xl border-r border-white/[0.08] transform transition-transform duration-300 md:hidden",
+          "fixed inset-y-0 left-0 z-50 flex flex-col w-64 bg-[#0B150F]/90 backdrop-blur-xl border-r border-white/10 transform transition-transform duration-300 md:hidden",
           open ? "translate-x-0" : "-translate-x-full",
         )}
       >
         <Link
           to="/"
           onClick={() => onOpenChange(false)}
-          className="flex items-center gap-2 border-b border-border px-4 h-16"
+          className="flex items-center gap-2 border-b border-white/10 px-4 h-16"
         >
           <div className="flex h-9 w-9 shrink-0 items-center justify-center rounded-xl bg-gradient-primary shadow-glow">
             <Leaf className="h-5 w-5 text-primary-foreground" />

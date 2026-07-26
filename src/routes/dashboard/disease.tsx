@@ -98,7 +98,7 @@ function DiseaseDetectionPage() {
               className={`rounded-xl border p-4 text-left transition-all ${
                 selectedIdx === i
                   ? "border-primary bg-primary/5 shadow-glow"
-                  : "border-border bg-card hover:border-primary/30"
+                  : "border-white/10 bg-[#121E16]/40 hover:border-primary/30"
               }`}
             >
               <div className="flex items-center gap-2">
@@ -133,7 +133,7 @@ function DiseaseDetectionPage() {
       )}
 
       {disease && (
-        <div className="rounded-xl border border-border bg-card p-6 shadow-card space-y-4">
+        <div className="rounded-2xl border border-white/10 bg-[#121E16]/40 backdrop-blur-md shadow-[inset_0_1px_0_0_rgba(255,255,255,0.12)] p-6 space-y-4">
           <div className="flex items-center gap-3">
             <AlertTriangle
               className={`h-5 w-5 ${

@@ -78,7 +78,7 @@ function SoilPage() {
 
       <form
         onSubmit={handleSubmit}
-        className="rounded-xl border border-border bg-card p-6 shadow-card space-y-4"
+        className="rounded-2xl border border-white/10 bg-[#121E16]/40 backdrop-blur-md shadow-[inset_0_1px_0_0_rgba(255,255,255,0.12)] p-6 space-y-4"
       >
         <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
           <div>
@@ -187,7 +187,7 @@ function SoilPage() {
       </form>
 
       {result && (
-        <div className="rounded-xl border border-border bg-card p-6 shadow-card space-y-4">
+        <div className="rounded-2xl border border-white/10 bg-[#121E16]/40 backdrop-blur-md shadow-[inset_0_1px_0_0_rgba(255,255,255,0.12)] p-6 space-y-4">
           <div className="flex items-center gap-2">
             <FlaskConical className="h-5 w-5 text-primary" />
             <h2 className="font-semibold font-display">
