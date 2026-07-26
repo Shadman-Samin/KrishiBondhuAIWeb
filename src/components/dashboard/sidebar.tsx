@@ -44,19 +44,21 @@ export function Sidebar({ collapsed, onToggle }: { collapsed: boolean; onToggle:
           collapsed && "justify-center px-0",
         )}
       >
-        <div className="flex h-9 w-9 shrink-0 items-center justify-center rounded-xl bg-gradient-primary shadow-glow">
-          <Leaf className="h-5 w-5 text-primary-foreground" />
-        </div>
-        {!collapsed && (
-          <div className="leading-tight">
-            <div className="font-display text-sm font-semibold">
-              {t("KrishiBondhu", "কৃষিবন্ধু")}
-            </div>
-            <div className="text-[10px] text-muted-foreground -mt-0.5">
-              {t("AI Dashboard", "এআই ড্যাশবোর্ড")}
-            </div>
+        <Link to="/" className="flex items-center gap-2">
+          <div className="flex h-9 w-9 shrink-0 items-center justify-center rounded-xl bg-gradient-primary shadow-glow">
+            <Leaf className="h-5 w-5 text-primary-foreground" />
           </div>
-        )}
+          {!collapsed && (
+            <div className="leading-tight">
+              <div className="font-display text-sm font-semibold">
+                {t("KrishiBondhu", "কৃষিবন্ধু")}
+              </div>
+              <div className="text-[10px] text-muted-foreground -mt-0.5">
+                {t("AI Dashboard", "এআই ড্যাশবোর্ড")}
+              </div>
+            </div>
+          )}
+        </Link>
       </div>
 
       <nav className="flex-1 px-2 py-4 space-y-1 overflow-y-auto">
@@ -152,7 +154,7 @@ export function MobileSidebar({
           open ? "translate-x-0" : "-translate-x-full",
         )}
       >
-        <div className="flex items-center gap-2 border-b border-border px-4 h-16">
+        <Link to="/" onClick={() => onOpenChange(false)} className="flex items-center gap-2 border-b border-border px-4 h-16">
           <div className="flex h-9 w-9 shrink-0 items-center justify-center rounded-xl bg-gradient-primary shadow-glow">
             <Leaf className="h-5 w-5 text-primary-foreground" />
           </div>
@@ -164,7 +166,7 @@ export function MobileSidebar({
               {t("AI Dashboard", "এআই ড্যাশবোর্ড")}
             </div>
           </div>
-        </div>
+        </Link>
 
         <nav className="flex-1 px-2 py-4 space-y-1 overflow-y-auto">
           {[...NAV_ITEMS, ...BOTTOM_ITEMS].map(({ to, label, labelBn, icon: Icon }) => {
