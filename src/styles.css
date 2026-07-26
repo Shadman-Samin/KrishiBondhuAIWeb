@@ -88,30 +88,30 @@
   --background: #0a110d;
   --foreground: #e2e8f0;
 
-  --card: #131f17;
+  --card: rgba(19, 31, 23, 0.5);
   --card-foreground: #e2e8f0;
 
-  --popover: #131f17;
+  --popover: rgba(15, 26, 19, 0.6);
   --popover-foreground: #e2e8f0;
 
   --primary: #22c55e;
   --primary-foreground: #0a110d;
   --primary-glow: #34d399;
 
-  --secondary: #183d2a;
+  --secondary: rgba(24, 61, 42, 0.6);
   --secondary-foreground: #e2e8f0;
 
-  --muted: #182e20;
+  --muted: rgba(24, 46, 32, 0.5);
   --muted-foreground: #8b9b90;
 
-  --accent: #183d2a;
+  --accent: rgba(24, 61, 42, 0.6);
   --accent-foreground: #34d399;
 
   --destructive: #ef4444;
   --destructive-foreground: #ffffff;
 
-  --border: #213327;
-  --input: #213327;
+  --border: rgba(255, 255, 255, 0.08);
+  --input: rgba(255, 255, 255, 0.08);
   --ring: #22c55e;
 
   --gradient-hero:
@@ -125,8 +125,9 @@
     radial-gradient(at 50% 80%, #22c55e12 0px, transparent 50%);
 
   --shadow-glow: 0 20px 60px -20px #22c55e40;
-  --shadow-card: 0 1px 3px #00000040, 0 12px 32px -12px #00000060;
-  --shadow-elevated: 0 30px 80px -30px #00000080;
+  --shadow-card: inset 0 1px 1px 0 rgba(255, 255, 255, 0.05), 0 10px 30px -10px rgba(0, 0, 0, 0.5);
+  --shadow-elevated:
+    inset 0 1px 1px 0 rgba(255, 255, 255, 0.08), 0 30px 80px -30px rgba(0, 0, 0, 0.6);
 }
 
 @utility bg-gradient-hero {
@@ -148,10 +149,39 @@
   box-shadow: var(--shadow-elevated);
 }
 @utility glass {
-  background: color-mix(in oklab, var(--card) 70%, transparent);
+  background: rgba(15, 26, 19, 0.6);
   backdrop-filter: blur(16px);
   -webkit-backdrop-filter: blur(16px);
-  border: 1px solid color-mix(in oklab, var(--border) 80%, transparent);
+  border: 1px solid rgba(255, 255, 255, 0.08);
+}
+@utility glass-panel {
+  background: rgba(15, 26, 19, 0.6);
+  backdrop-filter: blur(16px);
+  -webkit-backdrop-filter: blur(16px);
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  box-shadow:
+    inset 0 1px 1px 0 rgba(255, 255, 255, 0.1),
+    0 10px 30px -10px rgba(0, 0, 0, 0.5);
+}
+@utility glass-card {
+  background: rgba(19, 31, 23, 0.5);
+  backdrop-filter: blur(8px);
+  -webkit-backdrop-filter: blur(8px);
+  border: 1px solid rgba(255, 255, 255, 0.06);
+  box-shadow:
+    inset 0 1px 1px 0 rgba(255, 255, 255, 0.04),
+    0 4px 20px -4px rgba(0, 0, 0, 0.4);
+}
+@utility glass-hover {
+  transition:
+    border-color 0.3s,
+    box-shadow 0.3s;
+}
+@utility glass-hover:hover {
+  border-color: rgba(34, 197, 94, 0.3);
+  box-shadow:
+    inset 0 1px 1px 0 rgba(255, 255, 255, 0.04),
+    0 0 15px rgba(34, 197, 94, 0.1);
 }
 @utility text-gradient {
   background: var(--gradient-primary);
@@ -465,7 +495,9 @@
 
 /* ponytail: lighter blur on mobile — GPU-bound on low-end devices */
 @media (max-width: 768px) {
-  .glass {
+  .glass,
+  .glass-panel,
+  .glass-card {
     backdrop-filter: blur(8px) !important;
     -webkit-backdrop-filter: blur(8px) !important;
   }

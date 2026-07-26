@@ -135,16 +135,16 @@ export function Topbar({ onMenuClick }: { onMenuClick: () => void }) {
   }, {});
 
   return (
-    <header className="sticky top-0 z-30 flex h-16 items-center gap-4 border-b border-border bg-card/80 backdrop-blur-sm px-4 md:px-6">
+    <header className="sticky top-0 z-30 flex h-16 items-center gap-3 border-b border-white/[0.08] bg-[rgba(15,26,19,0.6)] backdrop-blur-xl px-4 md:px-6">
       <button
         onClick={onMenuClick}
-        className="md:hidden p-2 rounded-lg hover:bg-accent text-muted-foreground"
+        className="md:hidden p-2 rounded-lg hover:bg-white/[0.06] text-muted-foreground"
       >
         <Menu className="h-5 w-5" />
       </button>
 
       <div ref={searchRef} className="flex-1 flex items-center gap-2 max-w-md relative">
-        <Search className="h-4 w-4 text-muted-foreground" />
+        <Search className="h-4 w-4 text-muted-foreground shrink-0" />
         <input
           type="text"
           value={query}
@@ -154,7 +154,7 @@ export function Topbar({ onMenuClick }: { onMenuClick: () => void }) {
           }}
           onFocus={() => setSearchOpen(true)}
           placeholder={t("Search crops, weather...", "ফসল, আবহাওয়া খুঁজুন...")}
-          className="flex-1 bg-transparent text-sm outline-none placeholder:text-muted-foreground"
+          className="flex-1 bg-transparent text-sm outline-none placeholder:text-muted-foreground min-w-0"
         />
         {query && (
           <button
@@ -162,14 +162,14 @@ export function Topbar({ onMenuClick }: { onMenuClick: () => void }) {
               setQuery("");
               setResults([]);
             }}
-            className="text-muted-foreground hover:text-foreground"
+            className="text-muted-foreground hover:text-foreground shrink-0"
           >
             <X className="h-4 w-4" />
           </button>
         )}
 
         {searchOpen && results.length > 0 && (
-          <div className="absolute top-full left-0 right-0 mt-2 rounded-xl border border-border bg-card shadow-card py-2 max-h-80 overflow-y-auto z-50">
+          <div className="absolute top-full left-0 right-0 mt-2 rounded-xl border border-white/[0.08] bg-[rgba(15,26,19,0.85)] backdrop-blur-xl shadow-elevated py-2 max-h-80 overflow-y-auto z-50">
             {Object.entries(grouped).map(([cat, items]) => (
               <div key={cat}>
                 <div className="px-4 py-1.5 text-xs font-medium text-muted-foreground uppercase tracking-wide">
@@ -179,7 +179,7 @@ export function Topbar({ onMenuClick }: { onMenuClick: () => void }) {
                   <button
                     key={`${r.href}-${i}`}
                     onClick={() => selectResult(r)}
-                    className="w-full flex items-center gap-3 px-4 py-2.5 text-left hover:bg-accent transition-colors"
+                    className="w-full flex items-center gap-3 px-4 py-2.5 text-left hover:bg-white/[0.06] transition-colors"
                   >
                     <div className="flex-1 min-w-0">
                       <div className="text-sm font-medium truncate">{r.title}</div>
@@ -193,10 +193,10 @@ export function Topbar({ onMenuClick }: { onMenuClick: () => void }) {
         )}
       </div>
 
-      <div className="flex items-center gap-2 ml-auto">
+      <div className="flex items-center gap-1.5 ml-auto shrink-0">
         <button
           onClick={() => setLang(lang === "en" ? "bn" : "en")}
-          className="inline-flex items-center gap-1.5 rounded-full border border-border px-3 py-1.5 text-xs font-medium text-foreground hover:border-primary/40 hover:text-primary transition"
+          className="hidden sm:inline-flex items-center gap-1.5 rounded-full border border-white/[0.08] bg-white/[0.04] px-2.5 py-1.5 text-xs font-medium text-foreground hover:border-primary/40 hover:text-primary transition"
           aria-label="Toggle language"
         >
           <Languages className="h-3.5 w-3.5" />
@@ -205,7 +205,7 @@ export function Topbar({ onMenuClick }: { onMenuClick: () => void }) {
 
         <button
           onClick={toggle}
-          className="p-2 rounded-full border border-border hover:border-primary/40 hover:text-primary transition"
+          className="p-2 rounded-full border border-white/[0.08] bg-white/[0.04] hover:border-primary/40 hover:text-primary transition"
           aria-label="Toggle theme"
         >
           {theme === "dark" ? <Sun className="h-4 w-4" /> : <Moon className="h-4 w-4" />}
@@ -217,20 +217,20 @@ export function Topbar({ onMenuClick }: { onMenuClick: () => void }) {
               setNotifOpen(!notifOpen);
               if (!notifOpen) markAllRead();
             }}
-            className="relative p-2 rounded-lg hover:bg-accent text-muted-foreground"
+            className="relative p-2 rounded-full border border-white/[0.08] bg-white/[0.04] hover:border-primary/40 hover:text-primary transition"
             aria-label="Notifications"
           >
-            <Bell className="h-5 w-5" />
+            <Bell className="h-4 w-4" />
             {unreadCount > 0 && (
-              <span className="absolute top-1.5 right-1.5 h-2 w-2 rounded-full bg-primary" />
+              <span className="absolute top-1 right-1 h-2 w-2 rounded-full bg-primary" />
             )}
           </button>
 
           {notifOpen && (
             <>
               <div className="fixed inset-0 z-40 md:hidden" onClick={() => setNotifOpen(false)} />
-              <div className="absolute right-0 top-full mt-2 w-80 rounded-xl border border-border bg-card shadow-card overflow-hidden z-50">
-                <div className="flex items-center justify-between px-4 py-3 border-b border-border">
+              <div className="absolute right-0 top-full mt-2 w-80 rounded-xl border border-white/[0.08] bg-[rgba(15,26,19,0.9)] backdrop-blur-xl shadow-elevated overflow-hidden z-50">
+                <div className="flex items-center justify-between px-4 py-3 border-b border-white/[0.08]">
                   <span className="font-semibold text-sm">{t("Notifications", "নোটিফিকেশন")}</span>
                   {unreadCount > 0 && (
                     <span className="text-xs text-primary font-medium">{unreadCount} new</span>
@@ -242,7 +242,7 @@ export function Topbar({ onMenuClick }: { onMenuClick: () => void }) {
                     return (
                       <div
                         key={n.id}
-                        className={`flex items-start gap-3 px-4 py-3 border-b border-border/50 last:border-0 hover:bg-accent/50 transition-colors ${n.unread ? "bg-primary/5" : ""}`}
+                        className={`flex items-start gap-3 px-4 py-3 border-b border-white/[0.05] last:border-0 hover:bg-white/[0.04] transition-colors ${n.unread ? "bg-primary/[0.06]" : ""}`}
                       >
                         <div className={`mt-0.5 ${n.color}`}>
                           <Icon className="h-4 w-4" />
@@ -275,10 +275,10 @@ export function Topbar({ onMenuClick }: { onMenuClick: () => void }) {
         <div className="relative">
           <button
             onClick={() => setMenuOpen(!menuOpen)}
-            className="flex items-center gap-2 p-1 rounded-lg hover:bg-accent"
+            className="flex items-center gap-2 p-1 rounded-full border border-white/[0.08] bg-white/[0.04] hover:border-primary/30 transition"
           >
-            <Avatar className="h-8 w-8">
-              <AvatarFallback className="bg-primary text-primary-foreground text-xs font-semibold">
+            <Avatar className="h-7 w-7">
+              <AvatarFallback className="bg-primary text-primary-foreground text-[10px] font-semibold">
                 {user
                   ? user.name
                       .split(" ")
@@ -287,7 +287,9 @@ export function Topbar({ onMenuClick }: { onMenuClick: () => void }) {
                   : "?"}
               </AvatarFallback>
             </Avatar>
-            <span className="hidden md:inline text-sm font-medium">{user?.name.split(" ")[0]}</span>
+            <span className="hidden md:inline text-xs font-medium pr-1">
+              {user?.name.split(" ")[0]}
+            </span>
           </button>
 
           {menuOpen && (

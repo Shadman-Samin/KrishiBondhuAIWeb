@@ -27,7 +27,7 @@ function StatCard({
 }) {
   const { t } = useLang();
   return (
-    <div className="rounded-xl border border-border bg-card p-5 shadow-card hover:shadow-elevated transition-shadow">
+    <div className="rounded-xl border border-white/[0.06] bg-[rgba(19,31,23,0.5)] backdrop-blur-md p-5 shadow-card hover:shadow-elevated hover:border-primary/20 transition-all duration-300">
       <div className="flex items-center justify-between">
         <div className={`flex h-10 w-10 items-center justify-center rounded-lg ${color}`}>
           <Icon className="h-5 w-5" />

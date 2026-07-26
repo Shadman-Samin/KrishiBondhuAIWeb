@@ -42,7 +42,7 @@ export function Sidebar({ collapsed, onToggle }: { collapsed: boolean; onToggle:
   return (
     <aside
       className={cn(
-        "hidden md:flex flex-col h-screen border-r border-border bg-card/80 backdrop-blur-sm transition-all duration-300 sticky top-0",
+        "hidden md:flex flex-col h-screen border-r border-white/[0.08] bg-[rgba(15,26,19,0.6)] backdrop-blur-xl transition-all duration-300 sticky top-0",
         collapsed ? "w-[68px]" : "w-64",
       )}
     >
@@ -163,7 +163,7 @@ export function MobileSidebar({
       )}
       <aside
         className={cn(
-          "fixed inset-y-0 left-0 z-50 flex flex-col w-64 bg-card border-r border-border transform transition-transform duration-300 md:hidden",
+          "fixed inset-y-0 left-0 z-50 flex flex-col w-64 bg-[rgba(15,26,19,0.85)] backdrop-blur-xl border-r border-white/[0.08] transform transition-transform duration-300 md:hidden",
           open ? "translate-x-0" : "-translate-x-full",
         )}
       >
