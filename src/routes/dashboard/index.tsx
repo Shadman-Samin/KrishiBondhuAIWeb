@@ -10,39 +10,57 @@ export const Route = createFileRoute("/dashboard/")({
   component: DashboardHome,
 });
 
+const GLASS_CARD =
+  "rounded-2xl border border-white/10 bg-[#121E16]/40 backdrop-blur-md shadow-[inset_0_1px_0_0_rgba(255,255,255,0.1),0_10px_20px_-5px_rgba(0,0,0,0.4)]";
+
 function StatCard({
   icon: Icon,
   label,
   labelBn,
   value,
+  subtext,
+  subtextBn,
   change,
   color,
+  iconBg,
 }: {
   icon: React.ElementType;
   label: string;
   labelBn: string;
   value: string;
+  subtext?: string;
+  subtextBn?: string;
   change?: string;
   color: string;
+  iconBg: string;
 }) {
   const { t } = useLang();
+  const isAlert = change === "New";
   return (
-    <div className="rounded-2xl border border-white/10 bg-[#121E16]/40 backdrop-blur-md shadow-[inset_0_1px_0_0_rgba(255,255,255,0.12)] p-5 hover:shadow-elevated transition-all duration-300">
+    <div className={`${GLASS_CARD} p-5 hover:border-white/15 transition-all duration-300`}>
       <div className="flex items-center justify-between">
-        <div className={`flex h-10 w-10 items-center justify-center rounded-lg ${color}`}>
-          <Icon className="h-5 w-5" />
+        <div className={`flex h-10 w-10 items-center justify-center rounded-xl ${iconBg}`}>
+          <Icon className={`h-5 w-5 ${color}`} />
         </div>
-        {change && (
+        {isAlert ? (
+          <span className="inline-flex items-center gap-1.5 rounded-full bg-amber-500/15 border border-amber-500/30 px-2.5 py-0.5 text-xs font-medium text-amber-400">
+            <span className="h-1.5 w-1.5 rounded-full bg-amber-400 animate-pulse" />
+            {t("New", "নতুন")}
+          </span>
+        ) : change ? (
           <span
-            className={`text-xs font-medium ${change.startsWith("+") || change === "New" ? "text-emerald-600" : "text-red-500"}`}
+            className={`text-xs font-medium ${change.startsWith("+") ? "text-emerald-400" : "text-red-400"}`}
           >
             {change}
           </span>
-        )}
+        ) : null}
       </div>
       <div className="mt-4">
         <div className="text-2xl font-bold font-display">{value}</div>
-        <div className="text-sm text-muted-foreground mt-0.5">{t(label, labelBn)}</div>
+        <div className="text-sm text-[#8B9B90] mt-0.5">{t(label, labelBn)}</div>
+        {subtext && (
+          <div className="text-xs text-[#8B9B90]/70 mt-1">{t(subtext, subtextBn ?? subtext)}</div>
+        )}
       </div>
     </div>
   );
@@ -59,7 +77,88 @@ function DashboardHome() {
     retry: 1,
   });
 
-  const temp = weather?.current.temp ?? 32;
+  const temp = weather?.current.temp ?? 27;
+  const condition = weather?.current.condition ?? "Partly Cloudy";
+  const humidity = weather?.current.humidity ?? 78;
+
+  const quickActions = [
+    {
+      to: "/dashboard/weather",
+      icon: CloudSun,
+      label: "Check Weather",
+      labelBn: "আবহাওয়া দেখুন",
+      iconColor: "text-blue-400",
+      iconBg: "bg-blue-500/15",
+      hoverBorder: "hover:border-blue-500/40",
+      hoverShadow: "hover:shadow-[0_0_15px_rgba(59,130,246,0.12)]",
+    },
+    {
+      to: "/dashboard/disease",
+      icon: ScanLine,
+      label: "Scan Crop",
+      labelBn: "ফসল পরীক্ষা",
+      iconColor: "text-amber-400",
+      iconBg: "bg-amber-500/15",
+      hoverBorder: "hover:border-amber-500/40",
+      hoverShadow: "hover:shadow-[0_0_15px_rgba(245,158,11,0.12)]",
+    },
+    {
+      to: "/dashboard/crop-calendar",
+      icon: CalendarDays,
+      label: "Crop Calendar",
+      labelBn: "ফসল তালিকা",
+      iconColor: "text-emerald-400",
+      iconBg: "bg-emerald-500/15",
+      hoverBorder: "hover:border-emerald-500/40",
+      hoverShadow: "hover:shadow-[0_0_15px_rgba(34,197,94,0.12)]",
+    },
+    {
+      to: "/dashboard/marketplace",
+      icon: Store,
+      label: "Market Prices",
+      labelBn: "বাজার দাম",
+      iconColor: "text-purple-400",
+      iconBg: "bg-purple-500/15",
+      hoverBorder: "hover:border-purple-500/40",
+      hoverShadow: "hover:shadow-[0_0_15px_rgba(168,85,247,0.12)]",
+    },
+  ];
+
+  const seasonalTips = [
+    {
+      title: "Monsoon Planting",
+      titleBn: "বর্ষায় রোপণ",
+      tip: "Best time for Aman rice transplanting. Prepare seedbeds now.",
+      tipBn: "আমন ধান রোপণের সেরা সময়। এখনই চারাবাটি প্রস্তুত করুন।",
+      border: "border-emerald-500/20",
+      bg: "bg-emerald-500/[0.04]",
+      iconBg: "bg-emerald-500/15",
+      iconColor: "text-emerald-400",
+      icon: Sprout,
+    },
+    {
+      title: "Pest Alert",
+      titleBn: "পোকা সতর্কতা",
+      tip: "Brown planthopper risk high. Monitor fields weekly.",
+      tipBn: "বাদামী পাতামোড়ার ঝুঁকি বেশি। সাপ্তাহিক ক্ষেত পরিদর্শন করুন।",
+      border: "border-amber-500/30",
+      bg: "bg-amber-500/[0.06]",
+      iconBg: "bg-amber-500/15",
+      iconColor: "text-amber-400",
+      icon: AlertTriangle,
+    },
+    {
+      title: "Soil Health",
+      titleBn: "মাটির স্বাস্থ্য",
+      tip: "Apply lime if pH below 5.5. Test before next planting.",
+      tipBn: "pH ৫.৫-এর কম হলে চুন প্রয়োগ করুন। পরবর্তী রোপণের আগে পরীক্ষা করুন।",
+      border: "border-emerald-500/20",
+      bg: "bg-emerald-500/[0.04]",
+      iconBg: "bg-emerald-500/15",
+      iconColor: "text-emerald-400",
+      icon: Sprout,
+    },
+  ];
 
   return (
     <div className="space-y-6">
@@ -70,7 +169,7 @@ function DashboardHome() {
             `সুপ্রভাত, ${user?.name?.split(" ")[0] ?? "কৃষক"}`,
           )}
         </h1>
-        <p className="text-muted-foreground mt-1">
+        <p className="text-[#8B9B90] mt-1">
           {t(
             "Here's what's happening on your farm today.",
             "আজ আপনার খামারে কী হচ্ছে তার সারসংক্ষেপ।",
@@ -84,14 +183,18 @@ function DashboardHome() {
           label="Weather"
           labelBn="আবহাওয়া"
           value={`${temp}°C`}
-          color="bg-blue-50 text-blue-600"
+          subtext={`${condition} • ${t("Humidity", "আর্দ্রতা")} ${humidity}%`}
+          color="text-blue-400"
+          iconBg="bg-blue-500/15"
         />
         <StatCard
           icon={Sprout}
           label="Active Crops"
           labelBn="সক্রিয় ফসল"
           value="3"
-          color="bg-emerald-50 text-emerald-600"
+          subtext="Aman Rice, Potato, Wheat"
+          color="text-emerald-400"
+          iconBg="bg-emerald-500/15"
         />
         <StatCard
           icon={AlertTriangle}
@@ -99,65 +202,48 @@ function DashboardHome() {
           labelBn="রোগ সতর্কতা"
           value="1"
           change="New"
-          color="bg-amber-50 text-amber-600"
+          color="text-amber-400"
+          iconBg="bg-amber-500/15"
         />
         <StatCard
           icon={Store}
           label="Market Listings"
           labelBn="বাজার তালিকা"
           value="8"
-          color="bg-purple-50 text-purple-600"
+          subtext="+2 added today"
+          subtextBn="+২ আজ যোগ হয়েছে"
+          color="text-purple-400"
+          iconBg="bg-purple-500/15"
         />
       </div>
 
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-        <div className="rounded-2xl border border-white/10 bg-[#121E16]/40 backdrop-blur-md shadow-[inset_0_1px_0_0_rgba(255,255,255,0.12)] p-5">
-          <h2 className="font-semibold font-display mb-4">{t("Quick Actions", "দ্রুত কাজ")}</h2>
+        <div className={`${GLASS_CARD} p-5`}>
+          <h2 className="font-semibold font-display mb-4 text-white">
+            {t("Quick Actions", "দ্রুত কাজ")}
+          </h2>
           <div className="grid grid-cols-2 gap-3">
-            {[
-              {
-                to: "/dashboard/weather",
-                icon: CloudSun,
-                label: "Check Weather",
-                labelBn: "আবহাওয়া দেখুন",
-                color: "bg-blue-50 hover:bg-blue-100 text-blue-700",
-              },
-              {
-                to: "/dashboard/disease",
-                icon: ScanLine,
-                label: "Scan Crop",
-                labelBn: "ফসল পরীক্ষা",
-                color: "bg-amber-50 hover:bg-amber-100 text-amber-700",
-              },
-              {
-                to: "/dashboard/crop-calendar",
-                icon: CalendarDays,
-                label: "Crop Calendar",
-                labelBn: "ফসল তালিকা",
-                color: "bg-emerald-50 hover:bg-emerald-100 text-emerald-700",
-              },
-              {
-                to: "/dashboard/marketplace",
-                icon: Store,
-                label: "Market Prices",
-                labelBn: "বাজার দাম",
-                color: "bg-purple-50 hover:bg-purple-100 text-purple-700",
-              },
-            ].map(({ to, icon: Icon, label, labelBn, color }) => (
-              <Link
-                key={to}
-                to={to}
-                className={`flex items-center gap-3 rounded-lg p-3 transition-colors ${color}`}
-              >
-                <Icon className="h-5 w-5" />
-                <span className="text-sm font-medium">{t(label, labelBn)}</span>
-              </Link>
-            ))}
+            {quickActions.map(
+              ({ to, icon: Icon, label, labelBn, iconColor, iconBg, hoverBorder, hoverShadow }) => (
+                <Link
+                  key={to}
+                  to={to}
+                  className={`flex items-center gap-3 rounded-xl border border-white/10 bg-[#132219]/60 p-3.5 text-white transition-all duration-200 ${hoverBorder} ${hoverShadow} hover:bg-[#132219]/80`}
+                >
+                  <div
+                    className={`flex h-9 w-9 items-center justify-center rounded-lg ${iconBg} shrink-0`}
+                  >
+                    <Icon className={`h-4.5 w-4.5 ${iconColor}`} />
+                  </div>
+                  <span className="text-sm font-medium">{t(label, labelBn)}</span>
+                </Link>
+              ),
+            )}
           </div>
         </div>
 
-        <div className="rounded-2xl border border-white/10 bg-[#121E16]/40 backdrop-blur-md shadow-[inset_0_1px_0_0_rgba(255,255,255,0.12)] p-5">
-          <h2 className="font-semibold font-display mb-4">
+        <div className={`${GLASS_CARD} p-5`}>
+          <h2 className="font-semibold font-display mb-4 text-white">
             {t("Market Overview", "বাজার পরিসংখ্যান")}
           </h2>
           <div className="space-y-3">
@@ -172,56 +258,58 @@ function DashboardHome() {
               );
               return Object.values(priceItems)
                 .slice(0, 5)
-                .map((item: any) => (
-                  <div key={item.crop} className="flex items-center justify-between">
-                    <span className="text-sm">{t(item.crop, item.cropBn)}</span>
-                    <div className="flex items-center gap-2">
-                      <span className="text-sm font-medium">৳{item.price}/kg</span>
-                      <span className="text-xs text-muted-foreground">
-                        {item.market?.split(" ")[0] ?? ""}
-                      </span>
+                .map((item: any) => {
+                  const isUp = item.change > 0;
+                  return (
+                    <div
+                      key={item.crop}
+                      className="flex items-center justify-between py-1.5 border-b border-white/5 last:border-0 last:pb-0"
+                    >
+                      <span className="text-sm text-white/90">{t(item.crop, item.cropBn)}</span>
+                      <div className="flex items-center gap-3">
+                        <span className="text-sm font-medium text-white">৳{item.price}/kg</span>
+                        <span
+                          className={`text-xs font-medium ${isUp ? "text-emerald-400" : "text-red-400"}`}
+                        >
+                          {isUp ? "+" : ""}
+                          {item.change}%
+                        </span>
+                      </div>
                     </div>
-                  </div>
-                ));
+                  );
+                });
             })()}
           </div>
           <Link
             to="/dashboard/marketplace"
-            className="mt-4 inline-flex items-center gap-1 text-sm text-primary hover:underline"
+            className="mt-4 inline-flex items-center gap-1 text-sm text-primary hover:text-primary/80 transition-colors"
           >
             {t("View all", "সব দেখুন")} →
           </Link>
         </div>
       </div>
 
-      <div className="rounded-2xl border border-white/10 bg-[#121E16]/40 backdrop-blur-md shadow-[inset_0_1px_0_0_rgba(255,255,255,0.12)] p-5">
-        <h2 className="font-semibold font-display mb-4">{t("Seasonal Tips", "মৌসুমি টিপস")}</h2>
+      <div className={`${GLASS_CARD} p-5`}>
+        <h2 className="font-semibold font-display mb-4 text-white">
+          {t("Seasonal Tips", "মৌসুমি টিপস")}
+        </h2>
         <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-          {[
-            {
-              title: "Monsoon Planting",
-              titleBn: "বর্ষায় রোপণ",
-              tip: "Best time for Aman rice transplanting. Prepare seedbeds now.",
-              tipBn: "আমন ধান রোপণের সেরা সময়। এখনই চারাবাটি প্রস্তুত করুন।",
-            },
-            {
-              title: "Pest Alert",
-              titleBn: "পোকা সতর্কতা",
-              tip: "Brown planthopper risk high. Monitor fields weekly.",
-              tipBn: "বাদামী পাতামোড়ার ঝুঁকি বেশি। সাপ্তাহিক ক্ষেত পরিদর্শন করুন।",
-            },
-            {
-              title: "Soil Health",
-              titleBn: "মাটির স্বাস্থ্য",
-              tip: "Apply lime if pH below 5.5. Test before next planting.",
-              tipBn: "pH ৫.৫-এর কম হলে চুন প্রয়োগ করুন। পরবর্তী রোপণের আগে পরীক্ষা করুন।",
-            },
-          ].map(({ title, titleBn, tip, tipBn }) => (
-            <div key={title} className="rounded-lg bg-accent/50 p-4">
-              <div className="font-medium text-sm">{t(title, titleBn)}</div>
-              <p className="text-sm text-muted-foreground mt-1">{t(tip, tipBn)}</p>
-            </div>
-          ))}
+          {seasonalTips.map(
+            ({ title, titleBn, tip, tipBn, border, bg, iconBg, iconColor, icon: TipIcon }) => (
+              <div
+                key={title}
+                className={`rounded-xl border ${border} ${bg} p-4 transition-all duration-200 hover:border-opacity-50`}
+              >
+                <div className="flex items-center gap-2 mb-2">
+                  <div className={`flex h-7 w-7 items-center justify-center rounded-lg ${iconBg}`}>
+                    <TipIcon className={`h-3.5 w-3.5 ${iconColor}`} />
+                  </div>
+                  <div className="font-medium text-sm text-white">{t(title, titleBn)}</div>
+                </div>
+                <p className="text-sm text-[#8B9B90] leading-relaxed">{t(tip, tipBn)}</p>
+              </div>
+            ),
+          )}
         </div>
       </div>
     </div>
