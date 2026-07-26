@@ -85,48 +85,48 @@
 }
 
 .dark {
-  --background: oklch(0.16 0.02 160);
-  --foreground: oklch(0.97 0.01 140);
+  --background: #0a110d;
+  --foreground: #e2e8f0;
 
-  --card: oklch(0.2 0.025 160);
-  --card-foreground: oklch(0.97 0.01 140);
+  --card: #131f17;
+  --card-foreground: #e2e8f0;
 
-  --popover: oklch(0.2 0.025 160);
-  --popover-foreground: oklch(0.97 0.01 140);
+  --popover: #131f17;
+  --popover-foreground: #e2e8f0;
 
-  --primary: oklch(0.72 0.17 148);
-  --primary-foreground: oklch(0.16 0.02 160);
-  --primary-glow: oklch(0.82 0.18 145);
+  --primary: #22c55e;
+  --primary-foreground: #0a110d;
+  --primary-glow: #34d399;
 
-  --secondary: oklch(0.26 0.03 160);
-  --secondary-foreground: oklch(0.97 0.01 140);
+  --secondary: #183d2a;
+  --secondary-foreground: #e2e8f0;
 
-  --muted: oklch(0.24 0.025 160);
-  --muted-foreground: oklch(0.7 0.02 145);
+  --muted: #182e20;
+  --muted-foreground: #8b9b90;
 
-  --accent: oklch(0.28 0.05 155);
-  --accent-foreground: oklch(0.97 0.01 140);
+  --accent: #183d2a;
+  --accent-foreground: #34d399;
 
-  --destructive: oklch(0.65 0.22 25);
-  --destructive-foreground: oklch(0.97 0.01 140);
+  --destructive: #ef4444;
+  --destructive-foreground: #ffffff;
 
-  --border: oklch(1 0 0 / 10%);
-  --input: oklch(1 0 0 / 12%);
-  --ring: oklch(0.72 0.17 148);
+  --border: #213327;
+  --input: #213327;
+  --ring: #22c55e;
 
   --gradient-hero:
-    radial-gradient(ellipse at top left, oklch(0.4 0.14 148 / 0.5), transparent 60%),
-    radial-gradient(ellipse at bottom right, oklch(0.35 0.12 155 / 0.5), transparent 55%),
-    linear-gradient(180deg, oklch(0.16 0.02 160), oklch(0.14 0.02 160));
-  --gradient-primary: linear-gradient(135deg, oklch(0.55 0.15 152), oklch(0.75 0.17 145));
+    radial-gradient(ellipse at top left, #22c55e20, transparent 60%),
+    radial-gradient(ellipse at bottom right, #34d39918, transparent 55%),
+    linear-gradient(180deg, #0a110d, #0b1610);
+  --gradient-primary: linear-gradient(135deg, #22c55e, #34d399);
   --gradient-mesh:
-    radial-gradient(at 20% 20%, oklch(0.55 0.15 148 / 0.2) 0px, transparent 50%),
-    radial-gradient(at 80% 30%, oklch(0.45 0.12 155 / 0.15) 0px, transparent 50%),
-    radial-gradient(at 50% 80%, oklch(0.6 0.14 145 / 0.15) 0px, transparent 50%);
+    radial-gradient(at 20% 20%, #22c55e15 0px, transparent 50%),
+    radial-gradient(at 80% 30%, #34d39910 0px, transparent 50%),
+    radial-gradient(at 50% 80%, #22c55e12 0px, transparent 50%);
 
-  --shadow-glow: 0 20px 60px -20px oklch(0.72 0.17 148 / 0.4);
-  --shadow-card: 0 1px 3px oklch(0 0 0 / 0.3), 0 12px 32px -12px oklch(0 0 0 / 0.4);
-  --shadow-elevated: 0 30px 80px -30px oklch(0 0 0 / 0.6);
+  --shadow-glow: 0 20px 60px -20px #22c55e40;
+  --shadow-card: 0 1px 3px #00000040, 0 12px 32px -12px #00000060;
+  --shadow-elevated: 0 30px 80px -30px #00000080;
 }
 
 @utility bg-gradient-hero {

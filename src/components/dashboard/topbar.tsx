@@ -9,10 +9,13 @@ import {
   CloudSun,
   Store,
   X,
+  Moon,
+  Sun,
 } from "lucide-react";
 import { Avatar, AvatarFallback } from "@/components/ui/avatar";
 import { useLang } from "@/lib/i18n";
 import { useAuth } from "@/lib/auth";
+import { useTheme } from "@/lib/theme";
 import { Link, useNavigate } from "@tanstack/react-router";
 import { useState, useRef, useEffect } from "react";
 import { search, type SearchResult } from "@/lib/search";
@@ -90,6 +93,7 @@ const CATEGORY_LABEL: Record<string, { en: string; bn: string }> = {
 export function Topbar({ onMenuClick }: { onMenuClick: () => void }) {
   const { lang, setLang, t } = useLang();
   const { user, signOut } = useAuth();
+  const { theme, toggle } = useTheme();
   const navigate = useNavigate();
   const [menuOpen, setMenuOpen] = useState(false);
   const [query, setQuery] = useState("");
@@ -197,6 +201,14 @@ export function Topbar({ onMenuClick }: { onMenuClick: () => void }) {
         >
           <Languages className="h-3.5 w-3.5" />
           {lang === "en" ? "বাং" : "EN"}
+        </button>
+
+        <button
+          onClick={toggle}
+          className="p-2 rounded-full border border-border hover:border-primary/40 hover:text-primary transition"
+          aria-label="Toggle theme"
+        >
+          {theme === "dark" ? <Sun className="h-4 w-4" /> : <Moon className="h-4 w-4" />}
         </button>
 
         <div ref={notifRef} className="relative">

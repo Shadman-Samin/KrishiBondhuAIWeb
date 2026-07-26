@@ -35,11 +35,14 @@ import {
   Clock,
   Target,
   Languages,
+  Moon,
+  Sun,
 } from "lucide-react";
 import heroImg from "@/assets/hero-farmer.jpg";
 import satImg from "@/assets/satellite-ndvi.jpg";
 import diseaseImg from "@/assets/disease-detection.jpg";
 import { LangProvider, useLang } from "@/lib/i18n";
+import { useTheme } from "@/lib/theme";
 
 export const Route = createFileRoute("/")({
   component: LandingWithProvider,
@@ -270,6 +273,7 @@ const NAV_SECTIONS = [
 
 function Nav() {
   const { t } = useLang();
+  const { theme, toggle } = useTheme();
   const [scrolled, setScrolled] = useState(false);
   const [active, setActive] = useState("");
   const navRef = useRef<HTMLDivElement>(null);
@@ -377,6 +381,13 @@ function Nav() {
 
           <div className="flex items-center gap-2">
             <LangToggle />
+            <button
+              onClick={toggle}
+              className="inline-flex items-center justify-center rounded-full border border-border bg-card/50 p-2 text-foreground hover:border-primary/40 hover:text-primary transition"
+              aria-label="Toggle theme"
+            >
+              {theme === "dark" ? <Sun className="h-4 w-4" /> : <Moon className="h-4 w-4" />}
+            </button>
             <Link
               to="/dashboard"
               className="hidden sm:inline text-sm text-muted-foreground hover:text-foreground"
