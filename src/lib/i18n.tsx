@@ -22,14 +22,19 @@ export function LangProvider({ children }: { children: ReactNode }) {
 
   const setLang = (l: Lang) => {
     setLangState(l);
-    try { localStorage.setItem("lang", l); } catch {}
+    try {
+      localStorage.setItem("lang", l);
+    } catch {}
   };
 
   const t = (en: string, bn: string) => (lang === "bn" ? bn : en);
 
   return (
     <LangContext.Provider value={{ lang, setLang, t }}>
-      <div lang={lang} style={lang === "bn" ? { fontFamily: '"Noto Sans Bengali", Inter, sans-serif' } : undefined}>
+      <div
+        lang={lang}
+        style={lang === "bn" ? { fontFamily: '"Noto Sans Bengali", Inter, sans-serif' } : undefined}
+      >
         {children}
       </div>
     </LangContext.Provider>

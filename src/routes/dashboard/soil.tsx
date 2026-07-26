@@ -82,7 +82,9 @@ function SoilPage() {
       >
         <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
           <div>
-            <label htmlFor="soil-ph" className="text-sm font-medium">{t("Soil pH", "মাটির pH")}</label>
+            <label htmlFor="soil-ph" className="text-sm font-medium">
+              {t("Soil pH", "মাটির pH")}
+            </label>
             <input
               id="soil-ph"
               type="number"
@@ -96,7 +98,9 @@ function SoilPage() {
             />
           </div>
           <div>
-            <label htmlFor="soil-nitrogen" className="text-sm font-medium">{t("Nitrogen (N)", "নাইট্রোজেন (N)")}</label>
+            <label htmlFor="soil-nitrogen" className="text-sm font-medium">
+              {t("Nitrogen (N)", "নাইট্রোজেন (N)")}
+            </label>
             <select
               id="soil-nitrogen"
               value={form.nitrogen}
@@ -110,7 +114,9 @@ function SoilPage() {
             </select>
           </div>
           <div>
-            <label htmlFor="soil-phosphorus" className="text-sm font-medium">{t("Phosphorus (P)", "ফসফরাস (P)")}</label>
+            <label htmlFor="soil-phosphorus" className="text-sm font-medium">
+              {t("Phosphorus (P)", "ফসফরাস (P)")}
+            </label>
             <select
               id="soil-phosphorus"
               value={form.phosphorus}
@@ -124,7 +130,9 @@ function SoilPage() {
             </select>
           </div>
           <div>
-            <label htmlFor="soil-potassium" className="text-sm font-medium">{t("Potassium (K)", "পটাশিয়াম (K)")}</label>
+            <label htmlFor="soil-potassium" className="text-sm font-medium">
+              {t("Potassium (K)", "পটাশিয়াম (K)")}
+            </label>
             <select
               id="soil-potassium"
               value={form.potassium}
@@ -138,7 +146,9 @@ function SoilPage() {
             </select>
           </div>
           <div>
-            <label htmlFor="soil-texture" className="text-sm font-medium">{t("Soil Texture", "মাটির গঠন")}</label>
+            <label htmlFor="soil-texture" className="text-sm font-medium">
+              {t("Soil Texture", "মাটির গঠন")}
+            </label>
             <select
               id="soil-texture"
               value={form.texture}
@@ -152,7 +162,9 @@ function SoilPage() {
             </select>
           </div>
           <div>
-            <label htmlFor="soil-organic" className="text-sm font-medium">{t("Organic Matter %", "জৈব পদার্থ %")}</label>
+            <label htmlFor="soil-organic" className="text-sm font-medium">
+              {t("Organic Matter %", "জৈব পদার্থ %")}
+            </label>
             <input
               id="soil-organic"
               type="number"

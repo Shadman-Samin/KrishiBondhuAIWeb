@@ -29,12 +29,20 @@ function DiseaseDetectionPage() {
       <div
         role="button"
         tabIndex={0}
-        aria-label={t("Upload crop photo for disease detection", "রোগ নির্ণয়ের জন্য ফসলের ছবি আপলোড করুন")}
+        aria-label={t(
+          "Upload crop photo for disease detection",
+          "রোগ নির্ণয়ের জন্য ফসলের ছবি আপলোড করুন",
+        )}
         className={`rounded-xl border-2 border-dashed p-4 sm:p-10 text-center transition-colors cursor-pointer ${
           dragOver ? "border-primary bg-primary/5" : "border-border hover:border-primary/40"
         }`}
         onClick={() => fileRef.current?.click()}
-        onKeyDown={(e) => { if (e.key === "Enter" || e.key === " ") { e.preventDefault(); fileRef.current?.click(); } }}
+        onKeyDown={(e) => {
+          if (e.key === "Enter" || e.key === " ") {
+            e.preventDefault();
+            fileRef.current?.click();
+          }
+        }}
         onDragOver={(e) => {
           e.preventDefault();
           setDragOver(true);
@@ -116,7 +124,10 @@ function DiseaseDetectionPage() {
       {!disease && !uploaded && (
         <div className="rounded-xl border border-dashed border-border p-8 text-center">
           <p className="text-sm text-muted-foreground">
-            {t("Upload a photo or select a disease above to see diagnosis details.", "রোগ নির্ণয়ের বিস্তারিত দেখতে একটি ছবি আপলোড করুন বা উপরে একটি রোগ নির্বাচন করুন।")}
+            {t(
+              "Upload a photo or select a disease above to see diagnosis details.",
+              "রোগ নির্ণয়ের বিস্তারিত দেখতে একটি ছবি আপলোড করুন বা উপরে একটি রোগ নির্বাচন করুন।",
+            )}
           </p>
         </div>
       )}

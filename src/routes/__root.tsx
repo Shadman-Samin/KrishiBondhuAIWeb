@@ -79,22 +79,51 @@ export const Route = createRootRouteWithContext<{ queryClient: QueryClient }>()(
       { charSet: "utf-8" },
       { name: "viewport", content: "width=device-width, initial-scale=1" },
       { title: "KrishiBondhu AI — Bangladesh's AI-Powered Farming Assistant" },
-      { name: "description", content: "AI farming companion for Bangladesh: voice assistant, crop disease detection, satellite intelligence, soil & weather insights in Bangla." },
+      {
+        name: "description",
+        content:
+          "AI farming companion for Bangladesh: voice assistant, crop disease detection, satellite intelligence, soil & weather insights in Bangla.",
+      },
       { name: "author", content: "KrishiBondhu AI" },
-      { property: "og:title", content: "KrishiBondhu AI — Bangladesh's AI-Powered Farming Assistant" },
-      { property: "og:description", content: "AI farming companion for Bangladesh: voice assistant, crop disease detection, satellite intelligence, soil & weather insights in Bangla." },
+      {
+        property: "og:title",
+        content: "KrishiBondhu AI — Bangladesh's AI-Powered Farming Assistant",
+      },
+      {
+        property: "og:description",
+        content:
+          "AI farming companion for Bangladesh: voice assistant, crop disease detection, satellite intelligence, soil & weather insights in Bangla.",
+      },
       { property: "og:type", content: "website" },
       { name: "twitter:card", content: "summary_large_image" },
-      { name: "twitter:title", content: "KrishiBondhu AI — Bangladesh's AI-Powered Farming Assistant" },
-      { name: "twitter:description", content: "AI farming companion for Bangladesh: voice assistant, crop disease detection, satellite intelligence, soil & weather insights in Bangla." },
-      { property: "og:image", content: "https://pub-bb2e103a32db4e198524a2e9ed8f35b4.r2.dev/a8c01557-1e74-4f83-9081-95e4f14593aa/id-preview-994152ee--1f7a8110-feb0-4d7b-a519-7698498ecb2b.lovable.app-1784398192790.png" },
-      { name: "twitter:image", content: "https://pub-bb2e103a32db4e198524a2e9ed8f35b4.r2.dev/a8c01557-1e74-4f83-9081-95e4f14593aa/id-preview-994152ee--1f7a8110-feb0-4d7b-a519-7698498ecb2b.lovable.app-1784398192790.png" },
+      {
+        name: "twitter:title",
+        content: "KrishiBondhu AI — Bangladesh's AI-Powered Farming Assistant",
+      },
+      {
+        name: "twitter:description",
+        content:
+          "AI farming companion for Bangladesh: voice assistant, crop disease detection, satellite intelligence, soil & weather insights in Bangla.",
+      },
+      {
+        property: "og:image",
+        content:
+          "https://pub-bb2e103a32db4e198524a2e9ed8f35b4.r2.dev/a8c01557-1e74-4f83-9081-95e4f14593aa/id-preview-994152ee--1f7a8110-feb0-4d7b-a519-7698498ecb2b.lovable.app-1784398192790.png",
+      },
+      {
+        name: "twitter:image",
+        content:
+          "https://pub-bb2e103a32db4e198524a2e9ed8f35b4.r2.dev/a8c01557-1e74-4f83-9081-95e4f14593aa/id-preview-994152ee--1f7a8110-feb0-4d7b-a519-7698498ecb2b.lovable.app-1784398192790.png",
+      },
     ],
     links: [
       { rel: "stylesheet", href: appCss },
       { rel: "preconnect", href: "https://fonts.googleapis.com" },
       { rel: "preconnect", href: "https://fonts.gstatic.com", crossOrigin: "anonymous" },
-      { rel: "stylesheet", href: "https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;500;600;700&family=Inter:wght@400;500;600;700&family=Noto+Sans+Bengali:wght@400;500;600&display=swap" },
+      {
+        rel: "stylesheet",
+        href: "https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;500;600;700&family=Inter:wght@400;500;600;700&family=Noto+Sans+Bengali:wght@400;500;600&display=swap",
+      },
       { rel: "icon", href: "/favicon.svg", type: "image/svg+xml" },
     ],
   }),

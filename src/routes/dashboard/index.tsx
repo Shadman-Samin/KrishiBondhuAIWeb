@@ -162,20 +162,27 @@ function DashboardHome() {
           </h2>
           <div className="space-y-3">
             {(() => {
-              const priceItems = (PRICE_TREND as any[]).reduce((acc: Record<string, any>, item: any) => {
-                const key = item.crop;
-                if (!acc[key] || item.date > acc[key].date) acc[key] = item;
-                return acc;
-              }, {});
-              return Object.values(priceItems).slice(0, 5).map((item: any) => (
-                <div key={item.crop} className="flex items-center justify-between">
-                  <span className="text-sm">{t(item.crop, item.cropBn)}</span>
-                  <div className="flex items-center gap-2">
-                    <span className="text-sm font-medium">৳{item.price}/kg</span>
-                    <span className="text-xs text-muted-foreground">{item.market?.split(" ")[0] ?? ""}</span>
+              const priceItems = (PRICE_TREND as any[]).reduce(
+                (acc: Record<string, any>, item: any) => {
+                  const key = item.crop;
+                  if (!acc[key] || item.date > acc[key].date) acc[key] = item;
+                  return acc;
+                },
+                {},
+              );
+              return Object.values(priceItems)
+                .slice(0, 5)
+                .map((item: any) => (
+                  <div key={item.crop} className="flex items-center justify-between">
+                    <span className="text-sm">{t(item.crop, item.cropBn)}</span>
+                    <div className="flex items-center gap-2">
+                      <span className="text-sm font-medium">৳{item.price}/kg</span>
+                      <span className="text-xs text-muted-foreground">
+                        {item.market?.split(" ")[0] ?? ""}
+                      </span>
+                    </div>
                   </div>
-                </div>
-              ));
+                ));
             })()}
           </div>
           <Link

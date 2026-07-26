@@ -47,7 +47,12 @@ function mapCondition(owmMain: string): WeatherDay["condition"] {
   return CONDITION_MAP[owmMain] ?? "partly_cloudy";
 }
 
-function generateAdvice(temp: number, humidity: number, rainChance: number, condition: WeatherDay["condition"]): { en: string; bn: string } {
+function generateAdvice(
+  temp: number,
+  humidity: number,
+  rainChance: number,
+  condition: WeatherDay["condition"],
+): { en: string; bn: string } {
   if (condition === "stormy") {
     return {
       en: "Thunderstorm warning. Protect seedlings, secure greenhouse structures, and ensure proper drainage.",

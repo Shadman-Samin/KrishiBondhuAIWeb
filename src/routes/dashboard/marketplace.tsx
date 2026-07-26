@@ -17,14 +17,29 @@ function MarketplacePage() {
     filter === "all" ? MARKET_LISTINGS : MARKET_LISTINGS.filter((l) => l.type === filter);
 
   // Aggregate real WFP prices: pick latest price per crop from Dhaka markets
-  const priceData = PRICE_TREND.reduce((acc: Record<string, { crop: string; cropBn: string; price: number; market: string; date: string }>, item: any) => {
-    const key = item.crop;
-    if (!acc[key] || item.date > acc[key].date) {
-      acc[key] = item;
-    }
-    return acc;
-  }, {} as Record<string, any>);
-  const priceItems = Object.values(priceData) as { crop: string; cropBn: string; price: number; market: string; date: string }[];
+  const priceData = PRICE_TREND.reduce(
+    (
+      acc: Record<
+        string,
+        { crop: string; cropBn: string; price: number; market: string; date: string }
+      >,
+      item: any,
+    ) => {
+      const key = item.crop;
+      if (!acc[key] || item.date > acc[key].date) {
+        acc[key] = item;
+      }
+      return acc;
+    },
+    {} as Record<string, any>,
+  );
+  const priceItems = Object.values(priceData) as {
+    crop: string;
+    cropBn: string;
+    price: number;
+    market: string;
+    date: string;
+  }[];
   const latestDate = priceItems.length > 0 ? priceItems[0].date : "May 2026";
 
   return (
@@ -86,7 +101,9 @@ function MarketplacePage() {
       <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
         {listings.length === 0 && (
           <div className="col-span-full rounded-xl border border-border bg-card p-8 text-center">
-            <p className="text-muted-foreground">{t("No listings match this filter.", "এই ফিল্টারে কোনো তালিকা নেই।")}</p>
+            <p className="text-muted-foreground">
+              {t("No listings match this filter.", "এই ফিল্টারে কোনো তালিকা নেই।")}
+            </p>
           </div>
         )}
         {listings.map((listing) => (
@@ -130,7 +147,14 @@ function MarketplacePage() {
             <div className="mt-3 pt-3 border-t border-border flex items-center justify-between">
               <span className="text-sm">{t(listing.seller, listing.sellerBn)}</span>
               <button
-                onClick={() => alert(t("Coming soon! Contact feature will be available in the next update.", "শীঘ্রই আসছে! যোগাযোগ বৈশিষ্ট্য পরবর্তী আপডেটে উপলব্ধ হবে।"))}
+                onClick={() =>
+                  alert(
+                    t(
+                      "Coming soon! Contact feature will be available in the next update.",
+                      "শীঘ্রই আসছে! যোগাযোগ বৈশিষ্ট্য পরবর্তী আপডেটে উপলব্ধ হবে।",
+                    ),
+                  )
+                }
                 className="rounded-lg bg-primary px-4 py-1.5 text-xs font-medium text-primary-foreground hover:bg-primary/90 transition-colors"
               >
                 {t("Contact", "যোগাযোগ")}

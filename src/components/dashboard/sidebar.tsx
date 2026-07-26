@@ -1,7 +1,15 @@
 import { Link, useMatchRoute } from "@tanstack/react-router";
 import {
-  LayoutDashboard, CloudSun, CalendarDays, ScanLine,
-  FlaskConical, Store, Settings, Leaf, ChevronLeft, ChevronRight,
+  LayoutDashboard,
+  CloudSun,
+  CalendarDays,
+  ScanLine,
+  FlaskConical,
+  Store,
+  Settings,
+  Leaf,
+  ChevronLeft,
+  ChevronRight,
 } from "lucide-react";
 import { useState } from "react";
 import { cn } from "@/lib/utils";
@@ -109,7 +117,12 @@ export function Sidebar({ collapsed, onToggle }: { collapsed: boolean; onToggle:
         {user && !collapsed && (
           <div className="flex items-center gap-3 rounded-lg px-3 py-2.5 text-sm">
             <div className="flex h-8 w-8 shrink-0 items-center justify-center rounded-full bg-primary/10 text-primary font-semibold text-xs">
-              {user ? user.name.split(" ").map((n) => n[0]).join("") : "?"}
+              {user
+                ? user.name
+                    .split(" ")
+                    .map((n) => n[0])
+                    .join("")
+                : "?"}
             </div>
             <div className="leading-tight truncate">
               <div className="font-medium text-foreground truncate">{user.name}</div>
@@ -154,7 +167,11 @@ export function MobileSidebar({
           open ? "translate-x-0" : "-translate-x-full",
         )}
       >
-        <Link to="/" onClick={() => onOpenChange(false)} className="flex items-center gap-2 border-b border-border px-4 h-16">
+        <Link
+          to="/"
+          onClick={() => onOpenChange(false)}
+          className="flex items-center gap-2 border-b border-border px-4 h-16"
+        >
           <div className="flex h-9 w-9 shrink-0 items-center justify-center rounded-xl bg-gradient-primary shadow-glow">
             <Leaf className="h-5 w-5 text-primary-foreground" />
           </div>

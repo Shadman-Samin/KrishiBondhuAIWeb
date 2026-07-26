@@ -176,9 +176,7 @@ function WeatherPage() {
                   }`}
                 >
                   <div className="text-xs text-muted-foreground">{day.day}</div>
-                  <Icon
-                    className={`h-8 w-8 mx-auto my-2 ${CONDITION_COLOR[day.condition]}`}
-                  />
+                  <Icon className={`h-8 w-8 mx-auto my-2 ${CONDITION_COLOR[day.condition]}`} />
                   <div className="font-semibold">{day.high}°</div>
                   <div className="text-xs text-muted-foreground">{day.low}°</div>
                   <div className="flex items-center justify-center gap-0.5 mt-2 text-xs text-blue-500">
@@ -200,9 +198,7 @@ function WeatherPage() {
                   key={day.day + day.date}
                   className="flex items-start gap-3 py-3 border-b border-border last:border-0"
                 >
-                  <Icon
-                    className={`h-5 w-5 mt-0.5 shrink-0 ${CONDITION_COLOR[day.condition]}`}
-                  />
+                  <Icon className={`h-5 w-5 mt-0.5 shrink-0 ${CONDITION_COLOR[day.condition]}`} />
                   <div className="min-w-0">
                     <div className="text-sm font-medium">
                       {day.day}, {day.date} — {day.high}°C
