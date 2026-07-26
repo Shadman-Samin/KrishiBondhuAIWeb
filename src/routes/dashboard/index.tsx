@@ -11,7 +11,7 @@ export const Route = createFileRoute("/dashboard/")({
 });
 
 const GLASS_CARD =
-  "rounded-2xl border border-white/10 bg-[#121E16]/40 backdrop-blur-md shadow-[inset_0_1px_0_0_rgba(255,255,255,0.1),0_10px_20px_-5px_rgba(0,0,0,0.4)]";
+  "rounded-2xl border border-black/10 dark:border-white/10 bg-white dark:bg-[#121E16]/40 backdrop-blur-md shadow-sm dark:shadow-[inset_0_1px_0_0_rgba(255,255,255,0.1),0_10px_20px_-5px_rgba(0,0,0,0.4)]";
 
 function StatCard({
   icon: Icon,
@@ -130,10 +130,10 @@ function DashboardHome() {
       titleBn: "বর্ষায় রোপণ",
       tip: "Best time for Aman rice transplanting. Prepare seedbeds now.",
       tipBn: "আমন ধান রোপণের সেরা সময়। এখনই চারাবাটি প্রস্তুত করুন।",
-      border: "border-emerald-500/20",
-      bg: "bg-emerald-500/[0.04]",
-      iconBg: "bg-emerald-500/15",
-      iconColor: "text-emerald-400",
+      border: "border-emerald-500/20 dark:border-emerald-500/20",
+      bg: "bg-emerald-50 dark:bg-emerald-500/[0.04]",
+      iconBg: "bg-emerald-100 dark:bg-emerald-500/15",
+      iconColor: "text-emerald-600 dark:text-emerald-400",
       icon: Sprout,
     },
     {
@@ -141,10 +141,10 @@ function DashboardHome() {
       titleBn: "পোকা সতর্কতা",
       tip: "Brown planthopper risk high. Monitor fields weekly.",
       tipBn: "বাদামী পাতামোড়ার ঝুঁকি বেশি। সাপ্তাহিক ক্ষেত পরিদর্শন করুন।",
-      border: "border-amber-500/30",
-      bg: "bg-amber-500/[0.06]",
-      iconBg: "bg-amber-500/15",
-      iconColor: "text-amber-400",
+      border: "border-amber-500/30 dark:border-amber-500/30",
+      bg: "bg-amber-50 dark:bg-amber-500/[0.06]",
+      iconBg: "bg-amber-100 dark:bg-amber-500/15",
+      iconColor: "text-amber-600 dark:text-amber-400",
       icon: AlertTriangle,
     },
     {
@@ -152,10 +152,10 @@ function DashboardHome() {
       titleBn: "মাটির স্বাস্থ্য",
       tip: "Apply lime if pH below 5.5. Test before next planting.",
       tipBn: "pH ৫.৫-এর কম হলে চুন প্রয়োগ করুন। পরবর্তী রোপণের আগে পরীক্ষা করুন।",
-      border: "border-emerald-500/20",
-      bg: "bg-emerald-500/[0.04]",
-      iconBg: "bg-emerald-500/15",
-      iconColor: "text-emerald-400",
+      border: "border-emerald-500/20 dark:border-emerald-500/20",
+      bg: "bg-emerald-50 dark:bg-emerald-500/[0.04]",
+      iconBg: "bg-emerald-100 dark:bg-emerald-500/15",
+      iconColor: "text-emerald-600 dark:text-emerald-400",
       icon: Sprout,
     },
   ];
@@ -228,7 +228,7 @@ function DashboardHome() {
                 <Link
                   key={to}
                   to={to}
-                  className={`flex items-center gap-3 rounded-xl border border-white/10 bg-[#132219]/60 p-3.5 text-white transition-all duration-200 ${hoverBorder} ${hoverShadow} hover:bg-[#132219]/80`}
+                  className={`flex items-center gap-3 rounded-xl border border-black/10 dark:border-white/10 bg-black/[0.03] dark:bg-[#132219]/60 p-3.5 text-foreground transition-all duration-200 ${hoverBorder} ${hoverShadow} hover:bg-black/[0.06] dark:hover:bg-[#132219]/80`}
                 >
                   <div
                     className={`flex h-9 w-9 items-center justify-center rounded-lg ${iconBg} shrink-0`}
