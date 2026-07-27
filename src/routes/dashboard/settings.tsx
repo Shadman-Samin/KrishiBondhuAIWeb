@@ -1,6 +1,6 @@
 import { createFileRoute } from "@tanstack/react-router";
 import { useLang } from "@/lib/i18n";
-import { useAuth } from "@/lib/auth-client";
+import { useAuth } from "@/lib/auth";
 import { User, MapPin, Globe, LogOut } from "lucide-react";
 
 export const Route = createFileRoute("/dashboard/settings")({
@@ -98,9 +98,7 @@ function SettingsPage() {
       <div className="rounded-2xl border border-white/10 bg-[#121E16]/40 backdrop-blur-md shadow-[inset_0_1px_0_0_rgba(255,255,255,0.12)] p-6">
         <h2 className="font-semibold font-display mb-4">{t("Account", "অ্যাকাউন্ট")}</h2>
         <button
-          onClick={async () => {
-            await signOut();
-          }}
+          onClick={signOut}
           className="flex items-center gap-2 rounded-lg border border-destructive/30 bg-destructive/5 px-4 py-2.5 text-sm font-medium text-destructive hover:bg-destructive/10 transition-colors"
         >
           <LogOut className="h-4 w-4" />

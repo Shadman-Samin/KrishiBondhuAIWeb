@@ -1,7 +1,7 @@
 import { createFileRoute, Link } from "@tanstack/react-router";
 import { useQuery } from "@tanstack/react-query";
 import { useLang } from "@/lib/i18n";
-import { useAuth } from "@/lib/auth-client";
+import { useAuth } from "@/lib/auth";
 import { CloudSun, CalendarDays, ScanLine, Store, Sprout, AlertTriangle } from "lucide-react";
 import PRICE_TREND from "@/data/market-prices.json";
 import { CITIES, fetchWeather } from "@/lib/weather-api";

@@ -389,13 +389,13 @@ function Nav() {
               {theme === "dark" ? <Sun className="h-4 w-4" /> : <Moon className="h-4 w-4" />}
             </button>
             <Link
-              to="/login"
+              to="/dashboard"
               className="hidden sm:inline text-sm text-muted-foreground hover:text-foreground"
             >
               {t("Sign in", "সাইন ইন")}
             </Link>
             <Link
-              to="/login"
+              to="/dashboard"
               className="inline-flex items-center justify-center gap-2 rounded-full bg-gradient-primary text-primary-foreground shadow-glow hover:scale-[1.03] hover:shadow-elevated transition-all duration-300 px-5 py-2.5 text-sm font-medium"
             >
               {t("Get Started", "শুরু করুন")} <ArrowRight className="h-4 w-4" />
@@ -1617,7 +1617,7 @@ function CTA() {
             </p>
             <div className="mt-8 flex flex-wrap justify-center gap-3">
               <Link
-                to="/login"
+                to="/dashboard"
                 className="inline-flex items-center gap-2 rounded-full bg-background text-foreground px-7 py-3.5 text-base font-medium hover:scale-[1.03] transition-transform"
               >
                 {t("Get Started", "শুরু করুন")} <ArrowRight className="h-4 w-4" />

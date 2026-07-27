@@ -14,7 +14,7 @@ import {
 } from "lucide-react";
 import { Avatar, AvatarFallback } from "@/components/ui/avatar";
 import { useLang } from "@/lib/i18n";
-import { useAuth } from "@/lib/auth-client";
+import { useAuth } from "@/lib/auth";
 import { useTheme } from "@/lib/theme";
 import { Link, useNavigate } from "@tanstack/react-router";
 import { useState, useRef, useEffect } from "react";
@@ -310,8 +310,8 @@ export function Topbar({ onMenuClick }: { onMenuClick: () => void }) {
                   {t("Settings", "সেটিংস")}
                 </Link>
                 <button
-                  onClick={async () => {
-                    await signOut();
+                  onClick={() => {
+                    signOut();
                     setMenuOpen(false);
                   }}
                   className="flex items-center gap-2 w-full px-3 py-2 text-sm text-muted-foreground hover:text-foreground hover:bg-accent"

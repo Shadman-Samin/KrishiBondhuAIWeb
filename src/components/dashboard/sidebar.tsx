@@ -14,7 +14,7 @@ import {
 import { useState } from "react";
 import { cn } from "@/lib/utils";
 import { useLang } from "@/lib/i18n";
-import { useAuth } from "@/lib/auth-client";
+import { useAuth } from "@/lib/auth";
 
 const NAV_ITEMS = [
   { to: "/dashboard", label: "Dashboard", labelBn: "ড্যাশবোর্ড", icon: LayoutDashboard },
