@@ -4,8 +4,6 @@
 
 Live demo (via ngrok tunnel): `https://surgery-glowworm-lumpish.ngrok-free.dev`
 
-> **Note:** This is a monorepo with 3 sub-projects. The Flutter mobile app at `Krsishi-Bondhu-AI-App/` is **abandoned/deprecated** and excluded from this README. The active product is the **Web + Vision** stack described below.
-
 ---
 
 ## Table of Contents
