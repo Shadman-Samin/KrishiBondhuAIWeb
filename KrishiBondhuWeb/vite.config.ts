@@ -12,4 +12,18 @@ export default defineConfig({
     // nitro/vite builds from this
     server: { entry: "server" },
   },
+  vite: {
+    // Dev server proxies API calls to the FastAPI backend so the whole app
+    // works same-origin (needed when served through a single ngrok tunnel).
+    server: {
+      allowedHosts: true,
+      proxy: {
+        "/predict": "http://localhost:8000",
+        "/advise": "http://localhost:8000",
+        "/chat": "http://localhost:8000",
+        "/health": "http://localhost:8000",
+        "/market-prices": "http://localhost:8000",
+      },
+    },
+  },
 });

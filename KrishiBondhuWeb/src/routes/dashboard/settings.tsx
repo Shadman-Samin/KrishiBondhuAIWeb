@@ -1,7 +1,11 @@
 import { createFileRoute } from "@tanstack/react-router";
+import { useState } from "react";
 import { useLang } from "@/lib/i18n";
 import { useAuth } from "@/lib/auth";
-import { User, MapPin, Globe, LogOut } from "lucide-react";
+import { useDistrict } from "@/lib/district";
+import { useApiKey } from "@/lib/api-key";
+import { DISTRICTS } from "@/lib/weather-api";
+import { User, MapPin, Globe, LogOut, KeyRound } from "lucide-react";
 
 export const Route = createFileRoute("/dashboard/settings")({
   component: SettingsPage,
@@ -10,6 +14,9 @@ export const Route = createFileRoute("/dashboard/settings")({
 function SettingsPage() {
   const { lang, setLang, t } = useLang();
   const { user, signOut } = useAuth();
+  const [district, setDistrict] = useDistrict();
+  const [apiKey, setApiKey, clearApiKey] = useApiKey();
+  const [keyDraft, setKeyDraft] = useState(apiKey);
 
   return (
     <div className="max-w-2xl space-y-6">
@@ -54,12 +61,17 @@ function SettingsPage() {
             <label className="text-sm font-medium flex items-center gap-1.5">
               <MapPin className="h-4 w-4" /> {t("District", "জেলা")}
             </label>
-            <input
-              type="text"
-              defaultValue={user?.district}
+            <select
+              value={district}
+              onChange={(e) => setDistrict(e.target.value)}
               className="mt-1 w-full rounded-lg border border-input bg-background px-3 py-2 text-sm outline-none focus:ring-1 focus:ring-ring"
-              readOnly
-            />
+            >
+              {DISTRICTS.map((d) => (
+                <option key={d.name} value={d.name}>
+                  {t(d.name, d.nameBn)}
+                </option>
+              ))}
+            </select>
           </div>
         </div>
       </div>
@@ -92,6 +104,47 @@ function SettingsPage() {
               বাংলা
             </button>
           </div>
+        </div>
+
+        <div className="py-2">
+          <label className="text-sm font-medium flex items-center gap-1.5 mb-1">
+            <KeyRound className="h-4 w-4 text-muted-foreground" />
+            {t("API Key", "এপিআই কী")}
+          </label>
+          <div className="flex gap-2">
+            <input
+              type="password"
+              value={keyDraft}
+              onChange={(e) => setKeyDraft(e.target.value)}
+              placeholder={t("Paste your API key", "আপনার এপিআই কী বসান")}
+              className="flex-1 rounded-lg border border-input bg-background px-3 py-2 text-sm outline-none focus:ring-1 focus:ring-ring"
+            />
+            <button
+              onClick={() => {
+                setApiKey(keyDraft.trim());
+              }}
+              className="rounded-lg bg-primary px-4 py-2 text-xs font-medium text-primary-foreground transition-colors hover:bg-primary/90"
+            >
+              {t("Save", "সংরক্ষণ")}
+            </button>
+            {apiKey && (
+              <button
+                onClick={() => {
+                  clearApiKey();
+                  setKeyDraft("");
+                }}
+                className="rounded-lg border border-input px-4 py-2 text-xs font-medium text-muted-foreground hover:text-foreground"
+              >
+                {t("Clear", "মুছুন")}
+              </button>
+            )}
+          </div>
+          <p className="text-xs text-muted-foreground mt-1">
+            {t(
+              "Required only when connected to the remote server.",
+              "শুধুমাত্র রিমোট সার্ভারে সংযুক্ত থাকলে প্রয়োজন।",
+            )}
+          </p>
         </div>
       </div>
 

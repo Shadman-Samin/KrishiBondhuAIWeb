@@ -1,0 +1,16 @@
+fastapi==0.141.1
+uvicorn[standard]==0.52.1
+ultralytics==8.4.118
+torch==2.13.0
+torchvision==0.28.0
+opencv-python==5.0.0.93
+pillow==12.3.0
+numpy==2.2.6
+pydantic==2.13.4
+python-dotenv==1.2.2
+python-multipart==0.0.32
+PyYAML==6.0.3
+huggingface_hub==1.27.0
+httptools==0.8.0
+polars==1.43.2
+matplotlib==3.10.9

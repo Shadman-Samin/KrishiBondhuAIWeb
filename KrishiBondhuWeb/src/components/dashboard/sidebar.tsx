@@ -10,6 +10,7 @@ import {
   Leaf,
   ChevronLeft,
   ChevronRight,
+  MessageCircle,
 } from "lucide-react";
 import { useState } from "react";
 import { cn } from "@/lib/utils";
@@ -28,6 +29,7 @@ const NAV_ITEMS = [
   { to: "/dashboard/disease", label: "Disease Detection", labelBn: "রোগ নির্ণয়", icon: ScanLine },
   { to: "/dashboard/soil", label: "Soil Analysis", labelBn: "মাটি বিশ্লেষণ", icon: FlaskConical },
   { to: "/dashboard/marketplace", label: "Marketplace", labelBn: "বাজার", icon: Store },
+  { to: "/dashboard/chat", label: "AI Advisor", labelBn: "এআই পরামর্শ", icon: MessageCircle },
 ] as const;
 
 const BOTTOM_ITEMS = [

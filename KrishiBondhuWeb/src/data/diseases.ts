@@ -1,3 +1,10 @@
+export const MODEL_CLASS_TO_DISEASE: Record<string, number> = {
+  "rice blast": 0,
+  "tomato late blight": 1,
+  "potato late blight": 1,
+  "banana panama disease": 3,
+};
+
 export type Disease = {
   name: string;
   nameBn: string;

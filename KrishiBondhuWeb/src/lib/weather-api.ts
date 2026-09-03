@@ -9,6 +9,37 @@ export const CITIES = [
   { name: "Rajshahi", nameBn: "রাজশাহী", lat: 24.3745, lon: 88.6042 },
 ] as const;
 
+const DISTRICT_COORDS: Record<string, { lat: number; lon: number }> = {
+  Comilla: { lat: 23.4607, lon: 91.1809 },
+  Dhaka: { lat: 23.8103, lon: 90.4125 },
+  Chittagong: { lat: 22.3569, lon: 91.7832 },
+  Rajshahi: { lat: 24.3745, lon: 88.6042 },
+  Khulna: { lat: 22.8456, lon: 89.5403 },
+  Bogura: { lat: 24.8465, lon: 89.3772 },
+  Sylhet: { lat: 24.8949, lon: 91.8687 },
+  Mymensingh: { lat: 24.7539, lon: 90.4073 },
+  Barishal: { lat: 22.701, lon: 90.3535 },
+  Rangpur: { lat: 25.7439, lon: 89.2752 },
+};
+
+const DISTRICT_NAMES_BN: Record<string, string> = {
+  Comilla: "কুমিল্লা",
+  Dhaka: "ঢাকা",
+  Chittagong: "চট্টগ্রাম",
+  Rajshahi: "রাজশাহী",
+  Khulna: "খুলনা",
+  Bogura: "বগুড়া",
+  Sylhet: "সিলেট",
+  Mymensingh: "ময়মনসিংহ",
+  Barishal: "বরিশাল",
+  Rangpur: "রংপুর",
+};
+
+export const DISTRICTS = Object.keys(DISTRICT_COORDS).map((name) => ({
+  name,
+  nameBn: DISTRICT_NAMES_BN[name],
+}));
+
 type OWMForecastItem = {
   dt: number;
   main: { temp: number; feels_like: number; temp_min: number; temp_max: number; humidity: number };
@@ -187,4 +218,42 @@ export async function fetchWeather(city: (typeof CITIES)[number]): Promise<Weath
     },
     forecast: aggregateToDaily(data.list),
   };
+}
+
+export type DistrictWeather = {
+  temp: number;
+  humidity: number;
+  condition: WeatherDay["condition"];
+  advice: string;
+  adviceBn: string;
+};
+
+const districtCache = new Map<string, { ts: number; data: DistrictWeather }>();
+const DISTRICT_CACHE_TTL = 1000 * 60 * 10;
+
+export async function fetchWeatherByDistrict(district: string): Promise<DistrictWeather> {
+  const cached = districtCache.get(district);
+  if (cached && Date.now() - cached.ts < DISTRICT_CACHE_TTL) return cached.data;
+
+  const coords = DISTRICT_COORDS[district];
+  if (!coords) throw new Error(`No coordinates for district: ${district}`);
+  if (!API_KEY) throw new Error("Missing VITE_OPENWEATHER_API_KEY");
+
+  const url = `${BASE}/forecast?lat=${coords.lat}&lon=${coords.lon}&appid=${API_KEY}&units=metric`;
+  const res = await fetch(url);
+  if (!res.ok) throw new Error(`Weather API error: ${res.status}`);
+
+  const data: OWMResponse = await res.json();
+  const first = data.list[0];
+  const today = aggregateToDaily(data.list)[0];
+
+  const out: DistrictWeather = {
+    temp: Math.round(first.main.temp),
+    humidity: first.main.humidity,
+    condition: mapCondition(first.weather[0]?.main ?? "Clear"),
+    advice: today.advice,
+    adviceBn: today.adviceBn,
+  };
+  districtCache.set(district, { ts: Date.now(), data: out });
+  return out;
 }

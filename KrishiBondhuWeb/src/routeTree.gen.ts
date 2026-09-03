@@ -18,6 +18,7 @@ import { Route as DashboardSettingsRouteImport } from './routes/dashboard/settin
 import { Route as DashboardMarketplaceRouteImport } from './routes/dashboard/marketplace'
 import { Route as DashboardDiseaseRouteImport } from './routes/dashboard/disease'
 import { Route as DashboardCropCalendarRouteImport } from './routes/dashboard/crop-calendar'
+import { Route as DashboardChatRouteImport } from './routes/dashboard/chat'
 
 const DashboardRoute = DashboardRouteImport.update({
   id: '/dashboard',
@@ -64,10 +65,16 @@ const DashboardCropCalendarRoute = DashboardCropCalendarRouteImport.update({
   path: '/crop-calendar',
   getParentRoute: () => DashboardRoute,
 } as any)
+const DashboardChatRoute = DashboardChatRouteImport.update({
+  id: '/chat',
+  path: '/chat',
+  getParentRoute: () => DashboardRoute,
+} as any)
 
 export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
   '/dashboard': typeof DashboardRouteWithChildren
+  '/dashboard/chat': typeof DashboardChatRoute
   '/dashboard/crop-calendar': typeof DashboardCropCalendarRoute
   '/dashboard/disease': typeof DashboardDiseaseRoute
   '/dashboard/marketplace': typeof DashboardMarketplaceRoute
@@ -78,6 +85,7 @@ export interface FileRoutesByFullPath {
 }
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
+  '/dashboard/chat': typeof DashboardChatRoute
   '/dashboard/crop-calendar': typeof DashboardCropCalendarRoute
   '/dashboard/disease': typeof DashboardDiseaseRoute
   '/dashboard/marketplace': typeof DashboardMarketplaceRoute
@@ -90,6 +98,7 @@ export interface FileRoutesById {
   __root__: typeof rootRouteImport
   '/': typeof IndexRoute
   '/dashboard': typeof DashboardRouteWithChildren
+  '/dashboard/chat': typeof DashboardChatRoute
   '/dashboard/crop-calendar': typeof DashboardCropCalendarRoute
   '/dashboard/disease': typeof DashboardDiseaseRoute
   '/dashboard/marketplace': typeof DashboardMarketplaceRoute
@@ -103,6 +112,7 @@ export interface FileRouteTypes {
   fullPaths:
     | '/'
     | '/dashboard'
+    | '/dashboard/chat'
     | '/dashboard/crop-calendar'
     | '/dashboard/disease'
     | '/dashboard/marketplace'
@@ -113,6 +123,7 @@ export interface FileRouteTypes {
   fileRoutesByTo: FileRoutesByTo
   to:
     | '/'
+    | '/dashboard/chat'
     | '/dashboard/crop-calendar'
     | '/dashboard/disease'
     | '/dashboard/marketplace'
@@ -124,6 +135,7 @@ export interface FileRouteTypes {
     | '__root__'
     | '/'
     | '/dashboard'
+    | '/dashboard/chat'
     | '/dashboard/crop-calendar'
     | '/dashboard/disease'
     | '/dashboard/marketplace'
@@ -203,10 +215,18 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof DashboardCropCalendarRouteImport
       parentRoute: typeof DashboardRoute
     }
+    '/dashboard/chat': {
+      id: '/dashboard/chat'
+      path: '/chat'
+      fullPath: '/dashboard/chat'
+      preLoaderRoute: typeof DashboardChatRouteImport
+      parentRoute: typeof DashboardRoute
+    }
   }
 }
 
 interface DashboardRouteChildren {
+  DashboardChatRoute: typeof DashboardChatRoute
   DashboardCropCalendarRoute: typeof DashboardCropCalendarRoute
   DashboardDiseaseRoute: typeof DashboardDiseaseRoute
   DashboardMarketplaceRoute: typeof DashboardMarketplaceRoute
@@ -217,6 +237,7 @@ interface DashboardRouteChildren {
 }
 
 const DashboardRouteChildren: DashboardRouteChildren = {
+  DashboardChatRoute: DashboardChatRoute,
   DashboardCropCalendarRoute: DashboardCropCalendarRoute,
   DashboardDiseaseRoute: DashboardDiseaseRoute,
   DashboardMarketplaceRoute: DashboardMarketplaceRoute,
