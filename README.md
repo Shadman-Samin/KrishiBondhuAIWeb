@@ -2,7 +2,9 @@
 
 > **Bangladeshi farming assistant** — crop disease detection, bilingual AI chat advisor, weather, soil, market prices, and crop calendar.
 
-Live demo (via ngrok tunnel): `https://surgery-glowworm-lumpish.ngrok-free.dev`
+Live demo (via ngrok tunnel — active on demand only, not 24/7): `https://surgery-glowworm-lumpish.ngrok-free.dev`
+
+> The tunnel is live only while the host PC is running `start-dev.bat`. If the URL doesn't respond, the server is off.
 
 ---
 
