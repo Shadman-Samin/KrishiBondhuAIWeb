@@ -1,4 +1,4 @@
-# KrishiBondhu AI
+# [KrishiBondhu AI app](https://github.com/ausabbir76/Krsishi-Bondhu-AI-App)
 
 > **Bangladeshi farming assistant** — crop disease detection, bilingual AI chat advisor, weather, soil, market prices, and crop calendar.
 
