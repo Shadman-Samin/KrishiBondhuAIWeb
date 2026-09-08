@@ -1,10 +1,8 @@
-# [KrishiBondhu AI app](https://github.com/ausabbir76/Krsishi-Bondhu-AI-App)
+# KrishiBondhu AI
 
 > **Bangladeshi farming assistant** — crop disease detection, bilingual AI chat advisor, weather, soil, market prices, and crop calendar.
 
 Live demo (via ngrok tunnel): `https://surgery-glowworm-lumpish.ngrok-free.dev`
-
-Mobile app: [KrishiBondhu AI app](https://github.com/ausabbir76/Krsishi-Bondhu-AI-App) — Flutter client maintained by a different developer.
 
 ---
 
@@ -173,7 +171,7 @@ F:\KrishiBondhu\
 │   │   └── server\               # SSR bundle (server.js)
 │   └── .env.local                # VITE_OPENWEATHER_API_KEY
 │
-└── Krsishi-Bondhu-AI-App\    # Flutter app — separate repo by a different dev: [KrishiBondhu AI app](https://github.com/ausabbir76/Krsishi-Bondhu-AI-App)
+└── Krsishi-Bondhu-AI-App\    # Local stale copy — live Flutter repo (different dev): [KrishiBondhu AI app](https://github.com/ausabbir76/Krsishi-Bondhu-AI-App)
 ```
 
 ---
@@ -320,6 +318,12 @@ node serve.mjs     # serves SSR on :8001 (PORT env overrideable)
 - **Secrets:** Never log or commit `KRISHI_API_KEY` or `.env` files.
 - **Chat identity:** System prompt in `api/server.py:_chat_messages()` enforces identity as **KrishiBondhu AI** (never reveal base model) + easter egg for **Shadman Samin** (only when directly asked). Fix leaks in `_chat_messages()`.
 - **Market data:** `api/market.py` — DAM-only. Community tracker/TCB feed is unplugged; add a fetcher there when a reachable independent source appears. History accumulates in `market_history.json`.
+
+---
+
+## Related Projects
+
+- Mobile app — [KrishiBondhu AI app](https://github.com/ausabbir76/Krsishi-Bondhu-AI-App), Flutter client maintained by a different developer.
 
 ---
 
