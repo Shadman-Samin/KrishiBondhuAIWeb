@@ -21,6 +21,8 @@ Live demo (via ngrok tunnel — active on demand only, not 24/7): `https://surge
 - [Frontend Routes](#frontend-routes)
 - [Build & Deployment](#build--deployment)
 - [Conventions & Gotchas](#conventions--gotchas)
+- [Related Projects](#related-projects)
+- [License](#license)
 
 ---
 
@@ -32,7 +34,7 @@ Live demo (via ngrok tunnel — active on demand only, not 24/7): `https://surge
 - **Soil Info** — Static + advisory content per district/crop.
 - **Market Prices** — Live daily national prices scraped from DAM (`market.dam.gov.bd`) with daily cache + rolling history. Falls back to static `market-prices.json` when offline.
 - **Crop Calendar** — Season/region-aware planting guidance.
-- **Dashboard** — Protected layout with language & theme providers.
+- **Dashboard** — Layout with language & theme providers.
 
 ---
 
@@ -48,6 +50,9 @@ Browser / Visitor
 │  ├─ API: /predict /advise       │
 │  │      /chat /chat/stream      │
 │  │      /health /market-prices  │
+│  ├─ App compat: /disease       │
+│  │  /assistant /market /weather │
+│  │  /satellite /soil + /api/*   │
 │  ├─ Static: KrishiBondhuWeb/    │
 │  │        dist/client/assets/*   │
 │  └─ Catch-all ─┐                │
@@ -66,7 +71,7 @@ Browser / Visitor
         └──────────────────┘
 ```
 
-**Key principle — single public origin:** Free ngrok gives one hostname, so **everything is served through `:8000`**. The web client calls the API **same-origin** (relative URLs, `API_URL = ""`). Vite dev mode proxies `/predict /advise /chat /health /market-prices` → `:8000`. Do not hard-code absolute `:8000` URLs in the frontend.
+**Key principle — single public origin:** Free ngrok gives one hostname, so **everything is served through `:8000`**. The web client calls the API **same-origin** (relative URLs, `API_URL = ""`). Vite dev mode proxies `/predict /advise /chat /health /market-prices /disease /assistant /market /weather /satellite /soil /api` → `:8000`. Do not hard-code absolute `:8000` URLs in the frontend.
 
 - **Production:** `node serve.mjs` (`:8001`) renders SSR HTML → FastAPI (`:8000`) serves API + static + proxies HTML → `ngrok http 8000`.
 - **Dev:** `bun dev` (`:8080`, Vite) → proxies API to `:8000`.
@@ -112,7 +117,7 @@ Browser / Visitor
 | **Utilities** | `clsx`, `tailwind-merge`, `class-variance-authority`, `date-fns`, `embla-carousel`, `sonner`, `vaul`, `cmdk` |  |
 | **Language** | TypeScript | `^5.8.3` — strict, bundler resolution, `@/*` alias |
 | **Runtime / Package Manager** | [Bun](https://bun.sh/) | `bun dev`, `bun run build` |
-| **Dev Proxy** | Vite `server.proxy` | `/predict /advise /chat /health /market-prices` → `http://localhost:8000` |
+| **Dev Proxy** | Vite `server.proxy` | `/predict /advise /chat /health /market-prices /disease /assistant /market /weather /satellite /soil /api` → `http://localhost:8000` |
 | **Production Server** | `serve.mjs` (Node `http` + `dist/server/server.js`) | Port `8001`, 127.0.0.1 |
 
 ### Infrastructure & Tooling
@@ -142,11 +147,11 @@ F:\KrishiBondhu\
 │   │   └── market.py         # DAM scrape, daily cache, history (market_history.json)
 │   ├── models\
 │   │   └── jktk_x.pt         # YOLO model (116 classes)
-│   ├── scripts\              # eval_accuracy.py, eval_fetch.py, stage_eval.py, test_yolo.py
+│   ├── scripts\              # eval_accuracy.py, eval_fetch.py, stage_eval.py, test_yolo.py, download_model.py, fetch_test_images.py
 │   ├── test_images\          # mine/, eval/, annotated/
 │   ├── market_history.json   # Rolling daily price snapshots (auto-generated)
 │   ├── .venv\                # Python 3.10 venv
-│   └── .env                  # ADVISE_URL, ADVISE_MODEL, KRISHI_API_KEY (never commit)
+│   └── .env                  # ADVISE_URL, ADVISE_MODEL, KRISHI_API_KEY, OPENWEATHER_API_KEY (never commit)
 │
 ├── KrishiBondhuWeb\          # TanStack Start + React frontend
 │   ├── serve.mjs             # Production SSR server (port 8001)
@@ -198,6 +203,7 @@ F:\KrishiBondhu\
 ADVISE_URL=http://127.0.0.1:1234/v1
 ADVISE_MODEL=qwen3.5-4b-uncensored-hauhaucs-aggressive
 KRISHI_API_KEY=...  # inert — auth was removed, header is ignored, but keep secret
+OPENWEATHER_API_KEY=...  # real weather for GET /weather/forecast (stub response when unset)
 ```
 
 ### `KrishiBondhuWeb/.env.local`
@@ -269,8 +275,14 @@ Base URL: same-origin (relative paths). In dev: `http://localhost:8000`. In prod
 | `POST` | `/advise` | JSON `{ detections, top, disease }` → `{ advice: { en, bn } \| null }` (LLM) |
 | `POST` | `/chat` | JSON `{ messages, lang, context }` → `{ reply }` |
 | `POST` | `/chat/stream` | Same as `/chat` — SSE stream (`data: {...}\n\n`, ends `data: [DONE]`) |
-| `GET` | `/market-prices` | Live daily prices — `{ updated_at, sources, rows: [{crop, cropBn, min, max, price, change_pct, date, unit}] }` (cached 1h) |
+| `GET` | `/market-prices` | Live daily prices — `{ updated_at, sources, rows: [{crop, cropBn, min, max, price, change_pct, date, unit}] }` (cached daily) |
 | `GET` | `/market-prices/history?crop=&days=` | Price history — `{ crop, points: [{date, price}] }` (seeded from static JSON, then daily snapshots) |
+| `POST` | `/disease/detect` (+ `/api/disease/detect`) | Flutter/app compat — multipart `image`/`file` (+ optional `locale` form/query) → `{ detections, top }` merged with `DiseaseResult` fields (`disease`, `scientificName`, `confidence`, `severity`, treatments, prevention; KB-backed for rice blast / late blight, generic fallback otherwise) |
+| `POST` | `/assistant/chat` (+ `/api/assistant/chat`) | App chat — JSON `{ message, locale }` → `{ reply }` (LLM; 502 when LM Studio is down) |
+| `GET` | `/market/prices` (+ `/api/market/prices`, `/market-prices-compat`) | Same live data as `/market-prices`, app-shaped aliases |
+| `GET` | `/weather/forecast` (+ `/api/weather/forecast`) | `?district=&locale=` → OpenWeather-backed forecast (cached 10 min); stub response when `OPENWEATHER_API_KEY` is unset or fetch fails |
+| `GET` | `/satellite/analysis` (+ `/api/satellite/analysis`) | `?district=&locale=` → stub NDVI/crop-health (wire to Earth Engine / NASA when ready) |
+| `POST` | `/soil/analyze` (+ `/api/soil/analyze`) | Stub soil report (wire to soil API when ready) |
 | `GET` | `/{path}` | Catch-all — serves `dist/client/{path}` if file exists, else proxies to SSR app `:8001` (503 if down) |
 
 **Frontend client:** `src/lib/model-api.ts` (`predictDisease`, `getAdvice`, `sendChat`, `streamChat`, `buildContext`, `fetchMarketPrices`, `fetchPriceHistory`) — all use `API_URL = import.meta.env.VITE_MODEL_API_URL || ""`.
@@ -284,7 +296,7 @@ File-based routing via TanStack Router (`src/routes/`):
 | Route | File | Description |
 |-------|------|-------------|
 | `/` | `index.tsx` | Public marketing landing page |
-| `/dashboard` | `dashboard.tsx` | Layout gate (LangProvider + DashboardLayout) |
+| `/dashboard` | `dashboard.tsx` | Layout (LangProvider + DashboardLayout) |
 | `/dashboard` | `dashboard/index.tsx` | Dashboard home |
 | `/dashboard/weather` | `dashboard/weather.tsx` | Weather by district |
 | `/dashboard/soil` | `dashboard/soil.tsx` | Soil info |
@@ -308,7 +320,7 @@ node serve.mjs     # serves SSR on :8001 (PORT env overrideable)
 - Production public site runs the **built `dist/`**, not the Vite dev server. Rebuild is required to push frontend changes live.
 - `start-dev.bat` rebuilds automatically before launching.
 
-**Single-origin rule:** Web calls API same-origin. Keep `vite.config.ts` proxy and `serve.mjs`/FastAPI catch-all in sync for API paths: `/predict /advise /chat /chat/stream /health /market-prices`.
+**Single-origin rule:** Web calls API same-origin. Keep `vite.config.ts` proxy and `serve.mjs`/FastAPI catch-all in sync for API paths: `/predict /advise /chat /chat/stream /health /market-prices /disease /assistant /market /weather /satellite /soil /api`.
 
 ---
 
