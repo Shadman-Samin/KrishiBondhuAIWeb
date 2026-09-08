@@ -4,6 +4,8 @@
 
 Live demo (via ngrok tunnel): `https://surgery-glowworm-lumpish.ngrok-free.dev`
 
+Mobile app: [KrishiBondhu AI app](https://github.com/ausabbir76/Krsishi-Bondhu-AI-App) — Flutter client maintained by a different developer.
+
 ---
 
 ## Table of Contents
@@ -171,7 +173,7 @@ F:\KrishiBondhu\
 │   │   └── server\               # SSR bundle (server.js)
 │   └── .env.local                # VITE_OPENWEATHER_API_KEY
 │
-└── Krsishi-Bondhu-AI-App\    # Flutter app — ABANDONED, do not use
+└── Krsishi-Bondhu-AI-App\    # Flutter app — separate repo by a different dev: [KrishiBondhu AI app](https://github.com/ausabbir76/Krsishi-Bondhu-AI-App)
 ```
 
 ---
