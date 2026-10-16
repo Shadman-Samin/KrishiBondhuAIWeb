@@ -322,6 +322,42 @@ node serve.mjs     # serves SSR on :8001 (PORT env overrideable)
 
 **Single-origin rule:** Web calls API same-origin. Keep `vite.config.ts` proxy and `serve.mjs`/FastAPI catch-all in sync for API paths: `/predict /advise /chat /chat/stream /health /market-prices /disease /assistant /market /weather /satellite /soil /api`.
 
+### 24/7 Cloud Deployment (competition demo)
+
+Local `start-dev.bat` + ngrok is dev-only. The public demo runs 24/7 as:
+
+- **Frontend → Vercel:** deploy `KrishiBondhuWeb/` (`bun run build`, see `vercel.json`).
+  Set `VITE_MODEL_API_URL=https://<backend-host>` so the UI calls the cloud API.
+- **Backend → Hugging Face Spaces (Docker) / Render / Railway:** see
+  `KrishiBondhuVision/Dockerfile` (`uvicorn api.server:app --host 0.0.0.0 --port 7860`).
+  The 436MB YOLO model auto-downloads from `HF_MODEL_REPO` on first request (lazy load —
+  `/health` returns `ok:false` = "waking up, retry" during cold start).
+- **LLM → hosted API (Groq free tier):** set `ADVISE_URL=https://api.groq.com/openai/v1`,
+  `ADVISE_MODEL=llama-3.3-70b-versatile`, `ADVISE_API_KEY=gsk_...` (leave unset for local
+  LM Studio at `127.0.0.1:1234`, which keeps the legacy streaming path). All secrets live in
+  host env vars / Space Secrets — never committed (see `KrishiBondhuVision/.env.example`).
+
+| Env (backend) | Purpose | Default |
+|---|---|---|
+| `ADVISE_URL` / `ADVISE_MODEL` / `ADVISE_API_KEY` | LLM backend (local or hosted) | LM Studio `:1234` |
+| `CORS_ORIGINS` | Allowed web origins | `*` (set to Vercel URL in prod) |
+| `ADMIN_TOKEN` | Gates `GET /admin/stats`, `/admin/audit` (open when unset) | unset |
+| `OPENWEATHER_API_KEY` | Live `/weather/forecast` (stub fallback when unset) | unset |
+
+### New AI modules (Nov 2026)
+
+- **RAG** (`KrishiBondhuVision/api/rag/`): semantic chunking + Contextual RAG + TF-IDF cosine
+  store + light Graph RAG over the disease KB; injected silently into `/advise` + `/chat`.
+- **Agent loop** (`api/agent/` + `POST /agent/run`): intent → retrieve → advise → verify with trace.
+- **Admin** (`api/admin.py`): `GET /admin/stats`, `GET /admin/audit` (RBAC via `ADMIN_TOKEN`),
+  per-IP rate limits on heavy endpoints, token-usage tracking.
+- **MCP server** (`mcp-server/server.py`): `krishibondhu-market` tools
+  (`get_market_prices`, `get_price_history`, `get_health`) over Stdio + SSE — see `mcp-server/MCP.md`.
+- **Local models log** (`KrishiBondhuVision/MODELS.md`), **n8n workflow** (`docs/n8n-dam-scrape.json`).
+- **Submission packet** (`docs/`): `MASTER_PROMPT.md` (Idea to Unicorn single-prompt, 8 modules),
+  `SUBMISSION_NOTES.md` (all scored text fields, char-floor audited), `PITCH_OUTLINE.md`,
+  `YOUTUBE_SCRIPT.md`, `FIGMA_PLAN.md`, `ACCESS_NOTE.md`.
+
 ---
 
 ## Conventions & Gotchas

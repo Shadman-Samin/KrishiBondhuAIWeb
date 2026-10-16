@@ -1,0 +1,49 @@
+{
+  "name": "KrishiBondhu DAM daily scrape",
+  "nodes": [
+    {
+      "parameters": {
+        "url": "https://market.dam.gov.bd/?L=E",
+        "options": {}
+      },
+      "name": "Fetch DAM EN",
+      "type": "n8n-nodes-base.httpRequest",
+      "position": [240, 300]
+    },
+    {
+      "parameters": {
+        "url": "https://market.dam.gov.bd/?L=B",
+        "options": {}
+      },
+      "name": "Fetch DAM BN",
+      "type": "n8n-nodes-base.httpRequest",
+      "position": [240, 500]
+    },
+    {
+      "parameters": {
+        "functionCode": "const rows = $input.all().map(i => i.json);\nreturn [{ json: { rows, date: new Date().toISOString().slice(0, 10) } }];"
+      },
+      "name": "Clean + Validate",
+      "type": "n8n-nodes-base.function",
+      "position": [460, 400]
+    },
+    {
+      "parameters": {
+        "method": "POST",
+        "url": "https://YOUR-BACKEND/market-prices/ingest",
+        "options": {}
+      },
+      "name": "Append history snapshot",
+      "type": "n8n-nodes-base.httpRequest",
+      "position": [680, 400]
+    }
+  ],
+  "connections": {
+    "Fetch DAM EN": { "main": [[{ "node": "Clean + Validate", "type": "main", "index": 0 }]] },
+    "Fetch DAM BN": { "main": [[{ "node": "Clean + Validate", "type": "main", "index": 0 }]] },
+    "Clean + Validate": { "main": [[{ "node": "Append history snapshot", "type": "main", "index": 0 }]] }
+  },
+  "active": false,
+  "settings": {},
+  "notes": "Import into n8n (Workflows > Import from JSON). Schedule with a daily Cron trigger. Mirrors api/market.py bilingual merge (EN+BN by row order) with validation before snapshot append."
+}

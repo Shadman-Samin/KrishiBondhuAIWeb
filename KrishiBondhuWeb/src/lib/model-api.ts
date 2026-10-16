@@ -1,5 +1,11 @@
 const API_URL = (import.meta.env.VITE_MODEL_API_URL as string) || "";
 
+// Backend switch: "fastapi" (default, local/ngrok REST) or "space" (Gradio demo
+// Space via space-client.ts). Set VITE_BACKEND=space + VITE_SPACE_URL on Vercel.
+const BACKEND = ((import.meta.env.VITE_BACKEND as string) || "fastapi").toLowerCase();
+export const useSpaceBackend = BACKEND === "space";
+export const backendLabel = useSpaceBackend ? "demo Space" : "port 8000 backend";
+
 import { getStoredApiKey } from "@/lib/api-key";
 
 function apiHeaders(): Record<string, string> {
@@ -33,6 +39,10 @@ export type DiseaseBrief = {
 };
 
 export async function predictDisease(file: File): Promise<PredictionResult> {
+  if (useSpaceBackend) {
+    const space = await import("@/lib/space-client");
+    return space.predictDisease(file);
+  }
   const form = new FormData();
   form.append("file", file);
   const res = await fetch(`${API_URL}/predict`, {
@@ -49,6 +59,10 @@ export async function getAdvice(
   disease: DiseaseBrief | null,
 ): Promise<Advice | null> {
   if (!result.detections.length) return null;
+  if (useSpaceBackend) {
+    const space = await import("@/lib/space-client");
+    return space.getAdvice(result, disease);
+  }
   try {
     const res = await fetch(`${API_URL}/advise`, {
       method: "POST",
@@ -88,12 +102,20 @@ export type PriceHistoryResponse = {
 };
 
 export async function fetchMarketPrices(): Promise<MarketPricesResponse> {
+  if (useSpaceBackend) {
+    const space = await import("@/lib/space-client");
+    return space.fetchMarketPrices();
+  }
   const res = await fetch(`${API_URL}/market-prices`, { headers: apiHeaders() });
   if (!res.ok) throw new Error(`Market API error ${res.status}`);
   return res.json();
 }
 
 export async function fetchPriceHistory(crop: string, days = 60): Promise<PriceHistoryResponse> {
+  if (useSpaceBackend) {
+    const space = await import("@/lib/space-client");
+    return space.fetchPriceHistory(crop, days);
+  }
   const res = await fetch(
     `${API_URL}/market-prices/history?crop=${encodeURIComponent(crop)}&days=${days}`,
     { headers: apiHeaders() },
@@ -141,6 +163,10 @@ export async function sendChat(
   lang: ChatLang,
   context: Record<string, unknown>,
 ): Promise<string | null> {
+  if (useSpaceBackend) {
+    const space = await import("@/lib/space-client");
+    return space.sendChat(messages, lang);
+  }
   try {
     const res = await fetch(`${API_URL}/chat`, {
       method: "POST",
@@ -160,6 +186,10 @@ export async function streamChat(
   context: Record<string, unknown>,
   onDelta: (piece: string) => void,
 ): Promise<string | null> {
+  if (useSpaceBackend) {
+    const space = await import("@/lib/space-client");
+    return space.streamChat(messages, lang, context, onDelta);
+  }
   try {
     const res = await fetch(`${API_URL}/chat/stream`, {
       method: "POST",

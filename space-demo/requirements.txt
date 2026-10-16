@@ -1,0 +1,4 @@
+ultralytics
+pillow
+numpy
+huggingface_hub

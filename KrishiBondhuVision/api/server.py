@@ -14,38 +14,63 @@ from fastapi.responses import FileResponse, JSONResponse, Response, StreamingRes
 from starlette.middleware.gzip import GZipMiddleware
 from PIL import Image
 from numpy import asarray
-from ultralytics import YOLO
+# NOTE: `ultralytics.YOLO` is imported lazily inside get_model() so that
+# `import api.server` stays fast and the model loads on first request
+# (critical for cold-start hosts and for /health without GPU/model).
 
 from . import market
 
 ROOT = Path(__file__).resolve().parent.parent
 load_dotenv(ROOT / ".env")
 MODEL_PATH = ROOT / "models" / "jktk_x.pt"
-WEB_DIST = ROOT.parent / "KrishiBondhuWeb" / "dist" / "client"
-APP_SERVER_URL = "http://127.0.0.1:8001"
-CONF = 0.25
-IMSZ = 640
+WEB_DIST = Path(os.environ.get("WEB_DIST", str(ROOT.parent / "KrishiBondhuWeb" / "dist" / "client")))
+APP_SERVER_URL = os.environ.get("APP_SERVER_URL", "http://127.0.0.1:8001")
+CONF = float(os.environ.get("YOLO_CONF", "0.25"))
+IMSZ = int(os.environ.get("YOLO_IMSZ", "640"))
 
 ADVISE_URL = os.environ.get("ADVISE_URL", "http://127.0.0.1:1234/v1")
 ADVISE_MODEL = os.environ.get("ADVISE_MODEL", "qwen3.5-4b-uncensored-hauhaucs-aggressive")
+ADVISE_API_KEY = os.environ.get("ADVISE_API_KEY", "")
+# When True (default for non-localhost ADVISE_URL), use standard OpenAI-compatible
+# chat calls (Authorization bearer + no local-only hacks). Local LM Studio keeps
+# the legacy continue_assistant_turn + forced-turn behaviour.
+ADVISE_HOSTED = os.environ.get("ADVISE_HOSTED", "auto").lower()
+if ADVISE_HOSTED == "auto":
+    ADVISE_HOSTED_BOOL = "127.0.0.1" not in ADVISE_URL and "localhost" not in ADVISE_URL
+else:
+    ADVISE_HOSTED_BOOL = ADVISE_HOSTED in ("1", "true", "yes")
+CORS_ORIGINS = [o.strip() for o in os.environ.get("CORS_ORIGINS", "*").split(",") if o.strip()]
 HF_MODEL_REPO = os.environ.get("HF_MODEL_REPO", "hodoly163/krishibondhu-jktk")
 HF_MODEL_FILE = os.environ.get("HF_MODEL_FILE", "jktk_x.pt")
 OPENWEATHER_API_KEY = os.environ.get("OPENWEATHER_API_KEY") or os.environ.get("VITE_OPENWEATHER_API_KEY") or ""
 OPENWEATHER_BASE = "https://api.openweathermap.org/data/2.5"
 
-# Auto-fetch model from Hugging Face if not locally present
-if not MODEL_PATH.exists():
-    try:
-        from huggingface_hub import hf_hub_download
+# Lazy YOLO load: import must stay fast on serverless / cold-start hosts.
+# Model downloads from HF on first use and loads once, then caches.
+_model = None
+_model_error = None
 
-        print(f"Model not found at {MODEL_PATH}, downloading from HF {HF_MODEL_REPO}/{HF_MODEL_FILE} ...")
-        hf_hub_download(
-            repo_id=HF_MODEL_REPO, filename=HF_MODEL_FILE, local_dir=str(MODEL_PATH.parent)
-        )
-    except Exception as e:
-        print(f"HF model download failed: {e}")
 
-model = YOLO(str(MODEL_PATH))
+def get_model():
+    global _model, _model_error
+    if _model is not None:
+        return _model
+    from ultralytics import YOLO
+
+    if not MODEL_PATH.exists():
+        try:
+            from huggingface_hub import hf_hub_download
+
+            print(f"Model not found at {MODEL_PATH}, downloading from HF {HF_MODEL_REPO}/{HF_MODEL_FILE} ...")
+            hf_hub_download(
+                repo_id=HF_MODEL_REPO, filename=HF_MODEL_FILE, local_dir=str(MODEL_PATH.parent)
+            )
+        except Exception as e:
+            _model_error = str(e)
+            print(f"HF model download failed: {e}")
+            raise RuntimeError(f"Model unavailable: {e}")
+    _model = YOLO(str(MODEL_PATH))
+    return _model
 
 app = FastAPI(title="KrishiBondhu Disease Detection")
 
@@ -56,15 +81,61 @@ app.add_middleware(
 
 app.add_middleware(
     CORSMiddleware,
-    allow_origins=["*"],
+    allow_origins=CORS_ORIGINS,
     allow_methods=["*"],
     allow_headers=["*"],
 )
 
 
+@app.middleware("http")
+async def _audit_and_limit(request: HttpRequest, call_next):
+    # Audit every request (bounded in-memory ring); rate-limit heavy endpoints.
+    from . import admin as _admin
+
+    ip = (request.client.host if request.client else "?")
+    path = request.url.path
+    retry = _admin.check_rate_limit(ip, path)
+    if retry is not None:
+        return JSONResponse(
+            status_code=429,
+            content={"detail": f"Rate limit exceeded, retry in {retry}s."},
+        )
+    try:
+        resp = await call_next(request)
+        _admin.log_event(f"{request.method} {path} -> {resp.status_code}", ip=ip)
+        return resp
+    except Exception as e:
+        _admin.log_event(f"{request.method} {path} -> 500 {e}", ip=ip)
+        raise
+
+
 @app.get("/health")
 def health():
-    return {"ok": True, "model": MODEL_PATH.name, "classes": len(model.names)}
+    try:
+        m = get_model()
+        return {"ok": True, "model": MODEL_PATH.name, "classes": len(m.names)}
+    except Exception as e:
+        # Stay 200 so uptime pingers don't flap during cold-start download;
+        # ok:false signals "waking up, retry".
+        return {"ok": False, "model": MODEL_PATH.name, "error": str(e)[:200]}
+
+
+@app.get("/admin/stats")
+def admin_stats(request: HttpRequest):
+    from . import admin as _admin
+
+    if not _admin.require_admin(request.headers):
+        return JSONResponse(status_code=403, content={"detail": "Admin token required."})
+    return _admin.stats()
+
+
+@app.get("/admin/audit")
+def admin_audit(request: HttpRequest, limit: int = 50):
+    from . import admin as _admin
+
+    if not _admin.require_admin(request.headers):
+        return JSONResponse(status_code=403, content={"detail": "Admin token required."})
+    return {"events": _admin.recent_audit(limit)}
 
 
 @app.get("/market-prices")
@@ -90,13 +161,14 @@ def market_price_history(crop: str, days: int = 30):
 
 
 def _run_yolo(image_bytes: bytes):
+    m = get_model()
     img = Image.open(io.BytesIO(image_bytes)).convert("RGB")
-    res = model.predict(asarray(img), conf=CONF, imgsz=IMSZ, verbose=False)[0]
+    res = m.predict(asarray(img), conf=CONF, imgsz=IMSZ, verbose=False)[0]
     detections = []
     for box, cls, conf in zip(res.boxes.xyxy.tolist(), res.boxes.cls.tolist(), res.boxes.conf.tolist()):
         detections.append(
             {
-                "class": model.names[int(cls)],
+                "class": m.names[int(cls)],
                 "conf": round(conf, 4),
                 "box": [round(v, 1) for v in box],
             }
@@ -278,18 +350,29 @@ async def disease_detect(
 
 
 def _chat(messages, temperature=0.3, max_tokens=1024):
+    if ADVISE_HOSTED_BOOL:
+        body = {
+            "model": ADVISE_MODEL,
+            "messages": messages,
+            "temperature": temperature,
+            "max_tokens": max_tokens,
+        }
+    else:
+        # Local LM Studio legacy path: forced-turn streaming hack.
+        body = {
+            "model": ADVISE_MODEL,
+            "messages": messages + [{"role": "assistant", "content": "</think>"}],
+            "temperature": temperature,
+            "max_tokens": max_tokens,
+            "continue_assistant_turn": True,
+        }
+    headers = {"Content-Type": "application/json", "User-Agent": "KrishiBondhu/1.0"}
+    if ADVISE_API_KEY:
+        headers["Authorization"] = f"Bearer {ADVISE_API_KEY}"
     req = UrlRequest(
         f"{ADVISE_URL}/chat/completions",
-        data=json.dumps(
-            {
-                "model": ADVISE_MODEL,
-                "messages": messages + [{"role": "assistant", "content": "</think>"}],
-                "temperature": temperature,
-                "max_tokens": max_tokens,
-                "continue_assistant_turn": True,
-            }
-        ).encode(),
-        headers={"Content-Type": "application/json"},
+        data=json.dumps(body).encode(),
+        headers=headers,
     )
     with urlopen(req, timeout=120) as res:
         return json.loads(res.read())
@@ -310,11 +393,30 @@ def advise(payload: dict = Body(...)):
         top = payload.get("top")
         disease = payload.get("disease")
 
+        # RAG: ground advice in the curated KB using the detected label as query.
+        rag_ctx = ""
+        try:
+            from .rag import retrieve as _rag_retrieve
+
+            q = ""
+            if isinstance(top, dict):
+                q = str(top.get("class", ""))
+            if not q and detections:
+                q = str(detections[0].get("class", ""))
+            chunks = _rag_retrieve(q, top_k=2)
+            if chunks:
+                rag_ctx = "Retrieved KB passages (follow these treatments):\n" + "\n".join(
+                    f"- [{c['title']}] {c['text']}" for c in chunks
+                ) + "\n\n"
+        except Exception:
+            rag_ctx = ""
+
         sys_msg = (
             "You are an agricultural extension agent for farmers in Bangladesh. "
             "A vision model detected the following on a crop photo:\n"
             f"{json.dumps({'top': top, 'detections': detections}, ensure_ascii=False)}\n\n"
             f"Matched disease knowledge card:\n{json.dumps(disease, ensure_ascii=False) if disease else 'None'}\n\n"
+            f"{rag_ctx}"
             "Write ONE short status line plus 2-3 clear action steps in plain farmer-friendly language. "
             "Reply with ONLY a JSON object of exactly this shape, no markdown fences, no extra text:\n"
             '{"en": "english status and actions", "bn": "same text in Bangla"}'
@@ -327,6 +429,12 @@ def advise(payload: dict = Body(...)):
         )
         data = _parse_advice(reply["choices"][0]["message"]["content"])
         en, bn = str(data["en"]).strip(), str(data["bn"]).strip()
+        try:
+            from . import admin as _admin
+
+            _admin.track_tokens(len(sys_msg), len(en) + len(bn))
+        except Exception:
+            pass
         return {"advice": {"en": en, "bn": bn}} if en and bn else {"advice": None}
     except Exception:
         return {"advice": None}
@@ -342,12 +450,26 @@ def _chat_messages(payload: dict):
 
     valid = [m for m in messages if m.get("role") in ("user", "assistant") and m.get("content")][-CHAT_MAX_MESSAGES:]
 
+    # RAG: retrieve KB passages for the latest user turn; silent background.
+    rag_ctx = ""
+    try:
+        from .rag import retrieve as _rag_retrieve
+
+        last_user = next((m.get("content", "") for m in reversed(valid) if m.get("role") == "user"), "")
+        chunks = _rag_retrieve(str(last_user), top_k=2) if last_user else []
+        if chunks:
+            rag_ctx = "\nRETRIEVED KB (ground your answer in these, do not cite them):\n" + "\n".join(
+                f"- [{c['title']}] {c['text']}" for c in chunks
+            ) + "\n"
+    except Exception:
+        rag_ctx = ""
+
     lang_label = "Bengali" if lang == "bn" else "English"
     sys_msg = (
         "You are KrishiBondhu AI, a friendly agricultural assistant. "
         "Answer plainly, practically, and in a friendly tone.\n\n"
         "CONTEXT (silent background — never state it, never repeat it back, never talk about it):\n"
-        f"{json.dumps(context, ensure_ascii=False)}\n\n"
+        f"{json.dumps(context, ensure_ascii=False)}{rag_ctx}\n\n"
         f"Reply in {lang_label}.\n\n"
         "Greeting rule: Mirror the user's greeting. "
         "If user says hi/hello/hey → reply with Hi/Hello. "
@@ -381,11 +503,33 @@ def _chat_messages(payload: dict):
 @app.post("/chat")
 def chat(payload: dict = Body(...)):
     try:
-        reply = _chat(_chat_messages(payload), temperature=0.7, max_tokens=2048)
+        msgs = _chat_messages(payload)
+        reply = _chat(msgs, temperature=0.7, max_tokens=2048)
         text = reply["choices"][0]["message"]["content"].strip()
+        try:
+            from . import admin as _admin
+
+            _admin.track_tokens(sum(len(m.get("content", "")) for m in msgs), len(text))
+        except Exception:
+            pass
         return {"reply": text} if text else {"reply": None}
     except Exception:
         return {"reply": None}
+
+
+@app.post("/agent/run")
+def agent_run(payload: dict = Body(...)):
+    """Agentic loop: intent -> retrieve -> advise -> verify. Returns {reply, trace}."""
+    try:
+        from .agent import run_agent
+
+        message = str(payload.get("message") or "")
+        lang = str(payload.get("lang") or "en")
+        if lang not in ("en", "bn"):
+            lang = "en"
+        return run_agent(message, lang, payload.get("context") or {})
+    except Exception as e:
+        return JSONResponse(status_code=502, content={"detail": f"agent error: {e}"})
 
 
 @app.post("/chat/stream")
@@ -393,8 +537,16 @@ def chat_stream(payload: dict = Body(...)):
     messages = _chat_messages(payload)
 
     def sse():
-        body = json.dumps(
-            {
+        if ADVISE_HOSTED_BOOL:
+            payload_body = {
+                "model": ADVISE_MODEL,
+                "messages": messages,
+                "temperature": 0.7,
+                "max_tokens": 2048,
+                "stream": True,
+            }
+        else:
+            payload_body = {
                 "model": ADVISE_MODEL,
                 "messages": messages + [{"role": "assistant", "content": " response"}],
                 "temperature": 0.7,
@@ -402,11 +554,15 @@ def chat_stream(payload: dict = Body(...)):
                 "continue_assistant_turn": True,
                 "stream": True,
             }
-        ).encode()
+        body = json.dumps(payload_body).encode()
+        headers = {"Content-Type": "application/json", "Connection": "keep-alive",
+                   "User-Agent": "KrishiBondhu/1.0"}
+        if ADVISE_API_KEY:
+            headers["Authorization"] = f"Bearer {ADVISE_API_KEY}"
         req = UrlRequest(
             f"{ADVISE_URL}/chat/completions",
             data=body,
-            headers={"Content-Type": "application/json", "Connection": "keep-alive"},
+            headers=headers,
         )
         try:
             with urlopen(req, timeout=120) as res:

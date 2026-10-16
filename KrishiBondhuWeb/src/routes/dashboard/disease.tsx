@@ -2,7 +2,7 @@ import { createFileRoute } from "@tanstack/react-router";
 import { useState, useRef, useEffect } from "react";
 import { useLang } from "@/lib/i18n";
 import { DISEASES, MODEL_CLASS_TO_DISEASE, type Disease } from "@/data/diseases";
-import { predictDisease, getAdvice, type PredictionResult, type Advice } from "@/lib/model-api";
+import { predictDisease, getAdvice, backendLabel, type PredictionResult, type Advice } from "@/lib/model-api";
 import { cn } from "@/lib/utils";
 import {
   Camera,
@@ -96,8 +96,8 @@ function DiseaseDetectionPage() {
       setAnalyzing(false);
       setError(
         t(
-          "Could not reach the disease model. Is the backend running on port 8000?",
-          "রোগ মডেলে পৌঁছানো যায়নি। পোর্ট ৮০০০-এ ব্যাকএন্ড চলছে কিনা দেখুন।",
+          `Could not reach the disease model. Is the ${backendLabel} running?`,
+          `রোগ মডেলে পৌঁছানো যায়নি। ${backendLabel} চলছে কিনা দেখুন।`,
         ),
       );
     }
