@@ -27,6 +27,11 @@ on hold. The Gradio Space above covers the demo; Vercel frontend remains optiona
   disease+advice, chat (non-streaming degrade), market table parsing.
 - `VITE_BACKEND=space` + `VITE_SPACE_URL` switches the whole site to the Space; default `fastapi` keeps local/ngrok intact.
 - Parsers unit-verified; `bun run build` green locally AND clean-room; Vercel deploy READY.
+- 2026-10-17 chat-context fix: `space-client.ts` folds live weather/market + recent
+  history into the Space message (Space `/chat` takes a single message); Space `app.py`
+  chat `max_tokens` 512→1024 + ≤150-word instruction (Bengali answers were cut mid-sentence);
+  `VITE_OPENWEATHER_API_KEY` added to Vercel env (was local-only). Verified live with the
+  Dhaka guava question in en + bn: uses real 31°C/78% facts, complete 2-day-away plan.
 - No Vercel MCP connected yet — deploy is click-ops until `vercel` appears in MCP resources after `opencode mcp auth vercel`.
 
 ## 1. Backend → Hugging Face Spaces (Docker, CPU Basic, free)
