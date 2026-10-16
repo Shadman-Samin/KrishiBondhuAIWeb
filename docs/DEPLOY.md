@@ -17,16 +17,17 @@ accounts; git push needs XET for images).
 Docker/`cpu-basic` Spaces require a paid HF plan, so the FastAPI-on-Docker path is
 on hold. The Gradio Space above covers the demo; Vercel frontend remains optional.
 
-## Frontend → Vercel, powered by the Space (CODE READY ✅ build passes)
+## Frontend → Vercel, powered by the Space (✅ LIVE 2026-10-16)
 
+- **Site:** https://krishibondhu-ai-web.vercel.app (`krishibondhu-ai-web`, root `KrishiBondhuWeb/`)
+- Fixes applied via Vercel MCP: `rootDirectory=KrishiBondhuWeb` (was building monorepo root → vite 127),
+  `@tanstack/react-start` XSS CVE bump (1.169.2), TanStack alignment (router 1.170.44 / plugin 1.168.46).
+- Env: `VITE_BACKEND=space` + `VITE_SPACE_URL=https://hodoly163-krishibondhu-demo.hf.space` (production + preview).
 - `KrishiBondhuWeb/src/lib/space-client.ts` (@gradio/client) mirrors `model-api.ts`:
   disease+advice, chat (non-streaming degrade), market table parsing.
-- `VITE_BACKEND=space` + `VITE_SPACE_URL=https://hodoly163-krishibondhu-demo.hf.space`
-  switches the whole site to the Space; default `fastapi` keeps local/ngrok intact.
-- Parsers unit-verified; `bun run build` green. Deploy: import repo on Vercel
-  (root `KrishiBondhuWeb/`, `vercel.json`), set the two env vars, verify
-  upload→advice + chat + marketplace. No Vercel MCP connected yet — deploy is
-  click-ops until `vercel` appears in MCP resources after `opencode mcp auth vercel`.
+- `VITE_BACKEND=space` + `VITE_SPACE_URL` switches the whole site to the Space; default `fastapi` keeps local/ngrok intact.
+- Parsers unit-verified; `bun run build` green locally AND clean-room; Vercel deploy READY.
+- No Vercel MCP connected yet — deploy is click-ops until `vercel` appears in MCP resources after `opencode mcp auth vercel`.
 
 ## 1. Backend → Hugging Face Spaces (Docker, CPU Basic, free)
 
