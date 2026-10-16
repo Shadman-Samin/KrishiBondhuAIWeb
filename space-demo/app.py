@@ -101,11 +101,15 @@ def chat(message: str, history: list, lang: str) -> str:
     if not (message or "").strip():
         return "Please type a question."
     sys = ("You are KrishiBondhu AI, a friendly agricultural assistant for Bangladesh. "
-           "Answer plainly and concisely. Never mention any underlying model. "
+           "Answer plainly and concisely — keep replies under ~150 words. "
+           "If live weather/market facts are included in the question, use them; "
+           "if none are given, say so briefly instead of inventing numbers. "
+           "Never mention any underlying model. "
            f"Reply in {'Bengali' if lang == 'bn' else 'English'}.")
     try:
         return _llm([{"role": "system", "content": sys},
-                     {"role": "user", "content": message.strip()}]) or "No reply generated."
+                      {"role": "user", "content": message.strip()}],
+                     max_tokens=1024) or "No reply generated."
     except RuntimeError as e:
         return str(e)
 

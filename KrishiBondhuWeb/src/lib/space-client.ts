@@ -67,16 +67,61 @@ export async function getAdvice(
   return lastSpaceAdvice;
 }
 
+function formatContext(context: Record<string, unknown> | undefined, lang: ChatLang): string {
+  if (!context || typeof context !== "object") return "";
+  const parts: string[] = [];
+  const farmer = context.farmer as { district?: string } | undefined;
+  const weather = context.weather as
+    | { temp?: number; humidity?: number; condition?: string }
+    | null
+    | undefined;
+  if (farmer?.district) parts.push(`district: ${farmer.district}`);
+  if (weather && typeof weather.temp === "number")
+    parts.push(
+      `live weather: ${weather.temp}\u00B0C, humidity ${weather.humidity}%, ${weather.condition}`,
+    );
+  const market = context.market as { crop: string; price: number; unit: string }[] | null;
+  if (Array.isArray(market) && market.length)
+    parts.push(
+      `live market: ${market
+        .slice(0, 5)
+        .map((p) => `${p.crop} \u09F3${p.price}/${p.unit}`)
+        .join("; ")}`,
+    );
+  if (!parts.length) return "";
+  return lang === "bn"
+    ? `[\u09B2\u09BE\u0987\u09AD \u09A4\u09A5\u09CD\u09AF: ${parts.join(" | ")}]`
+    : `[Live facts: ${parts.join(" | ")}]`;
+}
+
+function composeMessage(
+  messages: ChatMessage[],
+  current: string,
+  context: Record<string, unknown> | undefined,
+  lang: ChatLang,
+): string {
+  // Space /chat takes a single message — fold recent history + live facts into it.
+  // (The chat UI keeps showing the raw user text; this only shapes the API payload.)
+  const lines: string[] = [];
+  for (const m of messages.slice(0, -1).slice(-6))
+    lines.push(`${m.role === "user" ? "Farmer" : "Assistant"}: ${m.content.slice(0, 400)}`);
+  const ctx = formatContext(context, lang);
+  if (ctx) lines.push(ctx);
+  lines.push(`Question: ${current}`);
+  return lines.join("\n");
+}
+
 export async function sendChat(
   messages: ChatMessage[],
   lang: ChatLang,
+  context?: Record<string, unknown>,
 ): Promise<string | null> {
   try {
     const c = await getClient();
     const last = [...messages].reverse().find((m) => m.role === "user");
     if (!last) return null;
     const res = (await c.predict("/chat", {
-      message: last.content,
+      message: composeMessage(messages, last.content, context, lang),
       lang,
     })) as { data: [string] };
     return res.data?.[0] ?? null;
@@ -88,11 +133,11 @@ export async function sendChat(
 export async function streamChat(
   messages: ChatMessage[],
   lang: ChatLang,
-  _context: Record<string, unknown>,
+  context: Record<string, unknown>,
   onDelta: (piece: string) => void,
 ): Promise<string | null> {
   // Gradio SSE streaming differs from the FastAPI parser — degrade to one reply.
-  const full = await sendChat(messages, lang);
+  const full = await sendChat(messages, lang, context);
   if (full) onDelta(full);
   return full;
 }

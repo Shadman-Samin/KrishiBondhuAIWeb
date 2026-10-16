@@ -165,7 +165,7 @@ export async function sendChat(
 ): Promise<string | null> {
   if (useSpaceBackend) {
     const space = await import("@/lib/space-client");
-    return space.sendChat(messages, lang);
+    return space.sendChat(messages, lang, context);
   }
   try {
     const res = await fetch(`${API_URL}/chat`, {
