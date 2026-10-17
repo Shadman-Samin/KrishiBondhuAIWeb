@@ -18,8 +18,36 @@ const SPACE_URL =
 
 let client: Client | null = null;
 async function getClient(): Promise<Client> {
-  if (!client) client = await Client.connect(SPACE_URL);
+  if (!client) client = await withRetry(() => Client.connect(SPACE_URL));
   return client;
+}
+
+const sleep = (ms: number) => new Promise<void>((r) => setTimeout(r, ms));
+
+function shortCause(e: unknown): string {
+  const s = String(e instanceof Error ? e.message : e);
+  return s.length > 120 ? s.slice(0, 120) + "…" : s;
+}
+
+function describeFailure(e: unknown): Error {
+  const raw = shortCause(e);
+  if (/quota|exceeded/i.test(raw))
+    return new Error(`Free GPU quota reached on the demo Space. Try again later. (${raw})`);
+  return new Error(`Demo Space may be waking up (cold start). Try once more. (${raw})`);
+}
+
+async function withRetry<T>(fn: () => Promise<T>): Promise<T> {
+  try {
+    return await fn();
+  } catch {
+    // Free-tier Spaces restart/sleep — one bounded retry covers boot blips.
+    await sleep(4000);
+    try {
+      return await fn();
+    } catch (e) {
+      throw describeFailure(e);
+    }
+  }
 }
 
 // Stash Space advice per language (Space returns one predict => {en, bn} advice).
@@ -40,9 +68,9 @@ function parseDetections(summary: string): PredictionResult["detections"] {
 
 export async function predictDisease(file: File): Promise<PredictionResult> {
   const c = await getClient();
-  const res = (await c.predict("/predict", { image: file })) as {
-    data: [string, string, string];
-  };
+  const res = (await withRetry(() =>
+    c.predict("/predict", { image: file }),
+  )) as { data: [string, string, string] };
   const [summary, adviceEn, adviceBn] = res.data;
   lastSpaceAdvice = { en: adviceEn || undefined, bn: adviceBn || undefined };
   const detections = parseDetections(summary ?? "");
@@ -112,10 +140,12 @@ export async function sendChat(
     const c = await getClient();
     const last = [...messages].reverse().find((m) => m.role === "user");
     if (!last) return null;
-    const res = (await c.predict("/chat", {
-      message: composeMessage(messages, last.content, context, lang),
-      lang,
-    })) as { data: [string] };
+    const res = (await withRetry(() =>
+      c.predict("/chat", {
+        message: composeMessage(messages, last.content, context, lang),
+        lang,
+      }),
+    )) as { data: [string] };
     return res.data?.[0] ?? null;
   } catch {
     return null;
@@ -155,7 +185,9 @@ function parseMarketTable(md: string): MarketPricesResponse["rows"] {
 
 export async function fetchMarketPrices(): Promise<MarketPricesResponse> {
   const c = await getClient();
-  const res = (await c.predict("/market", { top_n: 10 })) as { data: [string] };
+  const res = (await withRetry(() => c.predict("/market", { top_n: 10 }))) as {
+    data: [string];
+  };
   const rows = parseMarketTable(res.data?.[0] ?? "");
   if (!rows.length) throw new Error("Space market returned no rows");
   return { updated_at: new Date().toISOString().slice(0, 10), sources: ["dam-space"], rows };

@@ -92,12 +92,14 @@ function DiseaseDetectionPage() {
         setAdvice(await getAdvice(res, idx !== null ? DISEASES[idx] : null));
         setAdviceLoading(false);
       }
-    } catch {
+    } catch (e) {
       setAnalyzing(false);
+      const detail = e instanceof Error ? e.message : String(e);
+      const cause = detail.length > 140 ? detail.slice(0, 140) + "…" : detail;
       setError(
         t(
-          `Could not reach the disease model. Is the ${backendLabel} running?`,
-          `রোগ মডেলে পৌঁছানো যায়নি। ${backendLabel} চলছে কিনা দেখুন।`,
+          `Could not reach the disease model. Is the ${backendLabel} running? — ${cause}`,
+          `রোগ মডেলে পৌঁছানো যায়নি। ${backendLabel} চলছে কিনা দেখুন। — ${cause}`,
         ),
       );
     }
