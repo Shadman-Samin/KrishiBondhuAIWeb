@@ -25,7 +25,7 @@ print(f"Downloading {MODEL_REPO}/{MODEL_FILE} ...", flush=True)
 _model_path = hf_hub_download(repo_id=MODEL_REPO, filename=MODEL_FILE)
 from ultralytics import YOLO
 
-model = YOLO(_model_path).to("cuda")
+model = YOLO(_model_path)
 print(f"Model loaded: {len(model.names)} classes", flush=True)
 
 KB = {
@@ -52,19 +52,11 @@ def _llm(messages: list[dict], max_tokens: int = 512, temperature: float = 0.5) 
         raise RuntimeError(f"LLM unavailable ({str(e)[:120]}). Check ADVISE_API_KEY secret.")
 
 
-@spaces.GPU(duration=60)
-def predict(image: Image.Image) -> tuple[str, str, str]:
-    """Detect crop disease in a photo and give bilingual (English + Bangla) advice.
-
-    Args:
-        image: Crop leaf/field photo.
-    Returns:
-        (detection summary, advice in English, advice in Bangla).
-    """
+def _detect_and_advise(image: Image.Image, device: str) -> tuple[str, str, str]:
     if image is None:
         return "No image.", "Please upload a crop photo.", "অনুগ্রহ করে একটি ফসলের ছবি আপলোড করুন।"
     img = image.convert("RGB")
-    res = model.predict(img, conf=0.25, imgsz=640, device="cuda", verbose=False)[0]
+    res = model.predict(img, conf=0.25, imgsz=640, device=device, verbose=False)[0]
     dets = []
     for box, cls, conf in zip(res.boxes.xyxy.tolist(), res.boxes.cls.tolist(), res.boxes.conf.tolist()):
         dets.append({"class": model.names[int(cls)], "conf": round(float(conf), 4)})
@@ -99,6 +91,43 @@ def predict(image: Image.Image) -> tuple[str, str, str]:
         bn = bn or (f"রোগ শনাক্ত হয়েছে: {top['class']}। "
                     "পরিষ্কার বীজ ব্যবহার করুন, নিম তেল স্প্রে করুন, ভালো ড্রেনেজ রাখুন; প্রতিদিন পর্যবেক্ষণ করুন।")
     return summary, en, bn
+
+
+@spaces.GPU(duration=30)
+def predict(image: Image.Image) -> tuple[str, str, str]:
+    """Detect crop disease in a photo and give bilingual (English + Bangla) advice.
+
+    Args:
+        image: Crop leaf/field photo.
+    Returns:
+        (detection summary, advice in English, advice in Bangla).
+    """
+    return _detect_and_advise(image, "cuda")
+
+
+def predict_cpu(image: Image.Image) -> tuple[str, str, str]:
+    """Quota-free CPU fallback for detect_advice; same outputs, slower.
+
+    Args:
+        image: Crop leaf/field photo.
+    Returns:
+        (detection summary, advice in English, advice in Bangla).
+    """
+    return _detect_and_advise(image, "cpu")
+
+
+def predict_any(image: Image.Image) -> tuple[str, str, str]:
+    """Detect crop disease with bilingual advice; falls back to CPU if GPU is unavailable.
+
+    Args:
+        image: Crop leaf/field photo.
+    Returns:
+        (detection summary, advice in English, advice in Bangla).
+    """
+    try:
+        return predict(image)
+    except Exception:
+        return predict_cpu(image)
 
 
 def chat(message: str, history: list, lang: str) -> str:
@@ -166,10 +195,13 @@ with gr.Blocks(title="KrishiBondhu AI demo") as demo:
         out_det = gr.Textbox(label="Detections")
         out_adv_en = gr.Textbox(label="Advice (English)")
         out_adv_bn = gr.Textbox(label="পরামর্শ (বাংলা)")
-        btn.click(predict, [img], [out_det, out_adv_en, out_adv_bn])
+        btn.click(predict_any, [img], [out_det, out_adv_en, out_adv_bn], api_name="predict")
+        with gr.Column(visible=False):
+            cpu_btn = gr.Button()
+        cpu_btn.click(predict_cpu, [img], [out_det, out_adv_en, out_adv_bn], api_name="predict_cpu")
         gr.Examples(["examples/rice_blast.jpg", "examples/tomato_late_blight.jpg"],
-                    [img], fn=predict, outputs=[out_det, out_adv_en, out_adv_bn],
-                    cache_examples=True, cache_mode="lazy")
+                    [img], fn=predict_any, outputs=[out_det, out_adv_en, out_adv_bn],
+                    cache_examples=False)
     with gr.Tab("Chat advisor"):
         gr.ChatInterface(chat, additional_inputs=[gr.Radio(["en", "bn"], value="en", label="Language")])
     with gr.Tab("Market prices"):

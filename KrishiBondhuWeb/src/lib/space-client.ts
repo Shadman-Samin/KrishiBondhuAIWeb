@@ -32,7 +32,7 @@ function shortCause(e: unknown): string {
 function describeFailure(e: unknown): Error {
   const raw = shortCause(e);
   if (/quota|exceeded/i.test(raw))
-    return new Error(`Free GPU quota reached on the demo Space. Try again later. (${raw})`);
+    return new Error(`Free demo GPU is busy right now. Please try again in a little while. (${raw})`);
   return new Error(`Demo Space may be waking up (cold start). Try once more. (${raw})`);
 }
 

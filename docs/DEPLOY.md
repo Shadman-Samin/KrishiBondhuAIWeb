@@ -36,6 +36,13 @@ on hold. The Gradio Space above covers the demo; Vercel frontend remains optiona
   (summary, advice_en, advice_bn) from ONE LLM call (JSON en/bn, KB fallback); client
   caches both → UI language toggle re-renders instantly, no refetch, no DOM-lang guess.
   Verified live: rice_blast → English + Bengali advice, distinct strings.
+- 2026-10-18 ZeroGPU quota fix: visitors get a small daily GPU run quota; when it runs
+  out the Space now auto-falls back to CPU (`predict_any` catches the allocation error;
+  hidden `predict_cpu` api for probes). Model loads plain (`YOLO(path)`, no init
+  `.to("cuda")`) — the caffeinated-virtual-CUDA stub gave garbage CPU detections
+  (both examples → "corn rust 0.50"); after the fix CPU matches GPU exactly
+  (rice blast 0.96, tomato blight 0.63). `cache_examples=False` stops example-gallery
+  views from burning visitor quota. Works forafa: ~4-6 s CPU roundtrip incl LLM.
 - No Vercel MCP connected yet — deploy is click-ops until `vercel` appears in MCP resources after `opencode mcp auth vercel`.
 
 ## 1. Backend → Hugging Face Spaces (Docker, CPU Basic, free)
