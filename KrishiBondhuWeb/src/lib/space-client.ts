@@ -22,10 +22,8 @@ async function getClient(): Promise<Client> {
   return client;
 }
 
-// Stash Space advice (Space returns advice together with detections,
-// FastAPI splits /predict + /advise).
-let lastSpaceAdvice: Advice | null = null;
-let lastSpaceLang: ChatLang = "en";
+// Stash Space advice per language (Space returns one predict => {en, bn} advice).
+let lastSpaceAdvice: { en?: string; bn?: string } = {};
 
 function parseDetections(summary: string): PredictionResult["detections"] {
   const out: PredictionResult["detections"] = [];
@@ -42,29 +40,23 @@ function parseDetections(summary: string): PredictionResult["detections"] {
 
 export async function predictDisease(file: File): Promise<PredictionResult> {
   const c = await getClient();
-  const lang =
-    (document.documentElement.lang === "bn" ? "bn" : "en") as ChatLang;
-  const res = (await c.predict("/predict", { image: file, lang })) as {
-    data: [string, string];
+  const res = (await c.predict("/predict", { image: file })) as {
+    data: [string, string, string];
   };
-  const [summary, adviceText] = res.data;
+  const [summary, adviceEn, adviceBn] = res.data;
+  lastSpaceAdvice = { en: adviceEn || undefined, bn: adviceBn || undefined };
   const detections = parseDetections(summary ?? "");
-  lastSpaceAdvice = adviceText
-    ? { en: adviceText, bn: adviceText }
-    : null;
-  lastSpaceLang = lang;
   if (!detections.length) return { detections: [], top: null };
   return { detections, top: detections[0] };
 }
 
 export async function getAdvice(
-  result: PredictionResult,
+  _result: PredictionResult,
   _disease: DiseaseBrief | null,
-  lang?: ChatLang,
+  _lang?: ChatLang,
 ): Promise<Advice | null> {
-  if (!result.detections.length) return null;
-  if (lastSpaceAdvice && (!lang || lang === lastSpaceLang)) return lastSpaceAdvice;
-  return lastSpaceAdvice;
+  if (!_result.detections.length) return null;
+  return { en: lastSpaceAdvice.en ?? "", bn: lastSpaceAdvice.bn ?? "" };
 }
 
 function formatContext(context: Record<string, unknown> | undefined, lang: ChatLang): string {

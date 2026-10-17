@@ -53,17 +53,16 @@ def _llm(messages: list[dict], max_tokens: int = 512, temperature: float = 0.5) 
 
 
 @spaces.GPU(duration=60)
-def predict(image: Image.Image, lang: str) -> tuple[str, str]:
-    """Detect crop disease in a photo and give bilingual farmer advice.
+def predict(image: Image.Image) -> tuple[str, str, str]:
+    """Detect crop disease in a photo and give bilingual (English + Bangla) advice.
 
     Args:
         image: Crop leaf/field photo.
-        lang: Reply language ('en' or 'bn').
     Returns:
-        (detection summary, advice text).
+        (detection summary, advice in English, advice in Bangla).
     """
     if image is None:
-        return "No image.", "Please upload a crop photo."
+        return "No image.", "Please upload a crop photo.", "অনুগ্রহ করে একটি ফসলের ছবি আপলোড করুন।"
     img = image.convert("RGB")
     res = model.predict(img, conf=0.25, imgsz=640, device="cuda", verbose=False)[0]
     dets = []
@@ -71,21 +70,35 @@ def predict(image: Image.Image, lang: str) -> tuple[str, str]:
         dets.append({"class": model.names[int(cls)], "conf": round(float(conf), 4)})
     dets.sort(key=lambda d: d["conf"], reverse=True)
     if not dets:
-        msg = {"en": "No disease detected. Keep monitoring.", "bn": "কোনো রোগ সনাক্ত হয়নি। পর্যবেক্ষণ চালিয়ে যান।"}
-        return "No detections.", msg.get(lang, msg["en"])
+        return ("No detections.",
+                "No disease detected. Keep monitoring.",
+                "কোনো রোগ সনাক্ত হয়নি। পর্যবেক্ষণ চালিয়ে যান।")
     top = dets[0]
     summary = "\n".join(f"{d['class']}: {d['conf']:.2f}" for d in dets[:3])
     kb = KB.get(top["class"].lower(), "")
     sys = ("You are KrishiBondhu AI, an agricultural extension agent for Bangladesh. "
-           "Write ONE status line + 2-3 action steps, plain farmer-friendly language. "
-           f"Reply in {'Bengali' if lang == 'bn' else 'English'}.")
-    user = (f"Detected: {top['class']} (confidence {top['conf']}). "
-            f"Knowledge: {kb or 'Use clean seed, neem oil, good drainage.'} Give status + actions.")
+           "A vision model detected the following on a crop photo: "
+           f"{top['class']} (confidence {top['conf']}).\n"
+           f"Knowledge: {kb or 'Use clean seed, neem oil, good drainage.'}\n"
+           "Write ONE short status line plus 2-3 action steps in plain farmer-friendly language. "
+           "Reply with ONLY a JSON object of exactly this shape, no markdown fences, no extra text:\n"
+           '{"en": "status and actions in English", "bn": "the same text in Bangla"}')
+    user = "Give the status and what to do, in both English and Bengali."
     try:
-        advice = _llm([{"role": "system", "content": sys}, {"role": "user", "content": user}])
-    except RuntimeError as e:
-        advice = f"{str(e)} Knowledge: {kb}"
-    return summary, advice or "No advice generated."
+        raw = _llm([{"role": "system", "content": sys}, {"role": "user", "content": user}],
+                   max_tokens=1024).strip()
+        if raw.startswith("```"):
+            raw = raw.strip("`")
+            raw = raw[raw.find("\n") + 1:]
+        data = json.loads(raw)
+        en, bn = str(data.get("en", "")).strip(), str(data.get("bn", "")).strip()
+    except Exception:
+        en = bn = ""
+    if not (en and bn):
+        en = en or f"Detected {top['class']}. {kb or 'Use clean seed, neem oil, good drainage; monitor daily.'}"
+        bn = bn or (f"রোগ শনাক্ত হয়েছে: {top['class']}। "
+                    "পরিষ্কার বীজ ব্যবহার করুন, নিম তেল স্প্রে করুন, ভালো ড্রেনেজ রাখুন; প্রতিদিন পর্যবেক্ষণ করুন।")
+    return summary, en, bn
 
 
 def chat(message: str, history: list, lang: str) -> str:
@@ -149,13 +162,13 @@ with gr.Blocks(title="KrishiBondhu AI demo") as demo:
     gr.Markdown("# 🌾 KrishiBondhu AI — crop disease + farming advisor (PentaFarmers)")
     with gr.Tab("Disease detection"):
         img = gr.Image(type="pil", label="Crop photo")
-        lang1 = gr.Radio(["en", "bn"], value="en", label="Language")
         btn = gr.Button("Detect")
         out_det = gr.Textbox(label="Detections")
-        out_adv = gr.Textbox(label="Advice")
-        btn.click(predict, [img, lang1], [out_det, out_adv])
+        out_adv_en = gr.Textbox(label="Advice (English)")
+        out_adv_bn = gr.Textbox(label="পরামর্শ (বাংলা)")
+        btn.click(predict, [img], [out_det, out_adv_en, out_adv_bn])
         gr.Examples(["examples/rice_blast.jpg", "examples/tomato_late_blight.jpg"],
-                    [img], fn=predict, outputs=[out_det, out_adv],
+                    [img], fn=predict, outputs=[out_det, out_adv_en, out_adv_bn],
                     cache_examples=True, cache_mode="lazy")
     with gr.Tab("Chat advisor"):
         gr.ChatInterface(chat, additional_inputs=[gr.Radio(["en", "bn"], value="en", label="Language")])

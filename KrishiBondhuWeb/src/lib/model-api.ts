@@ -57,11 +57,12 @@ export async function predictDisease(file: File): Promise<PredictionResult> {
 export async function getAdvice(
   result: PredictionResult,
   disease: DiseaseBrief | null,
+  lang?: ChatLang,
 ): Promise<Advice | null> {
   if (!result.detections.length) return null;
   if (useSpaceBackend) {
     const space = await import("@/lib/space-client");
-    return space.getAdvice(result, disease);
+    return space.getAdvice(result, disease, lang);
   }
   try {
     const res = await fetch(`${API_URL}/advise`, {
