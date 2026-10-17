@@ -32,6 +32,10 @@ on hold. The Gradio Space above covers the demo; Vercel frontend remains optiona
   chat `max_tokens` 512→1024 + ≤150-word instruction (Bengali answers were cut mid-sentence);
   `VITE_OPENWEATHER_API_KEY` added to Vercel env (was local-only). Verified live with the
   Dhaka guava question in en + bn: uses real 31°C/78% facts, complete 2-day-away plan.
+- 2026-10-18 bilingual guidance fix: Space `/predict` now returns 3 outputs
+  (summary, advice_en, advice_bn) from ONE LLM call (JSON en/bn, KB fallback); client
+  caches both → UI language toggle re-renders instantly, no refetch, no DOM-lang guess.
+  Verified live: rice_blast → English + Bengali advice, distinct strings.
 - No Vercel MCP connected yet — deploy is click-ops until `vercel` appears in MCP resources after `opencode mcp auth vercel`.
 
 ## 1. Backend → Hugging Face Spaces (Docker, CPU Basic, free)
