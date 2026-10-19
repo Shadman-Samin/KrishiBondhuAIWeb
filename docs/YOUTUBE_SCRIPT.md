@@ -1,12 +1,111 @@
-# YouTube Demo Script — 2–3 min, one take, crisp audio
+# YouTube Demo Script — 3:30–4:30 min, one take, crisp audio
 
-0:00–0:15 — Hook: "KrishiBondhu AI: snap a crop photo, get Bengali + English advice."
-Show landing page.
-0:15–0:50 — Disease: upload leaf photo → bounding boxes + confidence → bilingual
-action steps (neem/Tricyclazole). Mention 116-class YOLO.
-0:50–1:20 — Chat advisor: ask rice-blast question in Bengali → streaming reply;
-show district weather + market context chips.
-1:20–1:50 — Marketplace: live DAM prices + history chart; weather page by district.
-1:50–2:20 — Under the hood (one screen each): RAG passages, agent trace
-(`/agent/run`), MCP tools, admin stats. End on architecture diagram.
-2:20–2:30 — Team PentaFarmers (5) + Live Demo URL on screen + GitHub link in description.
+**Recording setup:** full-screen browser at the live URL
+(https://krishibondhu-ai-web.vercel.app), zoom 90–110%, mic recorded dry, keep
+each screen ~20–35 s. Do every live action for real before recording (Space
+awake, weather page loaded); rehearse once. English voice-over; Bangla on
+screens speaks for itself.
+
+**Title suggestion:** "KrishiBondhu AI — bilingual AI farming assistant
+(Bangla/English) | Idea to Unicorn by Team PentaFarmers"
+
+---
+
+## 0:00–0:20 — Hook (show landing page)
+> "This is KrishiBondhu AI — an AI farming assistant built for Bangladesh, by
+> students. Snap a photo of a sick crop, and it detects the disease and tells
+> you what to do — in Bangla or English. Everything you see in this video is
+> live, right now, on free cloud infrastructure."
+
+- Show the landing hero. Immediately hit the language toggle once — the entire
+  homepage flips to Bangla, then back. That's the "wow, it's actually bilingual"
+  moment; don't linger on the marketing paragraphs.
+
+## 0:20–0:30 — The problem (one slide, over the dashboard)
+> "Bangladesh's smallholders lose yield to diseases they can't identify in
+> time. Diagnosis normally needs an agronomist most farmers never reach — and
+> existing AI is English-first and lab-trained. KrishiBondhu closes that gap."
+
+- On the dashboard home (`/dashboard`): weather widget, quick actions.
+
+## 0:30–1:10 — Disease detection (the money shot; do it live)
+- Open `/dashboard/disease`, pick a real rice leaf photo that shows blast
+  symptoms (use the space-demo examples `./rice_blast` file). Upload.
+- While the result streams in (boxes + confidence):
+> "This is KrishiDrishti-11X — our own detector. 116 disease and health
+> classes across more than 30 crops. We trained it on an 89-class public
+> plant-disease dataset merged with the 27 classes of a public Roboflow field
+> dataset — the full training record is embedded in the checkpoint, so anyone
+> can verify it was trained by us — and it records about 0.70 validation mAP."
+- Switch to Bangla advice. Read one step aloud in Bangla.
+> "Advice is generated twice — Bangla and English — in one call, grounded by a
+> retrieval system over a curated agronomy knowledge base."
+
+## 1:10–1:50 — Advisor chat with live context
+- `/dashboard/chat`: type (or paste) in Bangla: "আম বাগানে আগামীকাল স্প্রে করব?
+  (আবহাওয়া দেখে বলো)" — or "Should I spray tomorrow in Naogaon?"
+- While it streams:
+> "Everything the farmer's situation actually needs is folded silently into
+> the answer: the selected district's live weather, today's national market
+> prices, and retrieved agronomy passages. When safer-dose questions come up
+> for garden plants, the system stays on general guidance — never invented
+> doses."
+- Show that weather chip / market chip on the page.
+
+## 1:50–2:20 — Marketplace (live data)
+- `/dashboard/marketplace` — scroll prices, open the history chart for rice
+  or onion.
+> "Daily national retail prices straight from the Department of Agricultural
+> Marketing's own site — scraped bilingually, merged by row order, with price
+> history and an offline fallback that keeps the page honest when the source
+> is down."
+
+## 2:20–2:50 — How it's built (slide/screen each, rapid)
+The under-the-hood montage (queue up minimized windows and switch quickly):
+1. **The Space in Hugging Face** (https://huggingface.co/spaces/hodoly163/krishibondhu-demo)
+   — show app doing GPU predict; mention CPU fallback "so free-tier quota never
+   breaks the demo" and the Space is itself an MCP server.
+2. **Model card** (https://huggingface.co/hodoly163/krishibondhu-jktk) — zoom
+   on the provenance table (Colab, 100 epochs, datasets) and AGPL license.
+3. **GitHub repo** — `KrishiBondhuVision/api` + `mcp-server/` (Stdio+SSE
+   Market MCP) + `docs/` (submission packets).
+4. Optional quick flash: `/agent/run` node trace and `/admin/stats`.
+> "The whole thing was built AI-native: one spec prompt bootstrapped the
+> product, agents executed with AGENTS.md as standing memory, and every claim
+> I've made so far is machine-verified — accuracy evals, RAG-precision probes,
+> identity-leak probes, CP-CPU parity checks."
+
+## 2:50–3:20 — Honest limits (30 s of credibility)
+> "What it can't do, we say. The detector has no banana sigatoka class. Voice
+> is on the roadmap. Satellite monitoring is on the roadmap. Accuracy in the
+> field depends on the photo. We label what's measured and what's planned —
+> including on our homepage."
+- Show the homepage "Verified facts" section quickly.
+
+## 3:20–3:40 — Team + CTA
+> "KrishiBondhu AI — by PentaFarmers — Shadman Samin, Ramim Azad, Nusrat Jahan
+> Neha, Jannatul Ferdous Mim, AU Sabbir. Try it live …"
+- Overlay (keep on screen 10 s):
+  - Live demo: https://krishibondhu-ai-web.vercel.app
+  - Direct AI Space: https://hodoly163-krishibondhu-demo.hf.space
+  - GitHub: https://github.com/Shadman-Samin/KrishiBondhuAIWeb
+> "Snap a photo, get the answer — in the language of the field. Thanks."
+
+---
+
+### Checklist before recording
+- [ ] Space awake + model loaded (send a first request via the UI to warm it)
+- [ ] Demo images ready and pre-tested (rice blast, tomato late blight, corn healthy)
+- [ ] Both language toggles warmed (EN ↔ BN)
+- [ ] End-card overlays prepared (URLs)
+- [ ] Target total length ≤ 4:30
+
+---
+
+## Recording checklist (repeat)
+
+- [ ] Space awake (`/health` ok)
+- [ ] Example image pre-tested
+- [ ] Both language toggles ready (EN ↔ BN)
+- [ ] Record at 1080p; montage screen time ~30 s total
+- [ ] File: `KrishiBondhu-IdeaToUnicorn.mp4` → unlisted YouTube → paste link in portal

@@ -87,10 +87,11 @@ admin endpoints RBAC-gated via `X-Admin-Token`, secrets in env/Space Secrets onl
 
 Dev/public-preview path: `ngrok http 8000 --domain=surgery-glowworm-lumpish.ngrok-free.dev`
 via `start-dev.bat` (single origin through FastAPI :8000; free-tier ~1 Mbps + interstitial
-expected). Cloudflare Tunnel is the documented fallback (`cloudflared tunnel --url
-http://localhost:8000`). Production (competition demo) retires tunnels: frontend on
-Vercel + backend Docker on HF Spaces/Render, with an UptimeRobot cron on `/health`
-warming cold starts. Tunnel notes stay truthful: ngrok = dev, cloud hosts = judging.
+expected). Production (competition demo) retires tunnels: frontend on Vercel + AI backend
+as a **Gradio Space on Hugging Face** (hosted LLM for advised chat, model hot-pluggably
+auto-downloaded, GPU with automatic CPU fallback under free-tier quota limits; free-tier
+behaviour handled in the UI with wake-up/retry/fallback messaging). Tunnel notes stay
+truthful: ngrok = dev only; cloud hosts = judging.
 
 ## 9. Data Quality Measures (≥80 chars)
 
@@ -121,4 +122,6 @@ retrieve docs, advise length, verify verdict). Data lineage: DAM scrape → dail
 → history snapshots → API rows → RAG/chat context, each stage timestamped
 (`updated_at`, snapshot dates). GZip + request logs aid latency triage; LangSmith/
 Phoenix tracing hooks are stubbed at the `_chat()` boundary for post-competition
-wiring. UptimeRobot pings `/health` for availability history.
+wiring. Availability story: the Space exposes predict via GPU with automatic CPU
+fallback (quota-safe), and the web marketplace falls back to static prices — no
+third-party uptime monitor is configured.
