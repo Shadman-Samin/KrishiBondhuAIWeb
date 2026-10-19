@@ -134,24 +134,25 @@ Parse line-by-line: ignore empty lines; every payload after `data: ` is JSON; `d
 
 ```bash
 curl https://hodoly163-krishibondhu-api.hf.space/market/prices
-# [{"name":"Chili","nameBn":"মরিচ","emoji":"🌶️","category":"Vegetables",
-#   "pricePerKg":85.96,"changePercent":0.0,"min":40.0,"max":156.0,
-#   "date":"2026-05-15","unit":"kg"}, …]
+# [{"name":"Aman-Fine","nameBn":"আমন চাল - সরু","emoji":"🌾","category":"Grains",
+#   "pricePerKg":73.5,"changePercent":0.0,"min":72.0,"max":75.0,
+#   "date":"2026-10-19","unit":"kg"}, …]
 ```
 
 - Extra fields (`min`, `max`, `date`, `unit`) are additive; a decoder that only reads `name/nameBn/pricePerKg/changePercent/category/emoji` is safe.
-- **8 rows**, one per commodity on the government board (Chili, Garlic, Lentils, Onion, Potato, Rice, Sugar, Wheat) — count and composition come from the source feed, so decode a list of arbitrary length rather than assuming 8.
+- Row count and composition come from the government feed — observed 8 on one check and 22 (`Aman-Fine`, `Aman-Medium`, …) on another the same day. **Decode an arbitrary-length list**; don't assume 8, and don't assume stable English crop keys.
+- `category` (Grains / Vegetables / …) and `emoji` are filled by the backend; unknown crops fall back to a generic pair rather than erroring.
 
 **Web shape — `GET /market-prices`** returns the richer envelope:
 
 ```json
-{"updated_at":"2026-10-19","sources":["dam"],"rows":[{"crop":"Onion","cropBn":"পেঁয়াজ","price":73.5,"min":72,"max":75,"change_pct":0.0,"date":"2026-10-19","unit":"kg","source":"dam"}]}
+{"updated_at":"2026-10-19","sources":["dam"],"rows":[{"crop":"Aman-Fine","cropBn":"আমন চাল - সরু","price":73.5,"min":72.0,"max":75.0,"change_pct":0.0,"date":"2026-10-19","unit":"kg","source":"dam"}]}
 ```
 
-- `sources` is `["dam"]` for today's live scrape; when the government feed is unreachable the backend **degrades instead of failing** and returns the shipped official dataset: `sources:["dataset"]` and an older `date` (dataset captures are dated). **Handle both** — show `date` next to the price.
+- `sources` is `["dam"]` for today's live scrape; when the government feed is unreachable the backend **degrades instead of failing** and returns the shipped official dataset (`sources:["dataset"]`, 8 crops, e.g. `Chili`/`Rice`, with an older `date`). **Handle both** — show `date` next to the price.
 - **History — `GET /market-prices/history?crop=Chili&days=30`** → `{"crop":"Chili","points":[{"date":"2026-05-15","price":85.96}]}`.
   - On the cloud backend history accrues only from successful *live* scrapes and the container disk is ephemeral, so it can be empty or reset after a restart. Don't treat an empty `points` as an error; fall back to the current price row.
-  - Crop keys are the English names from the feed (`"Chili"`, `"Onion"`, `"Rice"`, …).
+  - Use a `crop`/`name` value exactly as returned by `/market/prices` (feed labels such as `"Aman-Fine"`, `"Chili"`). The history path still accepts the older friendly keys (`"Rice"`, `"Onion"`).
 
 ### 4.6 Weather / Satellite / Soil
 

@@ -1,10 +1,16 @@
 # Local LLM Runtimes & Models Run Log — KrishiBondhu AI (PentaFarmers)
 
-## Runtimes used
+## Production runtime (hosted)
 
 | Runtime | Status | Details |
 |---|---|---|
-| LM Studio | **Verified in production path** | Serves OpenAI-compatible `/v1/chat/completions` on `127.0.0.1:1234`; backend `ADVISE_URL` default. `continue_assistant_turn` + forced-turn streaming path preserved (`ADVISE_HOSTED=false`). |
+| Groq (OpenAI-compatible) | **Verified in production** | `ADVISE_URL=https://api.groq.com/openai/v1`, `ADVISE_MODEL=openai/gpt-oss-20b`, key in Space/env secrets. Serves `/advise`, `/chat`, `/chat/stream` on both Spaces. |
+
+## Runtimes used locally
+
+| Runtime | Status | Details |
+|---|---|---|
+| LM Studio | **Verified in the local/dev path** | Serves OpenAI-compatible `/v1/chat/completions` on `127.0.0.1:1234`; `ADVISE_URL` default for local dev. `continue_assistant_turn` + forced-turn streaming path (`ADVISE_HOSTED=false`). |
 | Ollama | **Runbook ready** | `ollama pull qwen2.5:3b && ollama pull llama3.2:3b && ollama run <model>` exposes `http://localhost:11434/v1`; set `ADVISE_URL=http://localhost:11434/v1` + `ADVISE_HOSTED=true`. Same `_chat()` path as Groq — no code change. |
 
 ## Models run locally (verified)

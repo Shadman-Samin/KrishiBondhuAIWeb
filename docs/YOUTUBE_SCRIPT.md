@@ -30,10 +30,10 @@ screens speaks for itself.
 
 ## 0:30–1:10 — Disease detection (the money shot; do it live)
 - Open `/dashboard/disease`, pick a real rice leaf photo that shows blast
-  symptoms (use the space-demo examples `./rice_blast` file). Upload.
+  symptoms (a file from `space-demo/examples/`). Upload.
 - While the result streams in (boxes + confidence):
 > "This is KrishiDrishti-11X — our own detector. 116 disease and health
-> classes across more than 30 crops. We trained it on an 89-class public
+> classes across 30+ crops. We trained it on an 89-class public
 > plant-disease dataset merged with the 27 classes of a public Roboflow field
 > dataset — the full training record is embedded in the checkpoint, so anyone
 > can verify it was trained by us — and it records about 0.70 validation mAP."
@@ -53,12 +53,15 @@ screens speaks for itself.
 - Show that weather chip / market chip on the page.
 
 ## 1:50–2:20 — Marketplace (live data)
-- `/dashboard/marketplace` — scroll prices, open the history chart for rice
-  or onion.
+- `/dashboard/marketplace` — scroll the price table, open a crop's detail.
 > "Daily national retail prices straight from the Department of Agricultural
-> Marketing's own site — scraped bilingually, merged by row order, with price
-> history and an offline fallback that keeps the page honest when the source
-> is down."
+> Marketing's own site — scraped bilingually, merged by row order, with an honest
+> fallback to a dated dataset when the source is down. The price-history chart fills
+> in from the local backend's daily snapshots."
+- In the live `space` deployment the history chart shows "Not enough history yet — data
+  builds daily" (the Space has no history endpoint). Either shoot that message as-is (it
+  is honest) or switch to local `fastapi` mode for the chart shot — do not script a chart
+  that isn't there.
 
 ## 2:20–2:50 — How it's built (slide/screen each, rapid)
 The under-the-hood montage (queue up minimized windows and switch quickly):
@@ -69,11 +72,13 @@ The under-the-hood montage (queue up minimized windows and switch quickly):
    on the provenance table (Colab, 100 epochs, datasets) and AGPL license.
 3. **GitHub repo** — `KrishiBondhuVision/api` + `mcp-server/` (Stdio+SSE
    Market MCP) + `docs/` (submission packets).
-4. Optional quick flash: `/agent/run` node trace and `/admin/stats`.
+4. Optional quick flash: `/agent/run` node trace and `/admin/stats` — both are
+   **local-backend** routes (the API Space serves `/admin/*` only with the token
+   header). Shoot them from the local stack, not from the live web URL.
 > "The whole thing was built AI-native: one spec prompt bootstrapped the
 > product, agents executed with AGENTS.md as standing memory, and every claim
 > I've made so far is machine-verified — accuracy evals, RAG-precision probes,
-> identity-leak probes, CP-CPU parity checks."
+> identity-leak probes, GPU-CPU parity checks."
 
 ## 2:50–3:20 — Honest limits (30 s of credibility)
 > "What it can't do, we say. The detector has no banana sigatoka class. Voice
@@ -88,14 +93,17 @@ The under-the-hood montage (queue up minimized windows and switch quickly):
 - Overlay (keep on screen 10 s):
   - Live demo: https://krishibondhu-ai-web.vercel.app
   - Direct AI Space: https://hodoly163-krishibondhu-demo.hf.space
+  - App REST API: https://hodoly163-krishibondhu-api.hf.space (/docs for Swagger)
   - GitHub: https://github.com/Shadman-Samin/KrishiBondhuAIWeb
 > "Snap a photo, get the answer — in the language of the field. Thanks."
 
 ---
 
 ### Checklist before recording
-- [ ] Space awake + model loaded (send a first request via the UI to warm it)
-- [ ] Demo images ready and pre-tested (rice blast, tomato late blight, corn healthy)
+- [ ] Demo Space awake + model loaded (upload one photo in the UI once; the demo Space
+      has no `/health` route — the API Space does)
+- [ ] Demo images ready and pre-tested (`space-demo/examples/rice_blast.jpg`,
+      `space-demo/examples/tomato_late_blight.jpg`)
 - [ ] Both language toggles warmed (EN ↔ BN)
 - [ ] End-card overlays prepared (URLs)
 - [ ] Target total length ≤ 4:30
@@ -104,7 +112,7 @@ The under-the-hood montage (queue up minimized windows and switch quickly):
 
 ## Recording checklist (repeat)
 
-- [ ] Space awake (`/health` ok)
+- [ ] Space awake (run one real scan through the web UI)
 - [ ] Example image pre-tested
 - [ ] Both language toggles ready (EN ↔ BN)
 - [ ] Record at 1080p; montage screen time ~30 s total

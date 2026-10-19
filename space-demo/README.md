@@ -14,5 +14,6 @@ startup_duration_timeout: 30m
 
 # KrishiBondhu AI demo (PentaFarmers)
 
-Crop disease detection (YOLO, 116 classes) + bilingual farming chat (Groq) + live market prices (DAM).
-Model: `hodoly163/krishibondhu-jktk`. Full project: see repo docs.
+Crop disease detection (YOLO, 116 classes / 30+ crops) + bilingual farming chat (Groq) +
+live market prices (DAM). Model: `hodoly163/krishibondhu-jktk`. The app's plain REST API
+lives in the separate Space `hodoly163/krishibondhu-api`. Full project: see repo docs.

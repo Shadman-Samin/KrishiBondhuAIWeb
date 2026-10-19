@@ -45,5 +45,5 @@
   },
   "active": false,
   "settings": {},
-  "notes": "Import into n8n (Workflows > Import from JSON). Schedule with a daily Cron trigger. Mirrors api/market.py bilingual merge (EN+BN by row order) with validation before snapshot append."
+  "notes": "TEMPLATE ONLY (active: false, never run in production). Import into n8n (Workflows > Import from JSON), point 'Append history snapshot' at a real endpoint (the shipped backend has no /market-prices/ingest; history is written by api/market.py on live scrapes), and schedule with a daily Cron trigger. Mirrors api/market.py's bilingual merge (EN+BN by row order) with validation before snapshot append."
 }

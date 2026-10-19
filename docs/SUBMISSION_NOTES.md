@@ -24,9 +24,11 @@ the hack and uses standard OpenAI-compatible calls.
 ## 2. Token Optimization Notes (≥50 chars)
 
 History capped at 12 messages; detections truncated to top-3; RAG injects max 2
-passages; silent context is summarized (district weather + top-5 prices only);
-GZip middleware (500B floor); advice temps low to shorten outputs; `/health` stays
-lightweight (no inference); market/weather responses cached (daily / 10-min TTL).
+passages; live facts are summarized before they reach the model (district + weather +
+top-5 prices, assembled client-side in `space-client.ts`); GZip middleware (500B floor);
+advice temps low to shorten outputs; market/weather responses cached (daily / 10-min TTL);
+`/health` returns counts only (no inference) — note it still calls the model loader, so the
+first call after a restart waits for the weights instead of answering instantly.
 
 ## 3. AI-DLC Process Notes (≥100 chars)
 
@@ -74,34 +76,39 @@ route registration before every milestone claim.
 
 ## 7. Guardrails / Safety / Privacy (≥80 chars)
 
-Input: multipart image size handled by streaming reads; chat history filtered to
-user/assistant roles with content required; per-IP rate limits (30/min) on
-`/predict`, `/chat`, `/chat/stream`, `/agent/run` (429 + retry-after). Output: system
+Input: uploads are read into memory per request (no temp files, no persistence); chat
+history filtered to user/assistant roles with content required; per-IP rate limits (30/min)
+on `/predict`, `/chat`, `/chat/stream`, `/agent/run` (429 + retry-after). Output: system
 prompt forbids inventing pesticide doses for garden plants (safe general guidance
 only), forbids base-model disclosure, gates personal details behind playful refusal,
 and confines answers to the asked question (no assumed rice-farmer preamble).
 PII: no user accounts stored, no chat persisted server-side (localStorage only),
 admin endpoints RBAC-gated via `X-Admin-Token`, secrets in env/Space Secrets only.
+CORS: configurable via `CORS_ORIGINS`; the public demo runs with the permissive
+default (`*`) so any client — web or the separately maintained Flutter app — can call it.
 
 ## 8. Tunneling Usage Notes (≥80 chars)
 
 Dev/public-preview path: `ngrok http 8000 --domain=surgery-glowworm-lumpish.ngrok-free.dev`
 via `start-dev.bat` (single origin through FastAPI :8000; free-tier ~1 Mbps + interstitial
-expected). Production (competition demo) retires tunnels: frontend on Vercel + AI backend
-as a **Gradio Space on Hugging Face** (hosted LLM for advised chat, model hot-pluggably
-auto-downloaded, GPU with automatic CPU fallback under free-tier quota limits; free-tier
-behaviour handled in the UI with wake-up/retry/fallback messaging). Tunnel notes stay
-truthful: ngrok = dev only; cloud hosts = judging.
+expected). Production (competition demo) retires tunnels: frontend on Vercel plus two
+Hugging Face Spaces — a **Gradio demo** (web's AI backend) and a **FastAPI REST** Space
+(app integrators) — with hosted LLM for advice/chat, model hot-pluggably auto-downloaded,
+and GPU with automatic CPU fallback under free-tier quota limits; free-tier behaviour is
+handled in the UI with wake-up/retry/fallback messaging. Tunnel notes stay truthful:
+ngrok = dev only; cloud hosts = judging.
 
 ## 9. Data Quality Measures (≥80 chars)
 
 DAM market scrape (`api/market.py`) merges bilingual `?L=E`/`?L=B` marquees by row
-order with regex parsing, daily cache + rolling `market_history.json` snapshots, and
-static `market-prices.json` fallback when the source is unreachable. Validation:
-rows require crop + numeric price + unit; malformed rows drop (never 500); history
-endpoint validates crop/days params. YOLO eval scripts exclude out-of-vocabulary
-classes explicitly instead of silently scoring them. RAG seed docs mirror the curated
-`_DISEASE_KB` so retrieval and API advice can never contradict.
+order with regex parsing, daily cache + rolling `market_history.json` snapshots, and a
+three-step degradation when the source is unreachable — last-good in-memory rows, then
+the shipped dated dataset, then an empty list — so the endpoint never 500s. Validation:
+rows require crop + numeric price + unit; malformed rows drop; history is written only
+on successful live scrapes; the history endpoint validates crop/days params. YOLO eval
+scripts exclude out-of-vocabulary classes explicitly instead of silently scoring them.
+RAG seed docs mirror the curated `_DISEASE_KB` so retrieval and API advice can never
+contradict.
 
 ## 10. Privacy & Compliance Notes (≥80 chars)
 
@@ -109,9 +116,9 @@ No accounts, no server-side chat storage, no tracking cookies; district/weather 
 is per-request and never logged with identity (audit log stores path + status + IP
 only, 500-event ring). Uploaded crop images are processed in-memory and never saved.
 Secrets (`ADVISE_API_KEY`, `OPENWEATHER_API_KEY`, `ADMIN_TOKEN`) live in `.env` (local,
-gitignored) or host Secret stores, never in code or logs. CORS locked to the Vercel
-origin in production. Bengali farmer advisories include safe-use wording; chemical
-recommendations defer to local extension officers where dosage is uncertain.
+gitignored) or host Secret stores, never in code or logs. Bengali farmer advisories
+include safe-use wording; chemical recommendations defer to local extension officers
+where dosage is uncertain.
 
 ## 11. Lineage & Observability Notes (≥80 chars)
 
@@ -122,6 +129,6 @@ retrieve docs, advise length, verify verdict). Data lineage: DAM scrape → dail
 → history snapshots → API rows → RAG/chat context, each stage timestamped
 (`updated_at`, snapshot dates). GZip + request logs aid latency triage; LangSmith/
 Phoenix tracing hooks are stubbed at the `_chat()` boundary for post-competition
-wiring. Availability story: the Space exposes predict via GPU with automatic CPU
-fallback (quota-safe), and the web marketplace falls back to static prices — no
-third-party uptime monitor is configured.
+wiring. Availability story: both Spaces run predict/detect on GPU with automatic CPU
+fallback (quota-safe), and market prices degrade to the shipped dated dataset instead of
+failing — no third-party uptime monitor is configured.

@@ -79,9 +79,9 @@ KrishiBondhu AI is one bilingual assistant covering that whole journey.
    today's national prices, and top RAG passages from a curated bilingual
    agronomy KB (semantic chunking + contextual prefixes + a crop→disease→
    treatment graph boost).
-4. Marketplace: live DAM prices scraped daily bilingually (EN/BN marquee
-   merge), rolling history snapshots with charts, and an honest static
-   fallback offline.
+4. Marketplace: DAM prices scraped daily bilingually (EN/BN marquee merge),
+   history charts fed by the local backend's daily snapshots, and an honest
+   fallback to the shipped dated dataset when the source is unreachable.
 5. Local/research mode: the same skills run locally via FastAPI + LM Studio,
    with an agentic /agent/run loop (intent → retrieve → advise → verify, with
    node trace), an admin stats/audit console, and an MCP server exposing
@@ -153,7 +153,7 @@ HF model (KrishiDrishti-11X): https://huggingface.co/hodoly163/krishibondhu-jktk
 | Portal section | What we claim (selections + paste text) | Why it's true |
 |---|---|---|
 | **Prompt Usage +10** | System-first role grounding (identity/audience/contract), retrieval as silent context, structured chain path in the agent loop, temperature routed by task (0.3 advise / 0.7 chat), few-shot behaviour encoded as rules (greeting mirroring, safe-dose scoping, gated easter egg); prompts iterate in MASTER_PROMPT.md → AGENTS.md as versioned prompts. | SUBMISSION_NOTES §1; system prompts in `api/server.py` + `space-demo/app.py`. |
-| **Token Optimization +10** | Text: history capped at 12 messages; detections truncated to top-3; RAG injects max 2 passages; silent context summarized (district weather + top-5 prices); market/weather cached (daily TTL / 10 min); Space `composeMessage` folds context+history into one call (fewer round trips); `/health` lightweight. Tools to tick: **Structured outputs / JSON mode**, **Sliding-window / context trimming**, **Rolling summary memory**, **Cheap-model routing**. | `api/server.py`, `space-client.ts`. |
+| **Token Optimization +10** | Text: history capped at 12 messages; detections truncated to top-3; RAG injects max 2 passages; live facts summarized client-side (district + weather + top-5 prices); market/weather cached (daily TTL / 10 min); Space `composeMessage` folds context+history into one call (fewer round trips); `/health` returns counts only (no inference), though it does trigger the one-time model load. Tools to tick: **Structured outputs / JSON mode**, **Sliding-window / context trimming**, **Rolling summary memory**, **Cheap-model routing**. | `api/server.py`, `space-client.ts`. |
 | **LLMs / Models +15** | Tick: **ChatGPT**, **Claude**, **Gemini**, **Qwen**, and **Add** others: **Muse Spark 1.3** (+ "Codex ChatGPT" note in the free-text). Paste: ChatGPT/Codex + Claude + Gemini + GLM + Muse Spark drove spec→code; Qwen 3.5 4B runs locally (LM Studio) as the dev runtime; production runs a Groq-hosted open model via OpenAI-compatible API. | User-confirmed history; AGENTS.md LLM modes. |
 | **How & why we used these LLMs +5** | "Spec-first: a single spec prompt (MASTER_PROMPT) defined the product; chat models generated/refactored modules; we gated every model change with scripted evals (accuracy probes, JSON-contract checks, SSE [DONE], identity-leak probes) — small local models for affordability + privacy in dev, hosted model for production reliability." | Model swap gating in repo scripts. |
 | **Retrieval & RAG +12** | Tick: **Contextual RAG**, **Variable / Semantic Chunking**, **Graph RAG**, **Agentic RAG**, **Naive RAG** (cap counts 4×3=12). Details text: TF-IDF cosine over semantically chunked, context-prefixed KB passages; light crop→disease→treatment graph for multi-hop boost; top-2 passages injected silently into /advise + /chat; the agent loop classifies intent then retrieves. | `api/rag/`, `api/agent/`. |
@@ -162,9 +162,9 @@ HF model (KrishiDrishti-11X): https://huggingface.co/hodoly163/krishibondhu-jktk
 | **Agent Frameworks & Orchestration +7** | Custom orchestration: `api/agent/loop.py` runs intent → retrieve → advise → verify with node trace, bounded to one retrieve + one verify pass for predictable latency. No export framework claim. | `api/agent/`. |
 | **Fine-tuning / Adaptation +5** | Domain adaptation = a fine-tuned/resumed YOLO11x detector on merged public crop-disease datasets (documented above); LLM behaviour adapted by system instructions + curated KB; no LoRA (explicit). | checkpoint metadata; SUBMISSION_NOTES §5. |
 | **Evaluation & Quality +7** | Paste: `eval_accuracy.py` top-1 accuracy with explicit coverage-gap accounting; `stage_eval.py`/`test_yolo.py` gate model swaps; scripted LLM probes: RAG precision (rice-blast query must hit target chunks ≥0.45 cosine), identity-leak probes, JSON contract checks, SSE [DONE]; `/admin/stats` token counters; a 35-dimensional submission audit. | `scripts/`, SUBMISSION_NOTES §6. |
-| **Guardrails, Safety & Privacy +6** | Per-IP rate limits (429 + retry-after) on heavy endpoints; uploads processed in-memory (never stored); no accounts/PII/tracking; admin endpoints token-gated (RBAC); outputs must not invent pesticide doses (safe-general guidance); brand-hardening (no base-model disclosure); secrets only in host secret stores; CORS locked to the Vercel origin in production. | SUBMISSION_NOTES §7/§10. |
+| **Guardrails, Safety & Privacy +6** | Per-IP rate limits (429 + retry-after) on heavy endpoints; uploads processed in-memory (never stored); no accounts/PII/tracking; admin endpoints token-gated (RBAC); outputs must not invent pesticide doses (safe-general guidance); brand-hardening (no base-model disclosure); secrets only in host secret stores; CORS configurable via `CORS_ORIGINS` (public demo uses the permissive default so the separate Flutter client can call it). | SUBMISSION_NOTES §7/§10. |
 | **Frontend AI (+1 each, max 5)** | **Lovable** (guaranteed — Vercel project is Lovable-connected); optionally **Cursor Composer** if you used Cursor's agent for the web UI — confirm before ticking. | Vercel/AGENTS. |
-| **Workflow Automation (+1 each, max 4, n8n +2)** | **n8n (self-hosted)** — an n8n workflow automates/DAM-pipeline ingestion; note the n8n bonus. | `docs/n8n-dam-scrape.json`. |
+| **Workflow Automation (+1 each, max 4, n8n +2)** | **n8n** — we authored an import-ready n8n workflow for DAM ingestion (`docs/n8n-dam-scrape.json`: EN+BN fetch → validate → snapshot append). The shipped production scrape runs in-process (`api/market.py`), so describe it as workflow tooling, not as a live n8n deployment. | `docs/n8n-dam-scrape.json` (`active:false` template). |
 | **Local / On-device LLMs (max 8)** | Runtime tick: **LM Studio** (+1). Models: **Qwen 3.5 4B** (+2). Do NOT tick Ollama (runbook only, never run). Paste: "LM Studio serves an OpenAI-compatible endpoint locally for the full dev path; production swaps to hosted Groq via the same API shape (env-switched, no code change). Ollama is documented as a runbook, not a verified run." | `MODELS.md` (truthful log: only LM Studio + Qwen verified). |
 | **Agentic Frameworks Used** | None of the listed frameworks — custom in-house orchestration (state it; don't tick untruthful options). | `api/agent/`. |
 | **AI-DLC frameworks** | Tick **AGENTS.md spec** ✓ (our repo guide IS the spec). Only additionally tick "Cursor Rules + PRD workflow" if .cursor rules were actually used — confirm. Process notes: MASTER_PROMPT.md (single spec prompt) → AGENTS.md persistent memory → docs-first features → eval gates → evidence-first claims. | AGENTS.md itself. |
@@ -204,3 +204,9 @@ marketplace honest offline.
 - No voice claims (roadmap), no satellite monitoring claims (roadmap), no uptime-robot claims.
 - No LoRA; no vector DB (TF-IDF store is keyword-sparse, not embeddings); Ollama listed as runbook only.
 - SUBMISSION_NOTES §8/§11 corrected to Gradio-Space wording (UptimeRobot/Docker lines updated).
+- No "CORS locked to the Vercel origin" (default is `*`; `CORS_ORIGINS` can lock it, but the live demo does not).
+- No "streaming uploads" (uploads are read into memory), and no "`/health` is free" (it triggers the model load).
+- No "live-only market prices": when DAM is unreachable the API returns the dated shipped dataset (`sources:["dataset"]`). Never claim the fallback numbers are today's.
+- No "n8n runs the pipeline": the n8n file is an inactive template; production ingestion is `api/market.py`.
+- No "agent framework" (no LangGraph): `api/agent/loop.py` is a custom bounded loop.
+- No "price-history charts in production": the production web runs against the Space, which has no history endpoint, so charts fill in only in local `fastapi` mode.

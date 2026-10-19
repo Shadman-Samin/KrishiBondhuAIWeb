@@ -19,6 +19,7 @@ The frontend works against **two interchangeable AI backend modes** via `src/lib
 |---|---|
 | `bun run dev` | Vite dev server (:8080) with API proxy |
 | `bun run build` | Production build → `dist/client/` + `dist/server/` (SSR — no stray `index.html`; runtime HTML via Nitro/SSR) |
+| `bun run build:dev` | Build in development mode |
 | `bun run preview` | Preview production build |
 | `bun run lint` | ESLint |
 | `bun run format` | Prettier |
@@ -31,7 +32,8 @@ The frontend works against **two interchangeable AI backend modes** via `src/lib
 | `VITE_BACKEND` | Prod: `space` | Backend mode selector (`space` \| `fastapi`) |
 | `VITE_SPACE_URL` | With `space` mode | HF Space base URL (`https://hodoly163-krishibondhu-demo.hf.space`) |
 
-Legacy note: `VITE_MODEL_API_URL` was replaced by the mode switch above; `.env.example` still carries the old hint.
+`.env.example` lists the current variables. `VITE_MODEL_API_URL` is gone — origins come
+from `VITE_SPACE_URL` (Space mode) or same-origin (FastAPI mode).
 
 ## Tech stack
 
@@ -59,6 +61,7 @@ src/
 │   ├── model-api.ts   # backend switch + FastAPI client (predictDisease, getAdvice, sendChat, streamChat, buildContext, fetchMarketPrices, fetchPriceHistory)
 │   ├── space-client.ts# Gradio Space adapter: /predict (3-output EN+BN advice), /chat, /market; retry & wake/quota copy
 │   ├── weather-api.ts # OpenWeather
+│   ├── error-capture.ts / error-page.ts / lovable-error-reporting.ts # error boundary + reporting
 │   ├── auth.tsx / theme.tsx / i18n.tsx / search.ts / district.ts / utils.ts
 │   └── api-key.ts     # dead code (kept, inert)
 ├── routes/
@@ -80,7 +83,7 @@ src/
 | `/dashboard/disease` | Upload → detection boxes → bilingual advice |
 | `/dashboard/chat` | Bilingual AI advisor (streaming, context-folded) |
 | `/dashboard/soil` | Soil health analysis |
-| `/dashboard/marketplace` | Live DAM prices + history charts (static fallback when offline) |
+| `/dashboard/marketplace` | DAM prices (live or dated dataset fallback) + history chart in `fastapi` mode only — the Space has no history endpoint, so production shows "not enough history yet" |
 | `/dashboard/settings` | Profile & preferences |
 
 ## Deployment
@@ -91,8 +94,11 @@ src/
 ## Gotchas
 
 - **TanStack version skew**: `@tanstack/router` / `start` / vite-plugin versions must stay aligned with the lockfile — mismatched versions broke SSR builds with `MISSING_EXPORT` before. Bump all three together.
+- `/chat/stream` carries the model's private thinking as `delta.reasoning` (most chunks) — render only `choices[0].delta.content`, or the UI shows internal analysis.
 - Pre-existing ESLint errors in `i18n.tsx`, `dashboard/index.tsx`, `dashboard/marketplace.tsx` — leave them.
 - `LangProvider` sets `<div lang>` on the shell, **not** `document.documentElement.lang` — don't add DOM-lang-guessing logic relying on that.
+- Backend contract for integrators lives at `docs/API_FOR_APP.md`; the app REST Space is
+  <https://hodoly163-krishibondhu-api.hf.space> (Swagger at `/docs`).
 
 ## License
 

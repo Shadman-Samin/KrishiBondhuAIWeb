@@ -45,3 +45,6 @@ npm-debug.log*
 *.njsproj
 *.sln
 *.sw?
+
+# Local agent/tool config (machine-specific)
+opencode.json

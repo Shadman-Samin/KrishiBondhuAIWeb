@@ -7,18 +7,19 @@
 | Piece | URL |
 |---|---|
 | **Web app** (frontend + AI dashboard) | <https://krishibondhu-ai-web.vercel.app> |
-| **AI demo Space** (vision model + advisor) | <https://hodoly163-krishibondhu-demo.hf.space> |
+| **AI demo Space** (vision model + advisor, Gradio) | <https://hodoly163-krishibondhu-demo.hf.space> |
+| **App REST API** (integrators; Swagger at `/docs`) | <https://hodoly163-krishibondhu-api.hf.space> |
 
-Seed the Space's live "predict a photo" examples or the Vercel app end-to-end (disease → advisory → chat → market). Free-tier hosting: the Space sleeps after ~48 h of inactivity and takes a minute or two to wake — first request just needs a retry.
+Seed the demo Space's live "predict a photo" examples or the Vercel app end-to-end (disease → advisory → chat → market). Free-tier hosting: both Spaces sleep after ~48 h of inactivity and take a minute or two to wake — the first request just needs a retry.
 
 ---
 
 ## What it does
 
-- **Disease detection** — upload a crop photo; the **KrishiDrishti-11X** vision model (Ultralytics YOLO, 116 disease/health classes across ~30 crops) returns bounding boxes + confidence, then a hosted LLM turns detections into farmer-friendly, bilingual action steps.
+- **Disease detection** — upload a crop photo; the **KrishiDrishti-11X** vision model (Ultralytics YOLO11x, 116 disease/health classes across 30+ crops) returns bounding boxes + confidence, then a hosted LLM turns detections into farmer-friendly, bilingual action steps.
 - **AI advisor chat** — bilingual streaming chat that silently consumes your selected district's weather and today's national market prices to ground its answers.
 - **Weather** — district-level forecasts (OpenWeather).
-- **Market prices** — live daily national prices from Bangladesh's Department of Agricultural Marketing (DAM), with price-history charts and a static offline fallback.
+- **Market prices** — daily national prices from Bangladesh's Department of Agricultural Marketing (DAM), scraped bilingually. If the source is unreachable the API degrades to a dated shipped dataset instead of failing; price-history charts fill in from the local backend's daily snapshots.
 - **Soil info + crop calendar** — per-crop, per-season guidance.
 - **Bilingual by default** — every screen and every AI output is available in English and Bengali.
 
@@ -27,7 +28,7 @@ Seed the Space's live "predict a photo" examples or the Vercel app end-to-end (d
 ## Architecture
 
 ```
-                      PRODUCTION (24/7)
+                      PRODUCTION (24/7, free tiers)
      ┌────────────────────────────────────────────────┐
      │  Vercel  —  TanStack Start SSR web app         │
      │  https://krishibondhu-ai-web.vercel.app        │
@@ -35,11 +36,19 @@ Seed the Space's live "predict a photo" examples or the Vercel app end-to-end (d
                      │ browser calls the AI Space directly (@gradio/client)
                      ▼
      ┌────────────────────────────────────────────────┐
-     │  Hugging Face Spaces  —  Gradio app            │
-     │  • KrishiDrishti-11X detection (GPU, with auto │
-     │    CPU fallback under free-tier quota limits)  │
+     │  HF Space: demo — Gradio app                   │
+     │  • KrishiDrishti-11X detection (GPU, auto CPU  │
+     │    fallback under free-tier quota limits)      │
      │  • hosted LLM advisor + chat (Groq free tier)  │
-     │  • bilingual outputs (EN + BN)                 │
+     │  • bilingual outputs (EN + BN), market table   │
+     └────────────────────────────────────────────────┘
+
+     Separate entry point for app integrators (not called by the web app):
+     ┌────────────────────────────────────────────────┐
+     │  HF Space: API — FastAPI REST (second Space)   │
+     │  /disease/detect  /assistant/chat              │
+     │  /market/prices   /weather/forecast            │
+     │  Swagger UI at /docs                           │
      └────────────────────────────────────────────────┘
 
                       LOCAL DEVELOPMENT
@@ -50,7 +59,7 @@ Seed the Space's live "predict a photo" examples or the Vercel app end-to-end (d
      └───────────────┬────────────────────────────────┘
                      ▼
      ┌────────────────────────────────────────────────┐
-     │  frontend  —  bun dev (:8080) or node serve.mjs│
+     │  frontend — bun dev (:8080) / serve.mjs (:8001)│
      └────────────────────────────────────────────────┘
 ```
 
@@ -89,9 +98,10 @@ KrishiBondhuAIWeb/
 │   ├── api/              # server, market scraper, RAG store, agent loop, admin, MCP
 │   ├── models/           # jktk_x.pt (KrishiDrishti-11X weights; HF-downloaded)
 │   └── scripts/          # accuracy eval + model download helpers
-├── space-demo/           # the Gradio Space app (production AI backend)
+├── space-demo/           # the Gradio Space app (production AI backend for the web)
+├── space-api/            # the app REST API Space (FastAPI over uvicorn, ZeroGPU handshake)
 ├── mcp-server/           # standalone MCP market-tool server
-├── docs/                 # deployment log, submission packet, pitch/script docs
+├── docs/                 # deployment log, API contract, submission packet, pitch/script docs
 └── start-dev.bat         # one-click local launcher
 ```
 
@@ -158,9 +168,10 @@ Backend env (`KrishiBondhuVision/.env` or Space secrets): `ADVISE_URL`, `ADVISE_
 | `GET /health` | Model liveness |
 | `POST /agent/run` | Agentic intent→retrieve→advise→verify loop with trace |
 | `GET /admin/stats` · `/admin/audit` | Token usage + audit trail (token-gated) |
+| `POST /disease/detect` · `/assistant/chat` · `GET /market/prices` · `/weather/forecast` · `/satellite/analysis` · `POST /soil/analyze` | App-compat REST shapes (same on the API Space; satellite/soil are preview stubs) |
 | MCP | `krishibondhu-market` tools over Stdio + SSE (`mcp-server/`) |
 
-The Gradio Space exposes the same core skills (`/predict`, chat, market) through its own API; the frontend's `space-client.ts` speaks that protocol. See `KrishiBondhuVision/docs/` and `docs/` for endpoint detail.
+The demo Space exposes the same core skills (`/predict`, chat, market) through its own Gradio API, which `space-client.ts` speaks; the API Space serves the plain REST contract for app integrators. Full endpoint detail, verified live: [`docs/API_FOR_APP.md`](docs/API_FOR_APP.md) (Swagger: <https://hodoly163-krishibondhu-api.hf.space/docs>).
 
 ---
 
@@ -168,18 +179,25 @@ The Gradio Space exposes the same core skills (`/predict`, chat, market) through
 
 | Doc | Contents |
 |---|---|
+| [`AGENTS.md`](AGENTS.md) | Repo guide for AI agents: architecture, invariants, gotchas |
+| [`docs/API_FOR_APP.md`](docs/API_FOR_APP.md) | App REST contract, verified live (Swagger at `/docs`) |
 | [`docs/DEPLOY.md`](docs/DEPLOY.md) | Cloud deployment log + verification notes |
-| [`docs/SUBMISSION_NOTES.md`](docs/SUBMISSION_NOTES.md) | Competition submission texts |
-| [`docs/API_FOR_APP.md`](KrishiBondhuVision/docs/API_FOR_APP.md) | API detail for mobile-app integrators |
-| [`KrishiBondhuVision/MODELS.md`](KrishiBondhuVision/MODELS.md) | Local LLM run log |
-| [`mcp-server/MCP.md`](mcp-server/MCP.md) | MCP server tools |
+| [`docs/SUBMISSION_NOTES.md`](docs/SUBMISSION_NOTES.md) | Competition submission texts (per-field) |
+| [`docs/PORTAL_SUBMISSION.md`](docs/PORTAL_SUBMISSION.md) | Copy-paste portal packet + truth-drift ledger |
+| [`docs/ACCESS_NOTE.md`](docs/ACCESS_NOTE.md) | Access note for judges |
+| [`docs/YOUTUBE_SCRIPT.md`](docs/YOUTUBE_SCRIPT.md) | Demo video script + recording checklist |
+| [`docs/PITCH_OUTLINE.md`](docs/PITCH_OUTLINE.md) · [`docs/FIGMA_PLAN.md`](docs/FIGMA_PLAN.md) | Pitch deck outline · Figma deliverables |
+| [`KrishiBondhuWeb/README.md`](KrishiBondhuWeb/README.md) | Frontend structure, backend switch, gotchas |
+| [`KrishiBondhuVision/MODELS.md`](KrishiBondhuVision/MODELS.md) | LLM runtime/model run log |
+| [`mcp-server/MCP.md`](mcp-server/MCP.md) | MCP disclosure: servers built and used |
+| [`docs/n8n-dam-scrape.json`](docs/n8n-dam-scrape.json) | n8n workflow template for the DAM scrape |
 
 ---
 
 ## Related projects
 
-- Mobile app — [KrishiBondhu AI app](https://github.com/ausabbir76/Krsishi-Bondhu-AI-App) (Flutter client, separate maintainer).
+- Mobile app — [KrishiBondhu AI app](https://github.com/ausabbir76/Krsishi-Bondhu-AI-App): a Flutter client maintained separately by another developer; it consumes this repo's App REST API.
 
 ## License
 
-Proprietary — all rights reserved. The vision model is Apache/AGPL lineage via Ultralytics; see the [model card](https://huggingface.co/hodoly163/krishibondhu-jktk) for details.
+Proprietary — all rights reserved for our application code. The vision model is an AGPL-3.0-licensed Ultralytics YOLO11x derivative; see the [model card](https://huggingface.co/hodoly163/krishibondhu-jktk) for details.

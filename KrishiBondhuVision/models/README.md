@@ -11,13 +11,15 @@ Hosted on Hugging Face: `hodoly163/krishibondhu-jktk`
 python scripts/download_model.py
 
 # or direct hf CLI
-hf download hodoly163/krishibondhu-jktk jktk_x.pt --local-dir models --local-dir-use-symlinks False
+hf download hodoly163/krishibondhu-jktk jktk_x.pt --local-dir models
 
 # or Python API
 python -c "from huggingface_hub import hf_hub_download; hf_hub_download('hodoly163/krishibondhu-jktk','jktk_x.pt',local_dir='models')"
 ```
 
-Place file as `KrishiBondhuVision/models/jktk_x.pt`. Server (`api/server.py:22`) tries HF download at startup if missing, otherwise expects local file.
+Place file as `KrishiBondhuVision/models/jktk_x.pt`. `api/server.py` downloads it from HF
+on first use if missing (see `MODEL_PATH` / `HF_MODEL_REPO`, ~lines 43–70), otherwise
+loads the local file.
 
 ## Upload (maintainers)
 
