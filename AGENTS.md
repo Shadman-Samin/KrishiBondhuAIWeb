@@ -13,7 +13,8 @@ Monorepo layout (no root package.json — each folder is self-contained):
 | Path | What | Status |
 |---|---|---|
 | `KrishiBondhuWeb/` | TanStack Start web client — **Vercel rootDir**, auto-deploys on push to `main` | Active — main product |
-| `space-demo/` | Gradio Space app (`app.py`) — the production AI backend | Active — 24/7 demo |
+| `space-demo/` | Gradio Space app (`app.py`) — the production AI backend for the **web** | Active — 24/7 demo |
+| `space-api/` | Glue for the **app-rest** Space (`hodoly163/krishibondhu-api`): uvicorn (:7860) + private Gradio for the ZeroGPU handshake | Active — 24/7 app REST |
 | `KrishiBondhuVision/` | Python FastAPI backend (full local mode: model, LLM, market, RAG, agent, admin, MCP) | Active |
 | `mcp-server/` | Standalone MCP market-tool server (Stdio + SSE) | Active |
 | `docs/` | Deploy log, submission packet, scripts | Active |
@@ -21,7 +22,7 @@ Monorepo layout (no root package.json — each folder is self-contained):
 | `Krsishi-Bondhu-AI-App/` | Flutter app (typo'd folder name) — **abandoned, do not work on it** unless explicitly asked |
 
 Git: single repo `https://github.com/Shadman-Samin/KrishiBondhuAIWeb.git` (both root and subrepos point here). KrishiBondhuWeb is also Lovable-connected.
-Live: web `https://krishibondhu-ai-web.vercel.app` (Vercel project `krishibondhu-ai-web`, `prj_UykhoU0eQDsJvaAoH9tmyat2gDht`, framework `tanstack-start-lovable`) · Space `https://hodoly163-krishibondhu-demo.hf.space` (hardware `zero-a10g`, Gradio, `demo.launch(mcp_server=True)`).
+Live: web `https://krishibondhu-ai-web.vercel.app` (Vercel project `krishibondhu-ai-web`, `prj_UykhoU0eQDsJvaAoH9tmyat2gDht`, framework `tanstack-start-lovable`) · Space `https://hodoly163-krishibondhu-demo.hf.space` (hardware `zero-a10g`, Gradio, `demo.launch(mcp_server=True)`) · API Space (app backend) `https://hodoly163-krishibondhu-api.hf.space` (hardware `zero-a10g`, Gradio-SDK mount of FastAPI via uvicorn; free tier = max 2 ZeroGPU Spaces, both used).
 
 ## 2. Architecture (dual-mode)
 
@@ -114,6 +115,14 @@ Middleware: CORS (`*`/dev; lock to Vercel origin in prod), GZip (min 500 B), per
               repo_id='hodoly163/krishibondhu-demo', repo_type='space')
   ```
 - Free-tier behaviour: ZeroGPU per-visitor daily quota (error text "You have exceeded your ZeroGPU runs limit"), ~48 h sleep + 1–2 min cold wake. UI copy: retry/wake/quota messaging via `describeFailure` in `space-client.ts`.
+
+### App-rest Space (`hodoly163/krishibondhu-api`) — `space-api/`
+
+- Purpose: app-compat REST for the Flutter app (`/disease/detect`, `/assistant/chat`, `/market/prices`, `/weather/forecast`, `/health`, natives `/predict` `/chat` …). Client contract + cold-start/rate-limit ledger: `docs/API_FOR_APP.md`.
+- Architecture: `space-api/app.py` = `import spaces` first, then **force `GRADIO_SERVER_NAME/PORT=127.0.0.1/7861` *before* `import gradio`** (Gradio reads `http_server.INITIAL_PORT_VALUE` at import; HF exports `GRADIO_SERVER_PORT=7860`, and Gradio 6 serves its SPA as the front door via `GET /` / `GET /{page}` — so the REST API cannot be mounted inside the Gradio app). uvicorn owns the public `:7860` and serves `api/server.py`'s FastAPI; Gradio is launched privately on `:7861` in a daemon thread **only** to satisfy ZeroGPU, which reports its `@spaces.GPU` functions from inside `gr.Blocks.launch()` (otherwise: "No @spaces.GPU function detected during startup"). A `GET /` landing page is inserted at position 0 of `srv.app.router.routes` so it isn't swallowed by the server's catch-all. `get_model` is proxied: `.predict` wrapped in `@spaces.GPU(duration=30)` with plain CPU-emulation fallback on quota/GPU errors.
+- Verified live: `/health` → `{"ok":true,"model":"jktk_x.pt","classes":116}`; `/predict` and `/disease/detect` return detections; `/market/prices` (live DAM scrape) and `/weather/forecast` return data; `/docs` is Swagger. `/assistant/chat` returns `502 … Connection refused` until the `ADVISE_URL` / `ADVISE_MODEL` / `ADVISE_API_KEY` (Groq) secrets are set — the Space falls back to the local LM Studio URL otherwise.
+- Deploy: stage `space-api/` glue + `KrishiBondhuVision/api/` (no `__pycache__`) into a temp dir → `HfApi().upload_folder(folder_path=..., repo_id='hodoly163/krishibondhu-api', repo_type='space')`. Space `requirements.txt` is torchless (ZeroGPU image ships torch 2.13.0; our pin would drag the CUDA wheel).
+- Secrets (Space settings): `ADVISE_API_KEY`, `ADVISE_URL=https://api.groq.com/openai/v1`, `ADVISE_MODEL=openai/gpt-oss-20b`, optionally `OPENWEATHER_API_KEY`. Free tier: ≤2 ZeroGPU Spaces — both slots are now used (demo + api); delete one to make room.
 
 ## 6. KrishiBondhuWeb (frontend)
 

@@ -1,29 +1,25 @@
 # KrishiBondhu API — Flutter App Integration Guide
 
-Share this file with the Flutter app developer. Everything works same-origin through one public host (free-ngrok single-origin constraint).
+Share this file with the Flutter app developer. The app talks to one **cloud-hosted REST backend** (free-tier Hugging Face Space), 24/7 on a free public URL. One base URL, no tunnels, no local server.
 
 ## 1. Base URL
 
 | Env | Base URL | Notes |
 |-----|----------|-------|
-| **Production (ngrok)** | `https://surgery-glowworm-lumpish.ngrok-free.dev` | All web + API traffic via FastAPI `:8000` → ngrok. PC must stay on with `start-dev.bat` running. First visit per browser shows a 7-day interstitial — expected (`AGENTS.md`). |
-| **Local** | `http://127.0.0.1:8000` | Run `KrishiBondhuVision/.venv/Scripts/python.exe -m uvicorn api.server:app --host 127.0.0.1 --port 8000`. Also need SSR on `:8001` for web HTML routes, but API works standalone. |
+| **Production (cloud)** | `https://hodoly163-krishibondhu-api.hf.space` | FastAPI on a Hugging Face Space (`hodoly163/krishibondhu-api`). Free tier: sleeps after ~48 h idle, wakes in ~1–2 min (see §2). |
 
 **Flutter config:** `lib/core/config/app_env.dart:14` reads compile-time `API_BASE_URL`:
 
 ```json
-// env/dev.json — local
-{ "API_BASE_URL": "http://127.0.0.1:8000", "ENV": "dev", "NETWORK_LOGS": "true" }
-
-// env/prod.json — public (give this to the app dev)
-{ "API_BASE_URL": "https://surgery-glowworm-lumpish.ngrok-free.dev", "ENV": "prod", "NETWORK_LOGS": "false" }
+// env/prod.json — the public cloud backend (give this to the app dev)
+{ "API_BASE_URL": "https://hodoly163-krishibondhu-api.hf.space", "ENV": "prod", "NETWORK_LOGS": "false" }
 ```
 
 `env/` is git-ignored and does not exist yet — create it first:
 
 ```bash
 mkdir env
-# then create env/dev.json and env/prod.json with the JSON above
+# then create env/prod.json with the JSON above
 ```
 
 Run with:
@@ -36,18 +32,19 @@ flutter build apk --dart-define-from-file=env/prod.json
 
 ## 2. Availability — read this first
 
-This is an **on-demand dev tunnel, not 24/7**. The public host is your PC via ngrok.
+The cloud backend is a free Hugging Face Space. It is online by default and the main failure mode is **cold start**, not "offline".
 
-- **Default: offline.** The tunnel is off. Build entirely against `*Mock` (`Krsishi-Bondhu-AI-App/GUIDE.md:57`, `lib/features/*/providers.dart`) — no server needed.
-- **When you need live data:** message Shadman "start server". He runs `start-dev.bat` from `F:\KrishiBondhu` — builds web, starts SSR `:8001` + FastAPI `:8000`, opens tunnel. Ready in ~30s. Verify: `curl https://surgery-glowworm-lumpish.ngrok-free.dev/health` → `{"ok":true,"model":"jktk_x.pt","classes":116}`.
-- **If you get `503`, connection refused, or timeout:** tunnel is off — ping again.
-- **Interstitial:** free-ngrok shows a one-time per-browser interstitial page (7-day cookie) — expected, not a bug (`AGENTS.md`). If `Dio` hits it, set `browserHeader: ngrok-skip-browser-warning` or just open the URL once in a browser to clear it.
-- **Chat/Advise** require LM Studio on the host at `127.0.0.1:1234` (`KrishiBondhuVision/.env: ADVISE_URL`): `POST /advise` → `200 {"advice":null}` (`api/server.py:303`), `POST /chat` → `200 {"reply":null}` (`api/server.py:371`), only `POST /assistant/chat` (+`/api/assistant/chat` `api/server.py:486`) → `502 {"detail":...}` on LLM down. All are graceful — treat as "retry after ping".
-- **When live is not needed:** keep `ENV=prod` but you can stay on mocks — zero penalty.
+- **Normal state:** `curl https://hodoly163-krishibondhu-api.hf.space/health` → `{"ok":true,"model":"jktk_x.pt","classes":116}` — you are good to go.
+- **Sleep/wake:** after ~48 h with no traffic the Space sleeps. First request to a sleeping Space takes **~1–2 minutes** (the platform wakes it, then the app boots). Make the client patient: the Dio default `connectTimeout` (15s) will time out — retry or raise timeouts. Once awake, it stays awake while traffic continues.
+- **Model warm-up:** the YOLO model (`jktk_x.pt`, ≈436 MB) lazy-downloads on the **first `/disease/detect` or `/predict`** call after a container restart. Measured live: ~8 s when the weights are already cached, up to ~2–5 min when they must be downloaded. `/health` stays fast during this. If the first scan would exceed your `receiveTimeout` (30s), retry it once — the model will be cached by then.
+- **`/health` returns `{"ok":false,...}`:** the backend is booting (or the model is downloading if a model endpoint was hit recently). Treat as *temporary* — poll every ~5 s up to ~3 min before surfacing an error.
+- **Connection refused / 5xx at the platform level (HTML error page, not JSON):** Space is mid-build or restarting. Wait ~2–5 min and retry. Builds only happen after backend updates.
+- **Rate limit:** `/predict`, `/chat`, `/chat/stream`, `/agent/run` are limited to **30 requests/min per IP** (`api/server.py` middleware). On `429`, back off and retry — don't hammer.
+- **Chat/advise LLM:** hosted in the cloud. If the LLM layer returns null (`POST /advise` → `200 {"advice":null}`, `POST /chat` → `200 {"reply":null}`) treat as "LLM temporarily unavailable — retry later"; only `POST /assistant/chat` (+`/api/assistant/chat`) surfaces `502 {"detail":...}` on LLM down. All three are graceful.
 
 ## 3. Auth / Headers
 
-- **No auth required.** `KRISHI_API_KEY` in `KrishiBondhuVision/.env` is inert — auth was removed. Do not send `X-API-Key`. `AuthInterceptor` (`lib/core/network/interceptors/auth_interceptor.dart:12`) exists but is dormant until an auth backend ships (`AccountController` is `null`) — no `Bearer` is sent today.
+- **No auth required.** No API key is needed by the current public backend — send no `X-API-Key`. `AuthInterceptor` (`lib/core/network/interceptors/auth_interceptor.dart:12`) exists but is dormant until an auth system ships (`AccountController` is `null`) — no `Bearer` is sent.
 - **CORS:** `allow_origins=["*"]` (`api/server.py:54`). Works from Flutter/Dio, web, curl.
 - **GZip:** responses ≥500 bytes are gzipped (`api/server.py:49`).
 
@@ -56,9 +53,11 @@ This is an **on-demand dev tunnel, not 24/7**. The public host is your PC via ng
 ### 4.1 Health — `GET /health`
 
 ```bash
-curl https://surgery-glowworm-lumpish.ngrok-free.dev/health
+curl https://hodoly163-krishibondhu-api.hf.space/health
 # {"ok":true,"model":"jktk_x.pt","classes":116}
 ```
+
+Human-facing extras: `GET /` returns a short landing page, `GET /docs` is the interactive Swagger UI for every endpoint.
 
 ### 4.2 Disease detection — `POST /disease/detect` (app-native) & `POST /predict` (web-native)
 
@@ -66,13 +65,13 @@ Both run the same YOLO model (`models/jktk_x.pt`, 116 classes, `conf=0.25, imgsz
 
 **Flutter path (recommended — matches `DiseaseRepository`):**
 ```bash
-curl -X POST https://surgery-glowworm-lumpish.ngrok-free.dev/disease/detect \
+curl -X POST https://hodoly163-krishibondhu-api.hf.space/disease/detect \
   -F "image=@leaf.jpg" -F "locale=en"
 ```
 
 **Web path (also live, aliased as `/api/disease/detect`):**
 ```bash
-curl -X POST https://surgery-glowworm-lumpish.ngrok-free.dev/predict -F "file=@leaf.jpg"
+curl -X POST https://hodoly163-krishibondhu-api.hf.space/predict -F "file=@leaf.jpg"
 ```
 
 **Response** (`/disease/detect` merges both shapes so either decoder works):
@@ -90,8 +89,9 @@ curl -X POST https://surgery-glowworm-lumpish.ngrok-free.dev/predict -F "file=@l
 }
 ```
  - `detections` sorted by `conf` desc (`api/server.py:101`). `top` is best or `null`. Extra `detections`/`top` are merged into the `DiseaseResult` JSON but `DiseaseResult.fromJson` (`disease_result.dart:25`) ignores them — safe.
-- If no detection: `detections:[]`, `top:null`, `disease:"No disease detected"` (bn: `"কোনো রোগ সনাক্ত হয়নি"`), `confidence:0.0`, `severity:"None"` — kept non-null so `DiseaseResult.fromJson` (`disease: String`) never crashes (`api/server.py:250`).
-- `locale=bn` returns Bangla `disease/severity/organicTreatment/...` (`api/server.py:162`).
+ - If no detection: `detections:[]`, `top:null`, `disease:"No disease detected"` (bn: `"কোনো রোগ সনাক্ত হয়নি"`), `confidence:0.0`, `severity:"None"` — kept non-null so `DiseaseResult.fromJson` (`disease: String`) never crashes (`api/server.py:250`).
+ - `locale=bn` returns Bangla `disease/severity/organicTreatment/...` (`api/server.py:162`).
+ - Remember §2: the FIRST detect after a cold restart triggers the model download (~2–5 min). Retry-once pattern recommended.
 
 **Dart — `lib/features/disease/data/disease_repository.dart:17`:**
 ```dart
@@ -107,36 +107,29 @@ await ref.read(diseaseRepositoryProvider).analyzeMock(path, locale: locale);
 await ref.read(diseaseRepositoryProvider).analyze(path, locale: locale);
 ```
 
-For pure `/predict` style (if you prefer web shape):
-```dart
-final form = FormData.fromMap({'file': await MultipartFile.fromFile(path)});
-final res = await dio.post('/predict', data: form);
-```
-
 ### 4.3 Advise — `POST /advise` (optional, LLM follow-up to detection)
 
 Web calls this after `/predict` to get bilingual farmer advice. Flutter can ignore if it already uses `DiseaseResult` organic/chemical fields.
 
 ```bash
-curl -X POST https://surgery-glowworm-lumpish.ngrok-free.dev/advise \
+curl -X POST https://hodoly163-krishibondhu-api.hf.space/advise \
   -H "Content-Type: application/json" \
   -d '{"top":{"class":"rice blast","conf":0.94,"box":[0,0,100,100]},"detections":[{"class":"rice blast","conf":0.94,"box":[0,0,100,100]}],"disease":null}'
 # {"advice":{"en":"...","bn":"..."}} or {"advice":null} on LLM error
 ```
-Requires LM Studio running at `127.0.0.1:1234` (`ADVISE_URL` in `.env`), otherwise returns `200 {"advice":null}` (`api/server.py:303`). Only the app shim `POST /assistant/chat` (`api/server.py:486`) surfaces `502` on LLM down.
 
 ### 4.4 Chat — `POST /assistant/chat` (app) & `POST /chat` / `POST /chat/stream` (web)
 
 **Native web:**
 ```bash
-curl -X POST https://surgery-glowworm-lumpish.ngrok-free.dev/chat \
+curl -X POST https://hodoly163-krishibondhu-api.hf.space/chat \
   -H "Content-Type: application/json" \
   -d '{"messages":[{"role":"user","content":"How to control aphids on mustard?"}],"lang":"en","context":{"farmer":{"district":"Rajshahi","language":"English"}}}'
 # {"reply":"..."}  (null on LLM down)
 ```
 SSE stream:
 ```bash
-curl -N -X POST https://surgery-glowworm-lumpish.ngrok-free.dev/chat/stream -H "Content-Type: application/json" -d '{"messages":[{"role":"user","content":"hi"}],"lang":"en","context":{}}'
+curl -N -X POST https://hodoly163-krishibondhu-api.hf.space/chat/stream -H "Content-Type: application/json" -d '{"messages":[{"role":"user","content":"hi"}],"lang":"en","context":{}}'
 # data: {"choices":[{"delta":{"content":"Hello"}}]}
 # ...
 # data: [DONE]
@@ -144,11 +137,13 @@ curl -N -X POST https://surgery-glowworm-lumpish.ngrok-free.dev/chat/stream -H "
 
 **Flutter shim — `POST /assistant/chat` (also `/api/assistant/chat`):**
 ```bash
-curl -X POST https://surgery-glowworm-lumpish.ngrok-free.dev/assistant/chat \
+curl -X POST https://hodoly163-krishibondhu-api.hf.space/assistant/chat \
   -H "Content-Type: application/json" \
   -d '{"message":"How to control aphids on mustard?","locale":"en","history":[{"id":"1","role":"user","text":"hi"}]}'
 # {"id":"msg-a1b2c3d4","role":"assistant","text":"..."}
 ```
+
+> **Chat needs the LLM secrets on the Space** (`ADVISE_URL=https://api.groq.com/openai/v1`, `ADVISE_MODEL=openai/gpt-oss-20b`, `ADVISE_API_KEY=<Groq key>`). Until they are pasted into the Space settings, chat/advise fall back to a local LLM that isn't running and you get `502 {"detail":"assistant error: <urlopen error [Errno 111] Connection refused>"}` (or `200 {"reply":null}` on `/chat`). Detection, market and weather work regardless.
 The shim maps `{message, history:[{id,role,text}], locale}` ↔ native `{messages:[{role,content}], lang, context}` (`api/server.py:486` shim, system prompt `api/server.py:332`). `locale`/`lang` = `en|bn`. History capped at 12 (`CHAT_MAX_MESSAGES=12` `api/server.py:332`).
 
 **Dart — `lib/features/assistant/data/assistant_repository.dart:18`:**
@@ -168,17 +163,18 @@ Streaming from Flutter (if you want SSE):
 
 **Web (live scrape from DAM `market.dam.gov.bd`, cached daily `api/market.py:145`):**
 ```bash
-curl https://surgery-glowworm-lumpish.ngrok-free.dev/market-prices
+curl https://hodoly163-krishibondhu-api.hf.space/market-prices
 # {"updated_at":"2026-09-05","sources":["dam"],"rows":[{"crop":"Aman Rice","cropBn":"আমন চাল","price":52.5,"min":50,"max":55,"change_pct":1.2,"date":"2026-09-05","unit":"kg"}]}
 # Shim GET /market/prices returns same rows mapped to {name,nameBn,emoji,category,pricePerKg,changePercent,min,max,date,unit} — extra min/max/date/unit are ignored by MarketPrice.fromJson (harmless)
 
-curl "https://surgery-glowworm-lumpish.ngrok-free.dev/market-prices/history?crop=Aman%20Rice&days=30"
-# {"crop":"Aman Rice","points":[{"date":"2026-09-01","price":51.0}, ...]}  (history: no Flutter repo yet — optional)
+curl "https://hodoly163-krishibondhu-api.hf.space/market-prices/history?crop=Aman%20Rice&days=30"
+# {"crop":"Aman Rice","points":[{"date":"2026-09-01","price":51.0}, ...]}
+# history accrues live from daily scrapes and resets to empty on a cold restart (container disk is ephemeral on the free cloud); it may be ""-points empty right after a wake.
 ```
 
 **Flutter shim — `GET /market/prices` (also `/api/market/prices`):**
 ```bash
-curl https://surgery-glowworm-lumpish.ngrok-free.dev/market/prices
+curl https://hodoly163-krishibondhu-api.hf.space/market/prices
 # [{"name":"Aman Rice","nameBn":"আমন চাল","emoji":"🌾","category":"Grains","pricePerKg":52.5,"changePercent":1.2,"min":50,"max":55,"date":"2026-09-05","unit":"kg"}, ...]
 ```
 Returns a **bare list** (not an object) of `MarketPrice` (`market_repository.dart:15`, `market_price.dart:30`) with `nameFor(locale)` selecting `nameBn` when `locale==bn`. `POST /advise` and `POST /chat/stream` have no Flutter repo — Flutter uses only `POST /assistant/chat`; `/chat`/`/advise` are web paths (still live, aliased).
@@ -188,14 +184,14 @@ Returns a **bare list** (not an object) of `MarketPrice` (`market_repository.dar
 await ref.read(marketRepositoryProvider).fetchPrices(); // swap from fetchMockPrices()
 ```
 
-### 4.6 Weather / Satellite / Soil — stubs (no live backend yet)
+### 4.6 Weather / Satellite / Soil
 
-These have no real upstream yet; stubs return a valid `fromJson` shape so the app can ship without mocks.
+On the **cloud backend**, `GET /weather/forecast` backs on **real OpenWeather data** when `OPENWEATHER_API_KEY` is set as a Space secret (team has that key; if it's not yet pasted, the endpoint returns the identical stub shape). `/satellite/analysis` and `POST /soil/analyze` are **preview stubs** — valid fromJson shapes, no live upstream yet.
 
 ```bash
-curl "https://surgery-glowworm-lumpish.ngrok-free.dev/weather/forecast?district=Rajshahi&locale=en"
-curl "https://surgery-glowworm-lumpish.ngrok-free.dev/satellite/analysis?district=Rajshahi&locale=en"
-curl -X POST https://surgery-glowworm-lumpish.ngrok-free.dev/soil/analyze -H "Content-Type: application/json" -d '{"location":"Rajshahi","locale":"en"}'
+curl "https://hodoly163-krishibondhu-api.hf.space/weather/forecast?district=Rajshahi&locale=en"
+curl "https://hodoly163-krishibondhu-api.hf.space/satellite/analysis?district=Rajshahi&locale=en"
+curl -X POST https://hodoly163-krishibondhu-api.hf.space/soil/analyze -H "Content-Type: application/json" -d '{"location":"Rajshahi","locale":"en"}'
 ```
 
 Each returns the exact fields `WeatherForecast.fromJson` (`weather_forecast.dart:31`), `SatelliteAnalysis.fromJson` (`satellite_analysis.dart:23`), `SoilAnalysis.fromJson` (`soil_analysis.dart:25`) expect, plus `_note:"stub — wire to ... when ready"` (ignored by `fromJson`).
@@ -209,8 +205,6 @@ ref.read(soilRepositoryProvider).analyze(location, locale: locale) // was analyz
 // weather: lib/features/weather/providers.dart
 ref.read(weatherRepositoryProvider).fetch(district, locale: locale) // was fetchMock
 ```
-
-To make weather real, wire `api/server.py: weather_forecast_compat` to OpenWeather (key in `KrishiBondhuWeb/.env.local:VITE_OPENWEATHER_API_KEY` as reference) or BMD.
 
 ## 5. Dio setup (already in app)
 
@@ -228,6 +222,16 @@ if (AppEnv.enableNetworkLogs) dio.interceptors.add(LoggingInterceptor());
 
 `ApiClient` returns `Result<T>` — never throw to UI. See `lib/core/errors/result.dart`, `lib/core/errors/app_exception.dart`.
 
+**Cold-start timeouts (cloud):** keep the defaults for interactive UI, but wrap your first request after idle with a retry (or bump `receiveTimeout` for `/disease/detect` to ~300 s on the very first call after a restart, per §2). A good pattern:
+```dart
+// Attempt twice (covers a cold-wake timeout on the very first request after idle)
+Future<Result<T>> attemptTwice<T>(Future<Result<T>> Function() call) async {
+  var r = await call();
+  if (r is Failure) r = await call();
+  return r;
+}
+```
+
 Test locally:
 ```bash
 flutter pub get
@@ -240,18 +244,19 @@ flutter run --dart-define-from-file=env/prod.json
 Paste the block below into your AI along with this file. The AI will wire the app in one go.
 
 ````
-You are wiring the Flutter app at Krsishi-Bondhu-AI-App/ (Riverpod + Dio) to the live KrishiBondhu backend.
+You are wiring the Flutter app at Krsishi-Bondhu-AI-App/ (Riverpod + Dio) to the cloud KrishiBondhu backend.
 Use ONLY docs/API_FOR_APP.md as source of truth. Do not guess endpoints or hardcode URLs outside AppEnv.
 
-Base URL: https://surgery-glowworm-lumpish.ngrok-free.dev (local alt http://127.0.0.1:8000)
-Availability: on-demand — tunnel is off by default. If GET /health != {"ok":true}, tell the user to ping Shadman "start server". It starts via start-dev.bat in ~30s. 503/timeout = tunnel off. Free-ngrok has a one-time per-browser interstitial (7-day cookie) — expected.
+Base URL: https://hodoly163-krishibondhu-api.hf.space — use this one URL everywhere.
+Availability: online by default. Free-tier cold starts: ~1-2 min wake after ~48h idle (HTTP timeout -> retry); first /disease/detect after a restart triggers model download (~2-5 min, then fast). GET /health == {"ok":true,...} = ready; {"ok":false} = booting -> poll. Platform HTML error = Space rebuilding (wait ~2-5 min).
+Rate limit: /predict /chat /chat/stream /agent/run = 30/min per IP; on 429 back off.
 
-No auth. KRISHI_API_KEY is inert (KrishiBondhuVision/.env.example:3). CORS * (api/server.py:54).
+No auth. No API key required. CORS * (api/server.py:54).
 
 Task — do all of these:
 
 1. Create env/prod.json (env/ is git-ignored — run `mkdir env` first):
-   {"API_BASE_URL":"https://surgery-glowworm-lumpish.ngrok-free.dev","ENV":"prod","NETWORK_LOGS":"false"}
+   {"API_BASE_URL":"https://hodoly163-krishibondhu-api.hf.space","ENV":"prod","NETWORK_LOGS":"false"}
    Config is read at lib/core/config/app_env.dart:14 (String.fromEnvironment API_BASE_URL). Use flutter run --dart-define-from-file=env/prod.json. Do not hardcode URLs elsewhere — lib/core/network/api_client.dart:109 already uses AppEnv.apiBaseUrl.
 
 2. Swap mocks -> live (one line each, providers are the only place to change per Krsishi-Bondhu-AI-App/GUIDE.md:57):
@@ -265,23 +270,14 @@ Task — do all of these:
 3. Use these endpoints (app-native preferred, aliases also live):
    POST /disease/detect (also /predict and /api/disease/detect) — multipart field `image` or `file` + locale=en|bn — returns DiseaseResult fields + {detections:[{class,conf,box}],top} (api/server.py:199 shim)
    POST /assistant/chat {message,history:[{id,role,text}],locale} -> {id,role,text} (also /chat {messages:[{role,content}],lang,context} -> {reply} and /chat/stream SSE data: {choices:[{delta:{content}}]} + data: [DONE] per api/server.py: chat/assistant_chat_compat, capped at 12 msgs)
-   GET  /market/prices (also /market-prices) -> bare list for MarketPrice.fromJson; history: GET /market-prices/history?crop=&days=
-   GET  /weather/forecast?district=&locale=, GET /satellite/analysis?district=&locale=, POST /soil/analyze {location,locale} — stubs that return valid fromJson shapes (weather_forecast.dart:31, satellite_analysis.dart:23, soil_analysis.dart:25) with _note stub
+   GET  /market/prices (also /market-prices) -> bare list for MarketPrice.fromJson; history: GET /market-prices/history?crop=&days= (cloud: accrues at runtime, resets on cold restart)
+   GET  /weather/forecast?district=&locale= (real OpenWeather when the Space has OPENWEATHER_API_KEY; identical stub shape otherwise), GET /satellite/analysis?district=&locale= and POST /soil/analyze {location,locale} — preview stubs returning valid fromJson shapes (weather_forecast.dart:31, satellite_analysis.dart:23, soil_analysis.dart:25)
 
-4. Keep ApiClient (lib/core/network/api_client.dart:18) as-is — it returns Result<T>, maps 401->UnauthorizedException. Without LM Studio :1234: POST /advise -> 200 {"advice":null} (server.py:303), POST /chat -> 200 {"reply":null} (server.py:371), only POST /assistant/chat -> 502 (server.py:486) — treat all as retry-after-ping.
+4. Keep ApiClient (lib/core/network/api_client.dart:18) as-is — it returns Result<T>, maps 401->UnauthorizedException. LLM layer is hosted in the cloud: POST /advise -> 200 {"advice":null} (server.py:303), POST /chat -> 200 {"reply":null} (server.py:371), only POST /assistant/chat -> 502 (server.py:486) — all treat as "LLM temporarily unavailable, retry later". Retry pattern: first detect after a cold restart may exceed receiveTimeout — retry once.
 
-5. Verify: flutter pub get, then curl https://surgery-glowworm-lumpish.ngrok-free.dev/health and the curl examples in 4.2-4.6, then flutter run --dart-define-from-file=env/prod.json and scan a leaf photo -> expect disease/severity/confidence. Keep Vite proxy synced if you touch web (KrishiBondhuWeb/vite.config.ts:20-32, 12 entries).
+5. Verify: flutter pub get, then curl https://hodoly163-krishibondhu-api.hf.space/health and the curl examples in 4.2-4.6, then flutter run --dart-define-from-file=env/prod.json and scan a leaf photo -> expect disease/severity/confidence.
 
 Deliver: patched providers.dart files + env/prod.json. Do not change ApiClient baseUrl source, do not commit KrishiBondhuVision/.env.
 ````
 
 He just attaches this file and pastes the block — no extra explanation needed.
-
-
-## 7. Notes for maintainer
-
-- Single public origin invariant: web `src/lib/model-api.ts:1` uses `API_URL=""` (relative) and `KrishiBondhuWeb/vite.config.ts:20-32` proxies (12 entries). Keep shim paths in `vite.config.ts: proxy` synced (`/predict /advise /chat /health /market-prices` + `/disease /assistant /market /weather /satellite /soil /api`).
-- YOLO lazy-downloads from `HuggingFace hodoly163/krishibondhu-jktk/jktk_x.pt` (`api/server.py:34-43`).
-- Market cache is daily (`api/market.py:145`), history in `KrishiBondhuVision/market_history.json`.
-- Chat system prompt caps history at 12 (`api/server.py:332` `CHAT_MAX_MESSAGES=12`) and enforces KrishiBondhu AI identity + easter egg (`api/server.py:344`).
-- Never commit `KrishiBondhuVision/.env` (contains `KRISHI_API_KEY` inert but secret).

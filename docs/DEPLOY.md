@@ -1,6 +1,34 @@
 # Deploy — 24/7 Public Demo (HF Spaces + Vercel + Groq)
 
-## LIVE: Gradio demo Space (free ZeroGPU) ✅ VERIFIED 2026-10-16
+## LIVE: App-compat REST backend Space (free ZeroGPU) ✅ 2026-10-19
+
+**https://huggingface.co/spaces/hodoly163/krishibondhu-api**
+(API: `https://hodoly163-krishibondhu-api.hf.space`)
+
+Serves the Flutter app's expected REST shapes (`/disease/detect`,
+`/assistant/chat`, `/market/prices`, `/weather/forecast`, `/health`, ...).
+Glue: `space-api/` in this repo. `app.py` forces `GRADIO_SERVER_NAME/PORT=127.0.0.1/7861`
+*before* `import gradio` (Gradio reads the port at import; HF exports
+`GRADIO_SERVER_PORT=7860`, and Gradio 6 serves its SPA as the front door, so the
+API cannot be mounted inside the Gradio app), then runs uvicorn on the public
+`:7860` serving `api/server.py`. Gradio is launched privately on `:7861` in a
+daemon thread purely to satisfy ZeroGPU (it reports its `@spaces.GPU` functions
+from inside `gr.Blocks.launch()`; without it the Space dies with "No @spaces.GPU
+function detected during startup"). `get_model` proxy → `@spaces.GPU` with
+CPU-emulation fallback; requirements torchless (ZeroGPU image provides torch 2.13.0).
+
+Verified live 2026-10-19: `/health` → `{"ok":true,"model":"jktk_x.pt","classes":116}`,
+`/predict` + `/disease/detect` → detections, `/market/prices` (live DAM scrape),
+`/weather/forecast`, `/` landing page and `/docs` Swagger. `/assistant/chat` is
+`502 Connection refused` until the Groq secrets below are pasted into the Space.
+
+Deploy: assemble `space-api/` glue files + `KrishiBondhuVision/api/` (minus
+`__pycache__`) into a staging dir → `HfApi().upload_folder(..., repo_type='space')`.
+Secrets on the Space: `ADVISE_API_KEY`, `ADVISE_URL=https://api.groq.com/openai/v1`,
+`ADVISE_MODEL=openai/gpt-oss-20b` (hosted LLM); optional `OPENWEATHER_API_KEY`
+(makes `/weather/forecast` real). Ledger of behaviour: `docs/API_FOR_APP.md` §2.
+
+## Previous: Gradio demo Space (free ZeroGPU) ✅ VERIFIED 2026-10-16
 
 **https://huggingface.co/spaces/hodoly163/krishibondhu-demo**
 (API: `https://hodoly163-krishibondhu-demo.hf.space`)
@@ -12,10 +40,13 @@ Secrets live in Space Settings → Secrets (`ADVISE_API_KEY` set; never in code)
 Re-push: `upload_folder`/`upload_file` via huggingface_hub (`hf upload` 402s on free
 accounts; git push needs XET for images).
 
-## Original plan below (Docker backend + Vercel) — superseded for free accounts
+## Original plan below (Docker backend + Vercel) — solved differently for free accounts
 
-Docker/`cpu-basic` Spaces require a paid HF plan, so the FastAPI-on-Docker path is
-on hold. The Gradio Space above covers the demo; Vercel frontend remains optional.
+Docker/`cpu-basic` Spaces require a paid HF plan (verified: `request_space_hardware`
+→ `402 ... Without a PRO subscription, you can't downgrade this Space to cpu-basic`),
+but the REST backend runs on the **free ZeroGPU tier** with a private Gradio
+handshake + uvicorn (section above). The original Docker notes are kept only as
+reference.
 
 ## Frontend → Vercel, powered by the Space (✅ LIVE 2026-10-16)
 

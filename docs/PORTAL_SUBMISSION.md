@@ -137,6 +137,7 @@ claim of completion).
 ```
 Web app: https://krishibondhu-ai-web.vercel.app
 AI Space (direct): https://hodoly163-krishibondhu-demo.hf.space
+App REST API (direct): https://hodoly163-krishibondhu-api.hf.space (docs: /docs · health: /health)
 GitHub repo: https://github.com/Shadman-Samin/KrishiBondhuAIWeb
 HF model (KrishiDrishti-11X): https://huggingface.co/hodoly163/krishibondhu-jktk
 ```
