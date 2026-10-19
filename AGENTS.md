@@ -2,121 +2,140 @@
 
 Orientation for AI agents working on this monorepo. Read this before touching code.
 
+**Timeline context:** competition submission "Idea to Unicorn — Preliminary Submission" (International AI Builders Congress, team **PentaFarmers**) was due **Oct 31, 2026 11:59 PM GMT+6**. Judge-facing copies live in `docs/` (`SUBMISSION_NOTES.md`, `MASTER_PROMPT.md`, `PORTAL_SUBMISSION.md`).
+
 ## 1. Project overview
 
-**KrishiBondhu AI** is a Bangladeshi farming assistant. It offers crop disease detection, an AI chat advisor (English/Bengali), plus weather, soil, market price, and crop-calendar info.
+**KrishiBondhu AI** is a Bangladeshi farming assistant: crop disease detection, bilingual (EN/BN) AI advisor, weather, soil, market prices, crop calendar.
 
-This is a monorepo of three independent sub-projects plus a Windows launcher:
+Monorepo layout (no root package.json — each folder is self-contained):
 
 | Path | What | Status |
 |---|---|---|
-| `Krsishi-Bondhu-AI-App/` | Flutter mobile app (note the typo in the folder name) | **NOT developed — abandoned/deprecated. Do not work on it.** |
-| `KrishiBondhuWeb/` | User-facing website + dashboard | Active — main product UI |
-| `KrishiBondhuVision/` | Python FastAPI backend (AI) | Active — runs the model + chat |
-| `start-dev.bat` | One-click launcher (builds web, starts everything, opens tunnel) | Active |
+| `KrishiBondhuWeb/` | TanStack Start web client — **Vercel rootDir**, auto-deploys on push to `main` | Active — main product |
+| `space-demo/` | Gradio Space app (`app.py`) — the production AI backend | Active — 24/7 demo |
+| `KrishiBondhuVision/` | Python FastAPI backend (full local mode: model, LLM, market, RAG, agent, admin, MCP) | Active |
+| `mcp-server/` | Standalone MCP market-tool server (Stdio + SSE) | Active |
+| `docs/` | Deploy log, submission packet, scripts | Active |
+| `start-dev.bat` | One-click local launcher (build + SSR + FastAPI + ngrok) | Active |
+| `Krsishi-Bondhu-AI-App/` | Flutter app (typo'd folder name) — **abandoned, do not work on it** unless explicitly asked |
 
-There is no package.json / root build system at the monorepo root — each folder is self-contained.
+Git: single repo `https://github.com/Shadman-Samin/KrishiBondhuAIWeb.git` (both root and subrepos point here). KrishiBondhuWeb is also Lovable-connected.
+Live: web `https://krishibondhu-ai-web.vercel.app` (Vercel project `krishibondhu-ai-web`, `prj_UykhoU0eQDsJvaAoH9tmyat2gDht`, framework `tanstack-start-lovable`) · Space `https://hodoly163-krishibondhu-demo.hf.space` (hardware `zero-a10g`, Gradio, `demo.launch(mcp_server=True)`).
 
-## 2. Architecture map
+## 2. Architecture (dual-mode)
 
 ```
-Browser / visitor
-   │  https://surgery-glowworm-lumpish.ngrok-free.dev  (ngrok, free tier)
-   ▼
-FastAPI  (:8000)  KrishiBondhuVision
-   ├─ API routes natively:  /predict /advise /chat /chat/stream /health
-   ├─ static files from  KrishiBondhuWeb/dist/client/assets  (served directly)
-   └─ other HTML routes → forward to SSR app :8001
-                        ▼
-              KrishiBondhuWeb SSR app  (node serve.mjs, :8001)
-                        ▼
-              LM Studio  (:1234)  — local LLM for chat/advise (must be running)
+PRODUCTION (24/7)
+  Vercel SSR web (krishibondhu-ai-web.vercel.app)
+     browser → @gradio/client → HF Space (hodoly163-krishibondhu-demo)
+        ├─ GPU YOLO predict, auto CPU fallback on quota/GPU errors
+        ├─ hosted LLM (Groq) — advise (EN+BN JSON) + chat
+        └─ /market DAM scrape
+
+LOCAL (start-dev.bat)
+  ngrok → FastAPI :8000 (KrishiBondhuVision)
+     ├─ native API: /predict /advise /chat /chat/stream /agent/run
+     │              /market-prices(+history) /admin/* /health
+     ├─ app-compat: /disease/detect /assistant/chat /market/prices
+     │              /weather/forecast /satellite/analysis /soil/analyze + /api/*
+     ├─ static from KrishiBondhuWeb/dist/client, else proxy → SSR :8001
+     └─ LLM: LM Studio :1234 (local) — mode-switched by ADVISE_HOSTED/ADVISE_URL
 ```
 
-- **Everything shares ONE public origin** (`:8000` via ngrok). The web client calls the API **same-origin** (relative paths) — it never hard-codes `:8000` URL. Free ngrok = one hostname, so web + API must stay on the same origin. Do not reintroduce absolute `:8000` URLs in the frontend.
-- Vite **dev mode** (`bun dev`, :8080) proxies `/predict /advise /chat /health` → `:8000` via `vite.config.ts` `server.proxy`.
+- Frontend selects backend via `VITE_BACKEND` (`space` → `src/lib/space-client.ts`, `fastapi` → same-origin `src/lib/model-api.ts`). **No absolute backend URLs in frontend code** — origins come from env (`VITE_SPACE_URL`) only.
+- Vite dev (`bun dev`, :8080) proxies API paths → `http://localhost:8000` (`vite.config.ts`).
 
-## 3. KrishiBondhuVision (backend, Python)
+## 3. Vision model — KrishiDrishti-11X (a.k.a. `jktk_x.pt`)
 
-Python 3.10 venv at `KrishiBondhuVision/.venv/`. Run with:
+Weights: `hodoly163/krishibondhu-jktk` on HF (436 MB); auto-lazy-downloaded by server/Space at startup if missing. **Verified provenance** (read from the checkpoint's embedded metadata — this is our evidence trail):
+
+- Ultralytics **YOLO11x** (`yolo11x_optimized`, run project `plant_disease_89class`).
+- Trained in **Google Colab** (paths `/content/drive/MyDrive/PlantDisease_TrainingBackup_20260501_171146/...`, device 0), **100 epochs**, batch 64, imgsz 640, AdamW lr0 0.001, AMP, mosaic+mixup 0.2+copy-paste 0.2+RandAugment.
+- **Resumed** from the team's May backup run; finished **2026-05-01 22:21**.
+- Datasets merged: 89-class public plant-disease base (classes 0–88) + **27 classes from Roboflow Universe `terratrendtest/planttest`** (cassava/corn/tomato field diseases = classes 89–115, matching that dataset's vocabulary exactly).
+- Final val: mAP50 **0.699**, mAP50-95 **0.686**, P 0.635, R 0.682.
+- Embedded license field: **AGPL-3.0 (Ultralytics)** — the HF model card was corrected to AGPL-3.0 (the Apache-2.0 label was wrong). UF/Ultralytics code not ours; our code is our own.
+- Known coverage gap: no *banana sigatoka* class (`eval_accuracy.py` excludes it explicitly).
+
+Inference settings: `conf=0.25`, `imgsz=640`. Space loads it **plain** (`YOLO(_model_path)`): a previous `.to("cuda")` init under ZeroGPU's virtual CUDA stub made CPU inference return garbage (both examples → "corn rust 0.50"); after the plain-load fix, CPU output == GPU exactly (e.g. rice_blast 0.96). Never reintroduce `.to("cuda")` on this path.
+
+## 4. KrishiBondhuVision (FastAPI backend)
+
+Python 3.10 venv at `KrishiBondhuVision/.venv/`. Run:
 ```
 .venv\Scripts\python.exe -m uvicorn api.server:app --host 127.0.0.1 --port 8000
 ```
 
 ### Key files
-- `api/server.py` — the entire backend (single file).
-- `models/jktk_x.pt` — YOLO model, **116 classes**, loaded at import (`ultralytics.YOLO`).
-- `.env` — config (never commit): `ADVISE_URL` (LM Studio `/v1`), `ADVISE_MODEL`, `KRISHI_API_KEY`.
-  > `KRISHI_API_KEY` is **inert** — API-key auth was removed; the header is ignored. The `.env` value must stay secret, but no request requires it.
-- `scripts/` — eval scripts (`eval_accuracy.py`, `eval_fetch.py`, `stage_eval.py`, `test_yolo.py`) and `fetch_test_images.py` (downloads test images).
+- `api/server.py` — whole backend. Lazy model load (`hf_hub_download` fallback) + `/health` reports `{ok:false…}` during cold start.
+- `api/rag/` — semantic chunking + Contextual RAG (context-prefixed passages) + TF-IDF cosine store + light Graph RAG (crop→disease→treatment multi-hop boost); injected silently into `/advise` + `/chat` (top-2 passages).
+- `api/agent/` — `POST /agent/run` loop: intent → retrieve → advise → verify, returning the node trace; bounded to one retrieve + one verify pass.
+- `api/admin.py` — `GET /admin/stats` (per-endpoint counters + token estimates) and `/admin/audit` (500-event ring), RBAC via `X-Admin-Token` (`ADMIN_TOKEN`; open when unset).
+- `api/market.py` — DAM homepage-marquee scrape (bilingual `?L=E`/`?L=B`, merged by row order, regex, no session needed), daily cache; history in `market_history.json`. Static fallback: `KrishiBondhuWeb/src/data/market-prices.json`. No second live feed (TCB/community tracker) — add here when reachable.
+- `.env` (never commit): `ADVISE_URL`, `ADVISE_MODEL`, `ADVISE_API_KEY`, `ADVISE_HOSTED`, `KRISHI_API_KEY`, `OPENWEATHER_API_KEY`, `ADMIN_TOKEN`, `CORS_ORIGINS`, `HF_MODEL_REPO`.
 
-### Endpoints (`api/server.py`)
+### LLM modes
+- **Hosted (production):** `ADVISE_URL=https://api.groq.com/openai/v1`, `ADVISE_MODEL=openai/gpt-oss-20b`, key in Space Secrets. `llama-3.3-70b-versatile` is NOT usable on Groq's free tier (403).
+- **Local (dev):** LM Studio `:127.0.0.1:1234/v1`, model `qwen3.5-4b-uncensored-hauhaucs-aggressive`. Local path uses `continue_assistant_turn: True` + a `" response"` assistant turn to force reliable streaming; hosted path uses standard calls. Ollama runbook (Qwen2.5 3B / Llama 3.2 3B / DeepSeek-R1 7B eval-only) in `KrishiBondhuVision/MODELS.md`.
+
+### Endpoints
 | Method & path | Purpose |
 |---|---|
-| `POST /predict` | Upload image (`file` multipart) → YOLO detections: `{detections:[{class,conf,box}], top}` |
-| `POST /advise` | JSON `{detections, top, disease}` → LLM returns `{advice:{en,bn}}` |
-| `POST /chat` | JSON `{messages, lang, context}` → `{reply}` |
-| `POST /chat/stream` | Same as `/chat`, SSE stream (`data: {...}\n\n`, ends `data: [DONE]`) |
-| `GET /health` | Liveness: `{ok, model, classes}` |
-| `GET /market-prices` | Live daily national prices from DAM (market.dam.gov.bd): `{updated_at, sources, rows:[{crop,cropBn,min,max,price,change_pct,date,unit}]}`. Cached daily |
-| `GET /market-prices/history` | `?crop=&days=` → `{points:[{date,price}]}`. Seeded from `market-prices.json`, then accumulates a daily snapshot |
-| `GET /{path}` | Catch-all: serves static file from `KrishiBondhuWeb/dist/client` if present, else proxies to the SSR app on `:8001` (503 if unreachable) |
+| `POST /predict` | multipart `file` → `{detections:[{class,conf,box}], top}` |
+| `POST /advise` | `{detections, top, disease}` → `{advice:{en,bn}\|null}` (RAG-grounded, temp 0.3) |
+| `POST /chat` / `POST /chat/stream` | `{messages, lang, context}` → `{reply}` / SSE (`data: {…}\n\n`, ends `data: [DONE]`) |
+| `GET /health` | `{ok, model, classes}` |
+| `GET /market-prices` (+`/history?crop=&days=`) | live rows / rolling points |
+| `POST /agent/run` | agentic loop + trace |
+| `GET /admin/stats` · `/admin/audit` | token-gated RBAC |
+| `POST /disease/detect` (+`/api/…`) | Flutter-app compat (KB `DiseaseResult` shape) |
+| `POST /assistant/chat` (+`/api/…`) | app chat |
+| `GET /market/prices` aliases, `/weather/forecast`, `/satellite/analysis`, `/soil/analyze` | app compat (satellite/soil are stubs) |
+| `GET /{path}` | catch-all static/SSR proxy |
 
-Market data lives in `api/market.py` (DAM homepage marquee scrape — no session/CSRF needed; bilingual `?L=E`/`?L=B`, merged by row order). History is appended to `KrishiBondhuVision/market_history.json`. `ponytail:` second live feed (community tracker/TCB/gov open data) is unplugged — add a fetcher in `market.py` when a reachable independent source appears.
+Middleware: CORS (`*`/dev; lock to Vercel origin in prod), GZip (min 500 B), per-IP rate limits (30/min) on `/predict /chat /chat/stream /agent/run`, audit middleware.
 
-Middleware: CORS (`*`/`*`/`*`) + `GZipMiddleware` (min 500 bytes). Chat calls LM Studio with `continue_assistant_turn: True` and a `" response"` assistant turn to force streaming.
+### Chat behaviour (system prompt in `_chat_messages()`; Space twin in `space-demo/app.py`)
+- Identity: **"KrishiBondhu AI"** — never reveal base model/company (both paths).
+- Easter egg: only when directly asked, reveal developer **Shadman Samin**, software engineering student from Bangladesh — brief, playful, those facts only; playful refusal for further personal details.
+- Rules: concise, no assumed rice-farmer context, safe-general pesticide guidance for garden plants, greeting mirroring, ≤150-word answers on Space path (max_tokens 1024).
+- Prompt-coaching only, not enforced — the 4B slips occasionally; fix regressions in `_chat_messages()` (and/or an output censor).
 
-### Chat behaviour (system prompt in `_chat_messages()`)
-- Identity: **"KrishiBondhu AI"** — if asked which AI model, it says it is **KrishiBondhu AI**. It must **never** mention the underlying base model/company.
-- **Easter egg**: only if directly asked ("who made you", "is there an easter egg") it reveal that the developer is **Shadman Samin**, a software engineering student from Bangladesh — brief, playful, mysterious, and **only those facts**. No email, phone, CGPA, university, socials, or project list. Pressure for personal/contact details → playful "classified / trade secret" refusal.
-- Rules: concise answers, don't assume rice farmer, safe/general pesticide guidance for garden plants, etc.
-- These rules are prompt-coaching, **not enforced** — the 4B model slips occasionally. If leaks regress, the fix belongs in `_chat_messages()` (and/or a backend output censor).
-> Internal/dependencies context (dev-only, never surface to users): the local LLM is served by LM Studio at `127.0.0.1:1234`, model `ADVISE_MODEL` = `qwen3.5-4b-uncensored-hauhaucs-aggressive` (set in `.env`).
+## 5. Gradio Space API contract (`space-demo/app.py`)
 
-## 4. KrishiBondhuWeb (frontend)
+- `/predict(img)` → **3 outputs** `(summary, advice_en, advice_bn)` — one LLM call requesting strict `{"en","bn"}` JSON (max_tokens 1024, knowledge-base fallback on bad JSON). `/"predict"` api-name wraps `predict_any`: try GPU (`@spaces.GPU(duration=30)`) → auto-fallback `predict_cpu` on quota/GPU errors.
+- Hidden `/predict_cpu` API (`api_name="predict"` on the cpu event). `cache_examples=False` mandatory (persisted Gradio cache re-used stale quota stubs). Blocks: JPG/PNG examples live; chat (+history, context-folded into one message, max ~6 turns), market, hidden cpu api. `demo.launch(mcp_server=True)` → Space **is** an MCP server too.
+- **Sync rule:** any change to the Space's `/predict` signature MUST be mirrored in `KrishiBondhuWeb/src/lib/space-client.ts` (and vice versa) — they share no schema library; keep them honest.
+- **Updating the Space:** use Python API from the venv —
+  ```python
+  from huggingface_hub import upload_file  # hf CLI 'upload' 402s, broken; upload_file works
+  upload_file(path_or_fileobj='space-demo/app.py', path_in_repo='app.py',
+              repo_id='hodoly163/krishibondhu-demo', repo_type='space')
+  ```
+- Free-tier behaviour: ZeroGPU per-visitor daily quota (error text "You have exceeded your ZeroGPU runs limit"), ~48 h sleep + 1–2 min cold wake. UI copy: retry/wake/quota messaging via `describeFailure` in `space-client.ts`.
 
-TanStack Start + React 19 + Vite 8 + Tailwind 4 + Radix/shadcn-style `components/ui`.
+## 6. KrishiBondhuWeb (frontend)
 
-### Served two ways
-- **Production (what the public sees):** `node serve.mjs` — a ~20-line node server hosting the built SSR app on `:8001`. Must build first: `bun run build` → outputs `dist/server/` (SSR bundle) + `dist/client/` (static assets). The build is not a plain static site (no `index.html` — HTML is generated by the SSR handler at runtime).
-- **Dev:** `bun dev` (Vite dev server, :8080) — proxies API paths to :8000. Requires `allowedHosts: true` in `vite.config.ts` to serve through ngrok hostnames.
+TanStack Start + React 19 + Vite 8 (`@lovable.dev/vite-tanstack-config`) + Tailwind 4 + Radix/shadcn `components/ui`. Structure and build details: `KrishiBondhuWeb/README.md` (kept current). Highlights for agents:
 
-### Structure (`src/`)
-- `routes/` — file-based routing: `__root.tsx` (providers/shell), `index.tsx` (public marketing home), `dashboard.tsx` (layout gate/LangProvider), `dashboard/*.tsx` (index, weather, soil, disease, chat, crop-calendar, marketplace, settings).
-- `lib/` — `model-api.ts` (same-origin API client: `predictDisease`, `getAdvice`, `sendChat`, `streamChat`, `buildContext`, `fetchMarketPrices`, `fetchPriceHistory`; `API_URL` defaults to `""` = same origin), `weather-api.ts` (OpenWeather), `auth.tsx`, `theme.tsx`, `i18n.tsx` (en/bn), `search.ts`, `district.ts`, `utils.ts`, `api-key.ts` (dead code — kept, inert).
-- `data/` — static content: `crops.ts`, `diseases.ts` (disease knowledge cards), `marketplace.ts`, `market-prices.json`, `weather.ts`.
-- `components/dashboard/` — `layout.tsx`, `sidebar.tsx`, `topbar.tsx`. `components/ui/` — shadcn-style primitives.
-- `vite.config.ts` — Lovable wrapper config; proxies dev API calls; do NOT add duplicate plugins (see file header).
-- `.env.local` — `VITE_OPENWEATHER_API_KEY` (public client key, do not commit elsewhere).
-- The marketplace page (`routes/dashboard/marketplace.tsx`) fetches live prices from `/market-prices` with a **static fallback** to `market-prices.json` when the backend/tunnel is down (keeps the site demo-safe offline).
+- `lib/model-api.ts` — backend switch + FastAPI client. `lib/space-client.ts` — Gradio adapter (per-lang advice cache `lastSpaceAdvice {en,bn}`, `composeMessage` folds `formatContext` + last ~6 turns into one `/chat` message, `withRetry` 4 s backoff ×1, `shortCause`/`describeFailure` for quota vs wake copy).
+- Routes: `__root.tsx`, `index.tsx` (landing), `dashboard.tsx` (LangProvider gate), `dashboard/*` (index, weather, soil, disease, chat, crop-calendar, marketplace, settings).
+- Marketplace fetches `/market-prices` (or Space) with static fallback → demo-safe offline. Chat page streams; disease page appends the real failure cause (≤140 chars) to error copy, bilingual.
+- ESLint: pre-existing errors in `i18n.tsx`, `dashboard/index.tsx`, `dashboard/marketplace.tsx` — leave them.
+- **TanStack version skew** breaks SSR (`MISSING_EXPORT`): `router`/`start`/vite-plugin must move together (aligned at router 1.170.44 / start 1.169.2 / plugin 1.168.46; commit `7486f21`).
 
-### Build output locations
-- `dist/client/` (public assets: `/assets/*`, `favicon.*`, `og-image.png`)
-- `dist/server/` (SSR handler, loaded by `serve.mjs`)
+## 7. Running & deploying
 
-## 5. Krsishi-Bondhu-AI-App (Flutter)
+**Production** = Vercel (auto-deploy on push to `main`) + HF Space (update via `upload_file`). Vercel envs: `VITE_BACKEND=space`, `VITE_SPACE_URL`, `VITE_OPENWEATHER_API_KEY`. Space secrets: Groq `ADVISE_API_KEY` etc. Deployment history/change-log: `docs/DEPLOY.md`.
 
-Flutter project (`lib/app|core|constants|features|ui|l10n`, l10n, launcher icons). **Abandoned — the user did not develop it and chose not to integrate it.** Do not spend time here unless explicitly asked.
+**Local**: `start-dev.bat` — kills ports 8000/8001/8080/4040 + `ngrok.exe`, builds web (fails fast), starts `node serve.mjs` (:8001) → FastAPI (:8000) → ngrok (`http 8000 --domain=surgery-glowworm-lumpish.ngrok-free.dev`), waits for `/health`, opens URL. LM Studio must be running for AI features. Free-ngrok: ~1 Mbps + one-time interstitial — expected.
 
-## 6. Running & deploying
+## 8. Agent conventions & gotchas
 
-`start-dev.bat` (from `F:\KrishiBondhu`):
-1. Kills ports **8000 / 8001 / 8080 / 4040** and `ngrok.exe`.
-2. Builds the web app (`bun run build` in `KrishiBondhuWeb`). Fails fast on build error.
-3. Starts three tabs: SSR app (`node serve.mjs`, :8001) → FastAPI (:8000) → ngrok (`http 8000 --domain=surgery-glowworm-lumpish.ngrok-free.dev`).
-4. Waits for `:8000/health`, then opens the public URL.
-
-**Requirements:**
-- **LM Studio running** with the model on `:1234`, or chat/advise fail (site still loads).
-- PC stays on + internet for the tunnel.
-- Free-ngrok limits: ~1 Mbps transfer throttle and a one-time per-browser interstitial page (7-day cookie) — both expected, not bugs.
-
-Rebuild is required to push frontend changes live (the public site runs the built `dist/`, not the dev server).
-
-## 7. Agent conventions & gotchas
-
-- **Git**: `KrishiBondhuWeb` is connected to Lovable (`KrishiBondhuWeb/AGENTS.md`). Never force-push/rebuild published history. Commit only when the user asks.
-- **PowerShell**: `$pid` is a reserved read-only variable — never assign it; use `$procId` when killing by port. `Start-Process -FilePath "bun"` fails (`bun.ps1` shim); use `C:\Users\PC\AppData\Roaming\npm\node_modules\bun\bin\bun.exe`.
-- **Lint**: pre-existing eslint errors in `i18n.tsx`, `dashboard/index.tsx`, `dashboard/marketplace.tsx` — leave them; don't "fix" casually.
-- **Secret**: `KRISHI_API_KEY` in `KrishiBondhuVision\.env` — never log or commit.
-- **Architecture rule**: single public origin via :8000; web calls API same-origin; keep `vite.config.ts` proxy + `serve.mjs` honest with each other (API paths: `/predict /advise /chat /chat/stream /health /market-prices`).
+- **Git**: never force-push published history; commit only when the user asks; never rebuild Lovable-managed files casually.
+- **PowerShell**: `$pid` reserved; use `$procId`. `Start-Process -FilePath "bun"` fails (shim) — use `C:\Users\PC\AppData\Roaming\npm\node_modules\bun\bin\bun.exe`.
+- **Secrets**: `KRISHI_API_KEY` is **inert** (auth removed, header ignored) but stays in `.env`, never committed; Groq key in Space Secrets; OpenWeather key on Vercel + `.env.local`. Never log or commit any `.env` value. Public README/docs must NOT advertise that auth was removed.
+- **Public-repo hygiene** (`README.md` root = limited info): no base-model IDs or easter egg detail there — internal names only live here and in `KrishiBondhuWeb/README.md`.
+- **Eval/verification**: `scripts/eval_accuracy.py` (top-1 w/ coverage-gap accounting, documented gaps e.g. banana sigatoka), `stage_eval.py`, `test_yolo.py` gate model swaps; scripted probes: RAG precision (rice_blast hit ≥0.45 cosine), identity-leak probes, JSON-contract checks, SSE `[DONE]` checks; `audit_submission.py` audits submission char-minima. Verification is evidence-first before any completion claim.
+- **Space deploy necessity**: frontend changes need push (Vercel auto-build). Space changes need `upload_file` + wait for the Space to finish rebuilding.
