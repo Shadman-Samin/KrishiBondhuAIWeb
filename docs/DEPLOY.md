@@ -19,8 +19,9 @@ CPU-emulation fallback; requirements torchless (ZeroGPU image provides torch 2.1
 
 Verified live 2026-10-19: `/health` → `{"ok":true,"model":"jktk_x.pt","classes":116}`,
 `/predict` + `/disease/detect` → detections, `/market/prices` (live DAM scrape),
-`/weather/forecast`, `/` landing page and `/docs` Swagger. `/assistant/chat` is
-`502 Connection refused` until the Groq secrets below are pasted into the Space.
+`/weather/forecast`, `/` landing page and `/docs` Swagger, and `/assistant/chat`
+(EN + BN) / `/chat` / `/advise` with real Groq replies once the LLM secrets are
+set in Space settings.
 
 Deploy: assemble `space-api/` glue files + `KrishiBondhuVision/api/` (minus
 `__pycache__`) into a staging dir → `HfApi().upload_folder(..., repo_type='space')`.

@@ -143,7 +143,7 @@ curl -X POST https://hodoly163-krishibondhu-api.hf.space/assistant/chat \
 # {"id":"msg-a1b2c3d4","role":"assistant","text":"..."}
 ```
 
-> **Chat needs the LLM secrets on the Space** (`ADVISE_URL=https://api.groq.com/openai/v1`, `ADVISE_MODEL=openai/gpt-oss-20b`, `ADVISE_API_KEY=<Groq key>`). Until they are pasted into the Space settings, chat/advise fall back to a local LLM that isn't running and you get `502 {"detail":"assistant error: <urlopen error [Errno 111] Connection refused>"}` (or `200 {"reply":null}` on `/chat`). Detection, market and weather work regardless.
+> **Chat is live** (hosted LLM, Groq) — verified with real EN and BN replies. This depends on the Space's LLM secrets (`ADVISE_URL` / `ADVISE_MODEL` / `ADVISE_API_KEY`); if they are ever missing or the upstream is down you get `502 {"detail":"assistant error: ..."}` or `200 {"reply":null}`. Treat both as "LLM temporarily unavailable — retry later"; detection, market and weather keep working.
 The shim maps `{message, history:[{id,role,text}], locale}` ↔ native `{messages:[{role,content}], lang, context}` (`api/server.py:486` shim, system prompt `api/server.py:332`). `locale`/`lang` = `en|bn`. History capped at 12 (`CHAT_MAX_MESSAGES=12` `api/server.py:332`).
 
 **Dart — `lib/features/assistant/data/assistant_repository.dart:18`:**
