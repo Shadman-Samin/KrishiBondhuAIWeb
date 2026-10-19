@@ -10,6 +10,7 @@ portal is flaky — this is DAM-only for now. Add a second fetcher here when a
 reachable independent live source resurfaces.
 """
 import json
+import os
 import re
 from datetime import date
 from pathlib import Path
@@ -18,7 +19,12 @@ from urllib.request import Request, build_opener, urlopen
 DAM_BASE = "https://market.dam.gov.bd"
 ROOT = Path(__file__).resolve().parent.parent
 HISTORY_FILE = ROOT / "market_history.json"
-STATIC_FILE = ROOT.parent / "KrishiBondhuWeb" / "src" / "data" / "market-prices.json"
+STATIC_CANDIDATES = [
+    Path(os.environ["MARKET_STATIC_FILE"]) if os.environ.get("MARKET_STATIC_FILE") else None,
+    ROOT / "data" / "market-prices.json",
+    ROOT.parent / "KrishiBondhuWeb" / "src" / "data" / "market-prices.json",
+]
+STATIC_FILE = next((p for p in STATIC_CANDIDATES if p and p.is_file()), STATIC_CANDIDATES[1])
 
 _UA = "KrishiBondhu/1.0 (+competition demo)"
 _opener = build_opener()
@@ -37,6 +43,7 @@ _CROP_MAP = [
 ]
 
 _cache = {"day": None, "data": None, "ok": False}
+_last_good = {"data": None}
 
 
 def _get(url, timeout=20):
@@ -141,16 +148,72 @@ def _save_history(history):
         json.dumps(history, ensure_ascii=False, indent=1), encoding="utf-8"
     )
 
+def _static_rows():
+    """Per-crop rows from the shipped official DAM dataset (offline fallback).
+
+    The dataset holds per-market records; aggregate to one row per crop so the
+    shape matches the live marquee rows (crop/cropBn/price/min/max/change_pct).
+    """
+    if not STATIC_FILE.is_file():
+        return []
+    try:
+        data = json.loads(STATIC_FILE.read_text("utf-8-sig"))
+    except Exception:
+        return []
+    by_crop: dict[str, dict] = {}
+    for rec in data:
+        crop = str(rec.get("crop") or "").strip()
+        if not crop or "price" not in rec:
+            continue
+        try:
+            price = float(rec["price"])
+        except (TypeError, ValueError):
+            continue
+        row = by_crop.setdefault(
+            crop,
+            {
+                "crop": crop,
+                "cropBn": rec.get("cropBn") or crop,
+                "prices": [],
+                "date": str(rec.get("date") or ""),
+                "unit": str(rec.get("unit") or "kg").lower(),
+                "source": "dataset",
+            },
+        )
+        row["prices"].append(price)
+        row["date"] = max(row["date"], str(rec.get("date") or ""))
+    rows = []
+    for row in by_crop.values():
+        prices = row.pop("prices")
+        row["price"] = round(sum(prices) / len(prices), 2)
+        row["min"] = round(min(prices), 2)
+        row["max"] = round(max(prices), 2)
+        row["change_pct"] = 0.0
+        rows.append(row)
+    rows.sort(key=lambda r: r["crop"])
+    return rows
+
 
 def get_prices():
-    """Today's national prices, cached for the day. Returns (rows, fresh)."""
+    """Today's national prices, cached for the day. Returns (rows, fresh).
+
+    Never raises: if the DAM site is unreachable (it often is), fall back to the
+    last successful fetch, then to the shipped dataset, then to an empty list.
+    """
     day = date.today().isoformat()
     if _cache["day"] == day and _cache["ok"]:
         return _cache["data"], False
 
-    rows = fetch_dam()
+    rows = []
+    try:
+        rows = fetch_dam()
+    except Exception:
+        rows = []
 
-    if rows:
+    if not rows:
+        rows = _last_good["data"] or _static_rows()
+
+    if rows and rows[0].get("source") == "dam":
         history = {}
         if HISTORY_FILE.is_file():
             try:
@@ -160,6 +223,7 @@ def get_prices():
         for r in rows:
             history.setdefault(r["crop"], {})[day] = r["price"]
         _save_history(history)
+        _last_good["data"] = rows
 
     _cache["day"], _cache["data"], _cache["ok"] = day, rows, bool(rows)
     return rows, True

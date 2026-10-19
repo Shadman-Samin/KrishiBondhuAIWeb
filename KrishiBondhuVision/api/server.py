@@ -141,9 +141,10 @@ def admin_audit(request: HttpRequest, limit: int = 50):
 @app.get("/market-prices")
 def market_prices():
     rows, _ = market.get_prices()
+    sources = sorted({str(r.get("source", "dam")) for r in rows}) if rows else []
     return Response(
         json.dumps(
-            {"updated_at": date.today().isoformat(), "sources": ["dam"] if rows else [], "rows": rows},
+            {"updated_at": date.today().isoformat(), "sources": sources, "rows": rows},
             ensure_ascii=False,
         ),
         media_type="application/json",
