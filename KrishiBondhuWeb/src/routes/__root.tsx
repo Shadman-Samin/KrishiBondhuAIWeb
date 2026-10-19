@@ -83,7 +83,7 @@ export const Route = createRootRouteWithContext<{ queryClient: QueryClient }>()(
       {
         name: "description",
         content:
-          "AI farming companion for Bangladesh: voice assistant, crop disease detection, satellite intelligence, soil & weather insights in Bangla.",
+          "AI farming companion for Bangladesh: crop disease detection, bilingual AI advisory, live market prices, soil & weather insights in Bangla.",
       },
       { name: "author", content: "KrishiBondhu AI" },
       {
@@ -93,7 +93,7 @@ export const Route = createRootRouteWithContext<{ queryClient: QueryClient }>()(
       {
         property: "og:description",
         content:
-          "AI farming companion for Bangladesh: voice assistant, crop disease detection, satellite intelligence, soil & weather insights in Bangla.",
+          "AI farming companion for Bangladesh: crop disease detection, bilingual AI advisory, live market prices, soil & weather insights in Bangla.",
       },
       { property: "og:type", content: "website" },
       { name: "twitter:card", content: "summary_large_image" },
@@ -104,7 +104,7 @@ export const Route = createRootRouteWithContext<{ queryClient: QueryClient }>()(
       {
         name: "twitter:description",
         content:
-          "AI farming companion for Bangladesh: voice assistant, crop disease detection, satellite intelligence, soil & weather insights in Bangla.",
+          "AI farming companion for Bangladesh: crop disease detection, bilingual AI advisory, live market prices, soil & weather insights in Bangla.",
       },
       {
         property: "og:image",

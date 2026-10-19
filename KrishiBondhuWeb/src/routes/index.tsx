@@ -27,7 +27,6 @@ import {
   Layers,
   Zap,
   ShieldCheck,
-  MapPin,
   AlertTriangle,
   TrendingUp,
   Users,
@@ -39,7 +38,6 @@ import {
   Sun,
 } from "lucide-react";
 import heroImg from "@/assets/hero-farmer.jpg";
-import satImg from "@/assets/satellite-ndvi.jpg";
 import diseaseImg from "@/assets/disease-detection.jpg";
 import { LangProvider, useLang } from "@/lib/i18n";
 import { useTheme } from "@/lib/theme";
@@ -451,7 +449,7 @@ function Hero() {
   const words =
     lang === "bn"
       ? ["এআই-চালিত", "ভয়েস-ফার্স্ট", "ডেটা-চালিত", "বাংলা-নেটিভ"]
-      : ["AI-Powered", "Voice-First", "Data-Driven", "Bangla-Native"];
+      : ["AI-Powered", "Bilingual", "Data-Driven", "Bangla-Native"];
 
   useEffect(() => {
     return () => {
@@ -490,8 +488,8 @@ function Hero() {
 
             <p className="mt-6 max-w-xl text-lg text-muted-foreground leading-relaxed">
               {t(
-                "An intelligent agriculture platform that helps farmers make better decisions using voice conversations, crop disease detection, satellite imagery, soil intelligence, weather forecasting, and localized agricultural knowledge.",
-                "একটি বুদ্ধিমান কৃষি প্ল্যাটফর্ম যা কণ্ঠস্বর কথোপকথন, ফসলের রোগ শনাক্তকরণ, স্যাটেলাইট চিত্র, মাটির তথ্য, আবহাওয়ার পূর্বাভাস এবং স্থানীয় কৃষি জ্ঞান ব্যবহার করে কৃষকদের সঠিক সিদ্ধান্ত নিতে সাহায্য করে।",
+                "An intelligent agriculture platform that helps farmers make better decisions using crop disease detection, a bilingual AI advisor, live market prices, weather forecasting, and localized agricultural knowledge.",
+                "একটি বুদ্ধিমান কৃষি প্ল্যাটফর্ম যা ফসলের রোগ শনাক্তকরণ, দ্বিভাষিক এআই উপদেষ্টা, লাইভ বাজারদর, আবহাওয়ার পূর্বাভাস এবং স্থানীয় কৃষি জ্ঞান ব্যবহার করে কৃষকদের সঠিক সিদ্ধান্ত নিতে সাহায্য করে।",
               )}
             </p>
             <div className="mt-8 flex flex-wrap gap-3">
@@ -505,7 +503,7 @@ function Hero() {
             <div className="mt-10 flex flex-wrap items-center gap-x-6 gap-y-2 text-sm text-muted-foreground">
               <div className="flex items-center gap-2">
                 <Check className="h-4 w-4 text-primary" />{" "}
-                {t("Bangla voice-first", "বাংলা ভয়েস-ফার্স্ট")}
+                {t("Bilingual · English + বাংলা", "দ্বিভাষিক · ইংরেজি + বাংলা")}
               </div>
               <div className="flex items-center gap-2">
                 <Check className="h-4 w-4 text-primary" />{" "}
@@ -513,7 +511,7 @@ function Hero() {
               </div>
               <div className="flex items-center gap-2">
                 <Check className="h-4 w-4 text-primary" />{" "}
-                {t("Trusted by NGOs", "এনজিও দ্বারা বিশ্বস্ত")}
+                {t("Live daily market data", "দৈনিক লাইভ বাজারদর")}
               </div>
             </div>
           </div>
@@ -544,14 +542,15 @@ function Hero() {
             </div>
             <div className="hidden md:block absolute -left-6 top-10 glass rounded-2xl p-4 shadow-card animate-float w-56">
               <div className="flex items-center gap-2 text-xs text-muted-foreground">
-                <Leaf className="h-3.5 w-3.5 text-primary" /> {t("Crop Health", "ফসলের স্বাস্থ্য")}
+                <Leaf className="h-3.5 w-3.5 text-primary" />{" "}
+                {t("Detection confidence", "শনাক্তকরণের নিশ্চয়তা")}
               </div>
               <div className="mt-2 font-display text-2xl font-semibold">
-                92%{" "}
-                <span className="text-xs font-normal text-primary">{t("Excellent", "চমৎকার")}</span>
+                96%{" "}
+                <span className="text-xs font-normal text-primary">{t("Top result", "শীর্ষ ফলাফল")}</span>
               </div>
               <div className="mt-2 h-1.5 rounded-full bg-muted overflow-hidden relative">
-                <div className="h-full w-[92%] bg-gradient-primary" />
+                <div className="h-full w-[96%] bg-gradient-primary" />
                 <div aria-hidden className="absolute inset-0 animate-shimmer opacity-70" />
               </div>
             </div>
@@ -564,7 +563,7 @@ function Hero() {
                 {t("Disease Detected", "রোগ শনাক্ত")}
               </div>
               <div className="mt-1 font-display text-base font-semibold">
-                {t("Rice Blast · 87%", "রাইস ব্লাস্ট · ৮৭%")}
+                {t("Rice Blast · 96%", "রাইস ব্লাস্ট · ৯৬%")}
               </div>
               <div className="mt-1 text-[11px] text-muted-foreground">
                 {t("Apply Tricyclazole within 3 days", "৩ দিনের মধ্যে ট্রাইসাইক্লাজল প্রয়োগ করুন")}
@@ -809,11 +808,11 @@ function Problem() {
 function Solution() {
   const { t } = useLang();
   const tags = [
-    t("Voice-first", "ভয়েস-ফার্স্ট"),
+    t("Bilingual-first", "দ্বিভাষিক-ফার্স্ট"),
     t("Bangla-native", "বাংলা-নেটিভ"),
-    t("Offline-capable", "অফলাইন-সক্ষম"),
-    t("Satellite-aware", "স্যাটেলাইট-সচেতন"),
-    t("Government-ready", "সরকার-প্রস্তুত"),
+    t("RAG-grounded", "আরএজি-ভিত্তিক"),
+    t("Live market data", "লাইভ বাজারদর"),
+    t("Weather-aware", "আবহাওয়া-সচেতন"),
   ];
   return (
     <section className="py-28 bg-gradient-hero relative overflow-hidden contain-section skip-visibility">
@@ -829,8 +828,8 @@ function Solution() {
         </h2>
         <p className="mt-6 text-lg text-muted-foreground max-w-2xl mx-auto">
           {t(
-            "KrishiBondhu combines large language models, computer vision, satellite intelligence, and localized agricultural knowledge into one voice-first assistant — specialized for Bangladesh's farms, seasons, and soil.",
-            "কৃষিবন্ধু বৃহৎ ভাষা মডেল, কম্পিউটার ভিশন, স্যাটেলাইট বুদ্ধিমত্তা এবং স্থানীয় কৃষি জ্ঞানকে একটি ভয়েস-ফার্স্ট সহকারীতে একত্র করে — বাংলাদেশের জমি, মৌসুম ও মাটির জন্য বিশেষায়িত।",
+            "KrishiBondhu combines large language models, computer vision, retrieval-grounded agronomy knowledge, and live market + weather data into one bilingual assistant — specialized for Bangladesh's farms, seasons, and soil.",
+            "কৃষিবন্ধু বৃহৎ ভাষা মডেল, কম্পিউটার ভিশন, আরএজি-ভিত্তিক কৃষি জ্ঞান এবং লাইভ বাজারদর ও আবহাওয়ার ডেটাকে একটি দ্বিভাষিক সহকারীতে একত্র করে — বাংলাদেশের জমি, মৌসুম ও মাটির জন্য বিশেষায়িত।",
           )}
         </p>
         <div className="mt-10 flex flex-wrap justify-center gap-2">
@@ -854,27 +853,27 @@ function useModules() {
     {
       icon: Mic,
       tag: "Module 01",
-      title: t("AI Voice Assistant", "এআই ভয়েস সহকারী"),
+      title: t("AI Advisor Chat", "এআই উপদেষ্টা চ্যাট"),
       desc: t(
-        "Farmers speak in Bangla instead of typing. Natural conversations with memory and personalized recommendations.",
-        "কৃষকরা টাইপ না করে বাংলায় কথা বলেন। স্মৃতিসহ প্রাকৃতিক কথোপকথন ও ব্যক্তিগত পরামর্শ।",
+        "Farmers ask anything in Bangla or English. Streaming answers grounded by district weather and today's national market prices.",
+        "কৃষকরা বাংলা বা ইংরেজিতে যা ভালো জিজ্ঞেস করেন। জেলাভিত্তিক আবহাওয়া ও আজকের জাতীয় বাজারদরের প্রেক্ষাপট সহ স্ট্রিমিং উত্তর।",
       ),
       features: [
-        t("Bangla speech recognition", "বাংলা স্পিচ রিকগনিশন"),
-        t("Bangla voice replies", "বাংলা ভয়েস উত্তর"),
-        t("Natural conversations", "প্রাকৃতিক কথোপকথন"),
+        t("Streaming replies", "স্ট্রিমিং উত্তর"),
+        t("Bilingual · EN + বাংলা", "দ্বিভাষিক · ইংরেজি + বাংলা"),
+        t("RAG-grounded agronomy", "আরএজি-ভিত্তিক কৃষিজ্ঞান"),
+        t("Weather- & market-aware", "আবহাওয়া ও বাজার-সচেতন"),
         t("Conversation memory", "কথোপকথনের স্মৃতি"),
-        t("Voice-first interface", "ভয়েস-ফার্স্ট ইন্টারফেস"),
       ],
-      demo: "voice",
+      demo: "chat",
     },
     {
       icon: ScanLine,
       tag: "Module 02",
       title: t("Crop Disease Detection", "ফসলের রোগ শনাক্তকরণ"),
       desc: t(
-        "Upload a photo. AI identifies the disease, severity, and treatment — organic and chemical — plus the nearest agricultural office.",
-        "একটি ছবি আপলোড করুন। এআই রোগ, তীব্রতা, চিকিৎসা — জৈব ও রাসায়নিক — এবং নিকটতম কৃষি অফিস জানায়।",
+        "Upload a photo. AI identifies the disease with confidence, plus organic and chemical treatment options and prevention guidance.",
+        "একটি ছবি আপলোড করুন। এআই রোগ ও নিশ্চয়তা, জৈব ও রাসায়নিক চিকিৎসা এবং প্রতিরোধমূলক পরামর্শ জানায়।",
       ),
       features: [
         t("Disease name & confidence", "রোগের নাম ও নিশ্চয়তা"),
@@ -885,70 +884,52 @@ function useModules() {
       demo: "disease",
     },
     {
-      icon: Satellite,
-      tag: "Module 03",
-      title: t("Satellite Intelligence", "স্যাটেলাইট বুদ্ধিমত্তা"),
-      desc: t(
-        "NDVI, water stress, flood mapping, yield estimation — powered by Sentinel-2, Landsat, and Google Earth Engine.",
-        "এনডিভিআই, পানির চাপ, বন্যা মানচিত্র, ফলনের পূর্বাভাস — সেন্টিনেল-২, ল্যান্ডস্যাট ও গুগল আর্থ ইঞ্জিন দ্বারা চালিত।",
-      ),
-      features: [
-        t("Crop health monitoring", "ফসল স্বাস্থ্য পর্যবেক্ষণ"),
-        t("Water stress detection", "পানির চাপ শনাক্তকরণ"),
-        t("Flood mapping", "বন্যা মানচিত্র"),
-        t("Disease hotspot identification", "রোগের হটস্পট শনাক্ত"),
-        t("Yield estimation", "ফলন পূর্বাভাস"),
-      ],
-      demo: "satellite",
-    },
-    {
       icon: Sprout,
-      tag: "Module 04",
+      tag: "Module 03",
       title: t("Soil Intelligence", "মাটির বুদ্ধিমত্তা"),
       desc: t(
-        "Enter GPS or upload a soil report. AI predicts suitable crops, NPK, pH, fertilizer needs, and expected yield.",
-        "জিপিএস দিন বা মাটির রিপোর্ট আপলোড করুন। এআই উপযোগী ফসল, এনপিকে, পিএইচ, সারের চাহিদা ও প্রত্যাশিত ফলন অনুমান করে।",
+        "District- and crop-level soil profiles with suitability picks and fertilizer guidance for Bangladeshi regions — full lab-report analysis is on the roadmap.",
+        "বাংলাদেশের অঞ্চল ও ফসলভিত্তিক মাটির প্রোফাইল, উপযুক্ত ফসল ও সারের পরামর্শ — পূর্ণাঙ্গ ল্যাব-রিপোর্ট বিশ্লেষণ রোডম্যাপে আছে।",
       ),
       features: [
-        t("Suitable crops", "উপযোগী ফসল"),
-        t("pH & organic matter", "পিএইচ ও জৈব উপাদান"),
-        t("Nitrogen, Phosphorus, Potassium", "নাইট্রোজেন, ফসফরাস, পটাশিয়াম"),
-        t("Fertilizer recommendation", "সার পরামর্শ"),
-        t("Yield forecast", "ফলনের পূর্বাভাস"),
+        t("Suitable crops by region", "অঞ্চলভিত্তিক উপযুক্ত ফসল"),
+        t("pH & soil profile guidance", "পিএইচ ও মাটির প্রোফাইল পরামর্শ"),
+        t("Fertilizer advice", "সার পরামর্শ"),
+        t("Regional recommendations", "আঞ্চলিক সুপারিশ"),
       ],
       demo: "soil",
     },
     {
       icon: CloudSun,
-      tag: "Module 05",
+      tag: "Module 04",
       title: t("Weather Intelligence", "আবহাওয়া বুদ্ধিমত্তা"),
       desc: t(
-        "BMD, NASA, and OpenWeather combined — explained in simple Bangla, not just numbers.",
-        "বিএমডি, নাসা ও ওপেনওয়েদার একসাথে — শুধু সংখ্যা নয়, সহজ বাংলায় ব্যাখ্যা।",
+        "OpenWeather forecasts with agricultural interpretation — explained in simple Bangla, not just numbers.",
+        "ওপেনওয়েদার পূর্বাভাস কৃষি ব্যাখ্যাসহ — শুধু সংখ্যা নয়, সহজ বাংলায়।",
       ),
       features: [
         t("Rain forecast & humidity", "বৃষ্টির পূর্বাভাস ও আর্দ্রতা"),
-        t("Cyclone alerts", "ঘূর্ণিঝড় সতর্কতা"),
-        t("Flood warnings", "বন্যা সতর্কতা"),
-        t("Heat stress", "তাপ চাপ"),
+        t("District-level data", "জেলাভিত্তিক ডেটা"),
+        t("Multi-day outlook", "বহুদিনের প্রেক্ষাপট"),
+        t("Heat & rain stress cues", "তাপ ও বৃষ্টির চাপ"),
         t("Bangla explanations", "বাংলা ব্যাখ্যা"),
       ],
       demo: "weather",
     },
     {
       icon: Store,
-      tag: "Module 06",
+      tag: "Module 05",
       title: t("Marketplace", "মার্কেটপ্লেস"),
       desc: t(
-        "A digital marketplace connecting farmers with verified buyers, sellers, and machinery — with daily market prices.",
-        "একটি ডিজিটাল মার্কেটপ্লেস যা কৃষকদের যাচাইকৃত ক্রেতা, বিক্রেতা ও যন্ত্রপাতির সাথে যুক্ত করে — দৈনিক বাজারদরসহ।",
+        "Live national retail prices from the Department of Agricultural Marketing (DAM), with trends, history charts and an offline fallback.",
+        "কৃষি বিপণন অধিদপ্তরের (ডএএম) লাইভ জাতীয় খুচরা দাম — ধারা, ইতিহাসের চার্ট ও অফলাইন ফলব্যাকসহ।",
       ),
       features: [
-        t("Seeds, fertilizers, pesticides", "বীজ, সার, কীটনাশক"),
-        t("Machinery rental", "যন্ত্রপাতি ভাড়া"),
-        t("Sell harvested crops", "ফসল বিক্রি"),
-        t("Daily market prices", "দৈনিক বাজারদর"),
-        t("Digital payments", "ডিজিটাল পেমেন্ট"),
+        t("Daily national prices", "দৈনিক জাতীয় বাজারদর"),
+        t("Price history charts", "দামের ইতিহাস চার্ট"),
+        t("Bilingual units (BN/EN)", "দ্বিভাষিক একক (বাং/ইং)"),
+        t("Works offline via fallback", "ফলব্যাকে অফলাইনেও চলে"),
+        t("Search by crop", "ফসল অনুযায়ী অনুসন্ধান"),
       ],
       demo: "market",
     },
@@ -957,7 +938,7 @@ function useModules() {
 
 function ModuleDemo({ kind }: { kind: string }) {
   const { t } = useLang();
-  if (kind === "voice") {
+  if (kind === "chat") {
     return (
       <div className="rounded-2xl border border-border bg-card p-5 shadow-card">
         <div className="flex items-start gap-3">
@@ -984,7 +965,7 @@ function ModuleDemo({ kind }: { kind: string }) {
         </div>
         <div className="mt-4 flex items-center gap-2 text-xs text-muted-foreground">
           <div className="h-2 w-2 rounded-full bg-primary animate-pulse" />{" "}
-          {t("Listening in Bangla…", "বাংলায় শুনছি…")}
+          {t("Streams in Bangla & English…", "বাংলা ও ইংরেজিতে স্ট্রিমিং…")}
         </div>
       </div>
     );
@@ -1009,7 +990,7 @@ function ModuleDemo({ kind }: { kind: string }) {
               </div>
             </div>
             <div className="rounded-full bg-primary/10 text-primary text-xs font-semibold px-2.5 py-1">
-              {t("95% confidence", "৯৫% নিশ্চয়তা")}
+              {t("96% confidence", "৯৬% নিশ্চয়তা")}
             </div>
           </div>
           <div className="mt-3 grid grid-cols-3 gap-2 text-xs">
@@ -1026,27 +1007,6 @@ function ModuleDemo({ kind }: { kind: string }) {
               <div className="font-semibold">{t("Tricyclazole", "ট্রাইসাইক্লাজল")}</div>
             </div>
           </div>
-        </div>
-      </div>
-    );
-  }
-  if (kind === "satellite") {
-    return (
-      <div className="rounded-2xl overflow-hidden border border-border shadow-card relative">
-        <img
-          src={satImg}
-          alt="Satellite NDVI"
-          width={1200}
-          height={900}
-          loading="lazy"
-          className="w-full h-64 object-cover"
-        />
-        <div className="absolute top-3 left-3 glass rounded-lg px-3 py-1.5 text-xs">
-          <div className="text-muted-foreground">NDVI</div>
-          <div className="font-semibold">0.74 · {t("Healthy", "সুস্থ")}</div>
-        </div>
-        <div className="absolute bottom-3 right-3 glass rounded-lg px-3 py-1.5 text-xs">
-          <MapPin className="h-3 w-3 inline mr-1" /> {t("Rangpur District", "রংপুর জেলা")}
         </div>
       </div>
     );
@@ -1117,9 +1077,9 @@ function ModuleDemo({ kind }: { kind: string }) {
       </div>
       <div className="space-y-2">
         {[
-          { c: t("Rice", "ধান"), p: t("৳ 32.50/kg", "৳ ৩২.৫০/কেজি"), t: "+1.4%" },
-          { c: t("Potato", "আলু"), p: t("৳ 22.00/kg", "৳ ২২.০০/কেজি"), t: "-0.8%" },
-          { c: t("Jute", "পাট"), p: t("৳ 65.00/kg", "৳ ৬৫.০০/কেজি"), t: "+2.1%" },
+          { c: t("Rice", "ধান"), p: t("৳ 48.00/kg", "৳ ৪৮.০০/কেজি"), t: "+1.4%" },
+          { c: t("Potato", "আলু"), p: t("৳ 42.00/kg", "৳ ৪২.০০/কেজি"), t: "-0.8%" },
+          { c: t("Onion", "পেঁয়াজ"), p: t("৳ 52.00/kg", "৳ ৫২.০০/কেজি"), t: "+2.1%" },
         ].map((x) => (
           <div key={x.c} className="flex items-center justify-between rounded-lg bg-muted p-3">
             <div className="font-medium">{x.c}</div>
@@ -1163,12 +1123,12 @@ function Modules() {
         <div className="max-w-2xl">
           <SectionLabel>{t("Core Modules", "মূল মডিউল")}</SectionLabel>
           <h2 className="mt-4 text-4xl md:text-5xl font-bold">
-            {t("Six AI systems, one companion", "ছয়টি এআই সিস্টেম, এক সহচর")}
+            {t("Five AI systems, one companion", "পাঁচটি এআই সিস্টেম, এক সহচর")}
           </h2>
           <p className="mt-4 text-lg text-muted-foreground">
             {t(
-              "Every module is trained on Bangladesh's crops, weather, and farming realities.",
-              "প্রতিটি মডিউল বাংলাদেশের ফসল, আবহাওয়া ও কৃষি বাস্তবতার উপর প্রশিক্ষিত।",
+              "Each module is grounded in Bangladesh's crops, seasons, and market data — live, not mocked.",
+              "প্রতিটি মডিউল বাংলাদেশের ফসল, মৌসুম ও বাজার ডেটায় ভিত্তি করে — লাইভ, নকল নয়।",
             )}
           </p>
         </div>
@@ -1219,8 +1179,8 @@ function Modules() {
           </h3>
           <p className="mt-2 text-muted-foreground">
             {t(
-              "Over 50 crops with expanding coverage every season.",
-              "প্রতিটি মৌসুমে সম্প্রসারিত ৫০টিরও বেশি ফসল।",
+              "The KrishiDrishti-11X detector covers 30+ crops across 116 disease & health classes; the crop calendar and soil guide add regional crops beyond the detector.",
+              "KrishiDrishti-11X ডিটেক্টর ৩০+ ফসলের ১১৬টি রোগ ও স্বাস্থ্য শ্রেণি চিনে; ফসল ক্যালেন্ডার ও মাটি গাইড আরও আঞ্চলিক ফসল যোগ করে।",
             )}
           </p>
           <div className="mt-6 flex flex-wrap gap-2">
@@ -1248,12 +1208,12 @@ function Localized() {
     t("Local diseases", "স্থানীয় রোগ"),
     t("Local pests", "স্থানীয় পোকামাকড়"),
     t("Seasonal farming", "মৌসুমি চাষাবাদ"),
-    t("Government policies", "সরকারি নীতি"),
+    t("District weather context", "জেলাভিত্তিক আবহাওয়া প্রেক্ষাপট"),
     t("Fertilizer recommendations", "সার পরামর্শ"),
     t("Market prices", "বাজারদর"),
     t("Best practices", "সর্বোত্তম চর্চা"),
     t("Soil conditions", "মাটির অবস্থা"),
-    t("Satellite imagery", "স্যাটেলাইট চিত্র"),
+    t("Bilingual EN + বাংলা", "দ্বিভাষিক ইংরেজি + বাংলা"),
     t("Flood risks", "বন্যার ঝুঁকি"),
   ];
   return (
@@ -1267,8 +1227,8 @@ function Localized() {
           </h2>
           <p className="mt-4 text-lg text-muted-foreground">
             {t(
-              "Our models are trained on Bangladeshi crops, soil types, weather patterns, and government policies — so answers actually match the field.",
-              "আমাদের মডেল বাংলাদেশের ফসল, মাটি, আবহাওয়া ও সরকারি নীতির উপর প্রশিক্ষিত — যাতে উত্তরগুলো মাঠের সঙ্গে মেলে।",
+              "Our advisor is grounded by a curated bilingual agronomy knowledge base, live district weather, and national market prices — so answers actually match the field.",
+              "আমাদের উপদেষ্টা কিউরেটেড দ্বিভাষিক কৃষিজ্ঞান নলেজ বেস, লাইভ জেলাভিত্তিক আবহাওয়া ও জাতীয় বাজারদরের ভিত্তিতে উত্তর দেয় — যাতে উত্তরগুলো মাঠের সঙ্গে মেলে।",
             )}
           </p>
         </div>
@@ -1305,8 +1265,8 @@ function How() {
       icon: Brain,
       title: t("AI understands", "এআই বোঝে"),
       desc: t(
-        "Analyzes weather, soil, satellite and agricultural knowledge for your farm.",
-        "আপনার জমির জন্য আবহাওয়া, মাটি, স্যাটেলাইট ও কৃষি জ্ঞান বিশ্লেষণ করে।",
+        "Analyzes live district weather, market prices, and retrieval-grounded agronomy knowledge for your farm.",
+        "আপনার জমির জন্য লাইভ জেলাভিত্তিক আবহাওয়া, বাজারদর ও রিট্রিভাল-ভিত্তিক কৃষিজ্ঞান বিশ্লেষণ করে।",
       ),
     },
     {
@@ -1354,18 +1314,18 @@ function How() {
 function Tech() {
   const { t } = useLang();
   const tech = [
-    { icon: Brain, name: t("LLMs", "এলএলএম") },
-    { icon: Eye, name: t("Computer Vision", "কম্পিউটার ভিশন") },
-    { icon: Satellite, name: t("Satellite Intelligence", "স্যাটেলাইট বুদ্ধিমত্তা") },
-    { icon: Globe, name: t("GIS", "জিআইএস") },
-    { icon: Layers, name: t("Earth Engine", "আর্থ ইঞ্জিন") },
-    { icon: Cpu, name: "PyTorch" },
+    { icon: Brain, name: "LLMs (BN/EN)" },
+    { icon: Eye, name: "Vision · YOLO11x" },
+    { icon: Layers, name: "RAG" },
+    { icon: Database, name: "MCP" },
     { icon: Zap, name: "FastAPI" },
-    { icon: Bot, name: "Flutter" },
-    { icon: Database, name: "PostgreSQL" },
-    { icon: Database, name: "Redis" },
-    { icon: Database, name: "Qdrant" },
-    { icon: Mic, name: "Whisper" },
+    { icon: Bot, name: "React 19" },
+    { icon: Globe, name: "TanStack Start" },
+    { icon: Database, name: "Recharts" },
+    { icon: Cpu, name: "PyTorch" },
+    { icon: Sparkles, name: "Hugging Face" },
+    { icon: Store, name: "DAM Live Feed" },
+    { icon: Clock, name: "n8n" },
   ];
   return (
     <section
@@ -1441,41 +1401,43 @@ function Testimonials() {
   const { t } = useLang();
   const list = [
     {
-      name: t("Rahim Uddin", "রহিম উদ্দিন"),
-      role: t("Farmer, Rangpur", "কৃষক, রংপুর"),
-      quote:
-        "আমি বাংলায় প্রশ্ন করি, AI বাংলায় উত্তর দেয়। এই প্রথম প্রযুক্তি আমার জন্য কাজ করছে।",
-      icon: Users,
-      bn: true,
-    },
-    {
-      name: t("Dr. Fatima Rahman", "ড. ফাতিমা রহমান"),
-      role: t("Agricultural Researcher, BARI", "কৃষি গবেষক, বারি"),
+      name: "KrishiDrishti-11X",
+      role: t("Vision model · Ultralytics YOLO11x", "ভিশন মডেল · Ultralytics YOLO11x"),
       quote: t(
-        "The disease detection accuracy on rice varieties is remarkable. It's a genuine research-grade tool put in every farmer's pocket.",
-        "ধানের জাতের রোগ শনাক্তকরণের নির্ভুলতা অসাধারণ। এটি প্রতিটি কৃষকের পকেটে থাকা প্রকৃত গবেষণা-মানের টুল।",
+        "116 disease and health classes across 30+ crops. Trained in Google Colab on merged public crop-disease datasets; recorded validation mAP50 ≈ 0.70.",
+        "৩০+ ফসলের মধ্যে ১১৬টি রোগ ও স্বাস্থ্য শ্রেণি। গুগল কোলাবে একাধিক পাবলিক ক্রপ-ডিজিজ ডেটাসেট মিলিয়ে প্রশিক্ষিত; রেকর্ড করা ভ্যালিডেশন mAP50 ≈ ০.৭০।",
       ),
       icon: Award,
       bn: false,
     },
     {
-      name: t("Nasir Ahmed", "নাসির আহমেদ"),
-      role: t("Upazila Agriculture Officer", "উপজেলা কৃষি কর্মকর্তা"),
+      name: t("Live DAM feed", "লাইভ ডএএম ফিড"),
+      role: t("Dept. of Agricultural Marketing", "কৃষি বিপণন অধিদপ্তর"),
       quote: t(
-        "For the first time, my farmers reach me with a diagnosis already in hand. My job is faster and much more effective.",
-        "প্রথমবারের মতো, আমার কৃষকরা রোগ নির্ণয় হাতে নিয়ে আমার কাছে আসেন। আমার কাজ দ্রুত ও কার্যকর হয়েছে।",
+        "Daily national retail prices with bilingual rows, price-history charts, and an honest static fallback when the source is unreachable.",
+        "দৈনিক জাতীয় খুচরা দাম — দ্বিভাষিক সারি, দামের ইতিহাস চার্ট এবং সোর্স অ্যাক্সেসযোগ্য না হলে সৎ স্ট্যাটিক ফলব্যাক।",
+      ),
+      icon: TrendingUp,
+      bn: false,
+    },
+    {
+      name: t("Bilingual advisor", "দ্বিভাষিক উপদেষ্টা"),
+      role: t("English + বাংলা", "ইংরেজি + বাংলা"),
+      quote: t(
+        "Every detection renders its advice twice — English and Bengali — grounded by the farmer's district weather and current market context.",
+        "প্রতিটি শনাক্তকরণের পরামর্শ দু’বার তৈরি হয় — ইংরেজি ও বাংলায় — কৃষকের জেলার আবহাওয়া ও চলতি বাজার প্রেক্ষাপটের ভিত্তিতে।",
       ),
       icon: ShieldCheck,
       bn: false,
     },
     {
-      name: t("Green Delta NGO", "গ্রিন ডেল্টা এনজিও"),
-      role: t("Field Operations Lead", "ফিল্ড অপারেশন প্রধান"),
+      name: t("Team PentaFarmers", "টিম পেন্টাফার্মার্স"),
+      role: t("Student builders · Bangladesh", "স্টুডেন্ট বিল্ডার · বাংলাদেশ"),
       quote: t(
-        "We deployed KrishiBondhu across 12 districts. Yields improved measurably in one season.",
-        "আমরা ১২টি জেলায় কৃষিবন্ধু প্রয়োগ করেছি। এক মৌসুমেই ফলন উল্লেখযোগ্যভাবে বেড়েছে।",
+        "Built AI-native with spec-driven tooling and scripted verification probes — including honest coverage-gap accounting on what the detector can't yet find.",
+        "স্পেক-ড্রিভেন টুলিং ও স্ক্রিপ্টেড ভেরিফিকেশন প্রোব দিয়ে এআই-নেটিভভাবে তৈরি — ডিটেক্টর এখনো যা ধরতে পারে না, তার সৎ হিসাবসহ।",
       ),
-      icon: TrendingUp,
+      icon: Users,
       bn: false,
     },
   ];
@@ -1483,9 +1445,9 @@ function Testimonials() {
     <section className="py-28 bg-card/40 border-y border-border/60 contain-section skip-visibility">
       <div className="mx-auto max-w-7xl px-6">
         <div className="max-w-2xl">
-          <SectionLabel>{t("Testimonials", "প্রশংসাপত্র")}</SectionLabel>
+          <SectionLabel>{t("Verified facts", "যাচাইকৃত তথ্য")}</SectionLabel>
           <h2 className="mt-4 text-4xl md:text-5xl font-bold">
-            {t("Trusted across the field", "মাঠজুড়ে বিশ্বস্ত")}
+            {t("What's real, not claimed", "যা বাস্তব, দাবিতে নয়")}
           </h2>
         </div>
         <div className="mt-12 grid md:grid-cols-2 gap-5">
@@ -1522,43 +1484,43 @@ function FAQ() {
     {
       q: t("How accurate is disease detection?", "রোগ শনাক্তকরণ কতটা নির্ভুল?"),
       a: t(
-        "Our vision models achieve 95% accuracy on Bangladesh's top 10 crops, validated against BARI-labeled datasets.",
-        "আমাদের ভিশন মডেল বাংলাদেশের শীর্ষ ১০টি ফসলে ৯৫% নির্ভুলতা অর্জন করে, বারি-লেবেলযুক্ত ডেটাসেটে যাচাইকৃত।",
+        "The KrishiDrishti-11X detector (116 classes) records mAP50 ≈ 0.70 and mAP50-95 ≈ 0.69 on its held-out validation split. Real-world accuracy varies with photo angle, light, and crop — treat every diagnosis as advisory and confirm with your local agriculture office.",
+        "KrishiDrishti-11X ডিটেক্টর (১১৬ শ্রেণি) হোল্ড-আউট ভ্যালিডেশনে mAP50 ≈ ০.৭০ ও mAP50-95 ≈ ০.৬৯ রেকর্ড করে। মাঠে নির্ভুলতা ছবির কোণ, আলো ও ফসলের উপর নির্ভর করে — প্রতিটি রোগনির্ণয়কে পরামর্শ হিসেবে নিন এবং স্থানীয় কৃষি অফিসের সাথে নিশ্চিত করুন।",
       ),
     },
     {
       q: t("Can I use Bangla voice?", "আমি কি বাংলা ভয়েস ব্যবহার করতে পারি?"),
       a: t(
-        "Yes — Bangla is our primary interface. Speech recognition and replies are fully Bangla-native.",
-        "হ্যাঁ — বাংলা আমাদের প্রধান ইন্টারফেস। স্পিচ রিকগনিশন ও উত্তর সম্পূর্ণ বাংলা-নেটিভ।",
+        "Voice is on the roadmap — the current build is a text assistant, fully bilingual in Bangla and English.",
+        "ভয়েস রোডম্যাপে আছে — বর্তমান বিল্ডটি টেক্সট সহকারী, পুরোপুরি দ্বিভাষিক (বাংলা ও ইংরেজি)।",
       ),
     },
     {
       q: t("Does it work offline?", "এটি কি অফলাইনে কাজ করে?"),
       a: t(
-        "Core disease detection and cached weather/soil data work offline. Voice and satellite features need a connection.",
-        "মূল রোগ শনাক্তকরণ ও ক্যাশ করা আবহাওয়া/মাটির ডেটা অফলাইনে কাজ করে। ভয়েস ও স্যাটেলাইট ফিচারের জন্য সংযোগ প্রয়োজন।",
+        "Detection and chat run in the cloud (Hugging Face + a hosted LLM). The market page caches prices and falls back to offline data when the connection drops.",
+        "শনাক্তকরণ ও চ্যাট ক্লাউডে চলে (Hugging Face + হোস্টেড এলএলএম)। বাজারদর পেজ দাম ক্যাশ রাখে এবং সংযোগ বিচ্ছিন্ন হলে অফলাইন ডেটায় ফিরে যায়।",
       ),
     },
     {
       q: t("How are recommendations generated?", "পরামর্শ কীভাবে তৈরি হয়?"),
       a: t(
-        "By combining your farm's satellite imagery, soil report, local weather, and BARI/DAE agronomic guidelines.",
-        "আপনার জমির স্যাটেলাইট চিত্র, মাটির রিপোর্ট, স্থানীয় আবহাওয়া ও বারি/ডিএই কৃষি নির্দেশিকা মিলিয়ে।",
+        "By combining the detected disease class, a curated bilingual agronomy knowledge base (retrieval/RAG), your district's live weather, and current national market prices.",
+        "শনাক্ত রোগ শ্রেণি, কিউরেটেড দ্বিভাষিক কৃষিজ্ঞান নলেজ বেস (আরএজি), আপনার জেলার লাইভ আবহাওয়া ও চলতি জাতীয় বাজারদর মিলিয়ে।",
       ),
     },
     {
       q: t("Which crops are supported?", "কোন ফসলগুলো সমর্থিত?"),
       a: t(
-        "Over 50 crops today — rice, jute, potato, tomato, wheat, mustard, banana, mango, corn, and more.",
-        "৫০টিরও বেশি ফসল — ধান, পাট, আলু, টমেটো, গম, সরিষা, কলা, আম, ভুট্টা ইত্যাদি।",
+        "The detector covers 30+ crops with 116 disease/health classes — including rice, corn, potato, tomato, cassava, banana, and citrus. The crop calendar and soil guides add regional crops beyond the detector.",
+        "ডিটেক্টর ১১৬ রোগ/স্বাস্থ্য শ্রেণিসহ ৩০+ ফসল চিনে — ধান, ভুট্টা, আলু, টমেটো, কাসাভা, কলা, লেবুজাতীয়সহ। ফসল ক্যালেন্ডার ও মাটি গাইড ডিটেক্টরের বাইরের আঞ্চলিক ফসল যোগ করে।",
       ),
     },
     {
-      q: t("Is satellite monitoring free?", "স্যাটেলাইট পর্যবেক্ষণ কি বিনামূল্যে?"),
+      q: t("Is it free?", "এটি কি বিনামূল্যে?"),
       a: t(
-        "Yes, for individual farmers on the free tier. NGOs and government partners get expanded analytics.",
-        "হ্যাঁ, ফ্রি টায়ারে ব্যক্তিগত কৃষকদের জন্য। এনজিও ও সরকারি অংশীদাররা সম্প্রসারিত অ্যানালিটিক্স পান।",
+        "Yes — the public demo runs entirely on free hosting tiers. Heavy AI features have per-visitor free-tier limits, and the UI handles those gracefully (retries, wake-up notices).",
+        "হ্যাঁ — পাবলিক ডেমো পুরোপুরি ফ্রি হোস্টিং টায়ারে চলে। ভারী এআই ফিচারে ভিজিটর-প্রতি ফ্রি-টায়ার সীমা আছে, আর UI সেটা সুন্দরভাবে সামলায় (রিট্রাই, জাগরণ বার্তা)।",
       ),
     },
   ];
@@ -1680,7 +1642,7 @@ function Footer() {
             </div>
             <p className="mt-4 text-sm text-muted-foreground max-w-xs">
               {t(
-                "Empowering Bangladesh's agriculture through localized AI, satellite intelligence, and voice-first interaction.",
+                "Empowering Bangladesh's agriculture through localized AI, live market data, and bilingual interaction.",
                 "স্থানীয়ায়িত এআই, স্যাটেলাইট বুদ্ধিমত্তা ও ভয়েস-ফার্স্ট ইন্টারঅ্যাকশনের মাধ্যমে বাংলাদেশের কৃষিকে ক্ষমতায়ন।",
               )}
             </p>
@@ -1726,7 +1688,7 @@ function Footer() {
               <Clock className="h-3 w-3" /> {t("24/7 AI", "২৪/৭ এআই")}
             </span>
             <span className="flex items-center gap-1">
-              <Target className="h-3 w-3" /> {t("95% accuracy", "৯৫% নির্ভুলতা")}
+              <Target className="h-3 w-3" /> {t("116-class detector", "১১৬-শ্রেণি ডিটেক্টর")}
             </span>
           </div>
         </div>
