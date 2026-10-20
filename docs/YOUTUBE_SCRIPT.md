@@ -8,6 +8,9 @@ voice-over; Bangla on screen speaks for itself.
 device screen natively), browser at the live URL, zoom 90–110%, mic recorded dry.
 Pre-open every file and screen; never navigate folders on camera. Rehearse once.
 
+**Runtime:** 4:00 target. If real inference or Bangla playback runs long, allow
+4:00–4:15 rather than cutting off a spoken answer. Stay under 5:00.
+
 **Title suggestion:**
 `KrishiBondhu AI — Bangla voice + crop disease detection for farmers | Idea to Unicorn`
 
@@ -86,9 +89,10 @@ the screen lights up with the app UI. Lower-third fades; cut to the live phone s
 ## 0:48–1:08 — The reveal: Bangla in, Bangla out
 
 **Action:** cut to the phone, assistant tab open. Tap the mic and ask in Bangla:
-**“ধানের পাতায় বাদামী মাকড়সার মতো দাগ হলে কী করব?”** — “What should I do if there are
-brown spindle-shaped spots on rice leaves?” Let the spoken Bangla reply play fully. Do
-not narrate over it. On-screen text: **“Bangla in · Bangla out.”**
+**“ধানের পাতায় বাদামি মাকুর মতো দাগ দেখা যাচ্ছে—এটা কী রোগ হতে পারে, কী করব?”** —
+“Brown spindle-shaped spots are appearing on my rice leaves—what disease could it be,
+and what should I do?” Let the spoken Bangla reply play fully. Do not narrate over it.
+On-screen text: **“Bangla in · Bangla out.”**
 
 > “Ask in Bangla. Hear the answer in Bangla. No typing. No English required.”
 
@@ -96,7 +100,8 @@ not narrate over it. On-screen text: **“Bangla in · Bangla out.”**
 
 **Action:** open Disease Scan, pick the pre-tested rice-blast image, run it, wait for the
 real inference, then show boxes + confidence. Switch the advice to Bangla and tap
-read-aloud; let TTS speak one sentence.
+read-aloud; let TTS speak one sentence. Use the actual returned advice; do not substitute
+the homepage sample card, and do not present any pesticide line as universally appropriate.
 
 > “Or, instead of describing it, just snap a photo.”
 
@@ -125,6 +130,10 @@ one sentence play before showing the weather/market chips. No English VO over th
 > “Every answer is grounded with the selected district’s live weather and today’s
 > national market prices — so the advice fits the day, not just the disease.”
 
+**If the market is on fallback:**
+> “Every answer is grounded with the selected district’s live weather and the latest
+> available national market prices — so the advice fits the day, not just the disease.”
+
 ## 2:32–2:57 — Marketplace (web, honest data)
 
 **Action:** scroll the price table. Show whatever the live state actually is. If it is on
@@ -152,12 +161,13 @@ Space has no history, show the honest “data builds daily” state or skip the 
 
 ## 3:22–3:42 — Honest limits
 
-**Action:** quick shot of the homepage “Verified facts” / FAQ section.
+**Action:** quick shot of the homepage “Verified facts” / FAQ section. Frame only that
+section; do not show the hero sample cards.
 
-> “What it can’t do, we say. No banana sigatoka class yet. Our test set is still growing,
-> so we treat the result as early guidance, not a guarantee. Voice quality depends on the
-> device’s Bangla speech support. Satellite and soil lab analysis are roadmap. We label
-> what’s measured and what’s planned.”
+> “What it can’t do, we say. No banana sigatoka class yet. In our initial 36-photo check,
+> it identified the exact disease in 22 photos. We’re expanding the benchmark, so treat
+> results as early guidance, not a guarantee. Voice quality depends on the device’s Bangla
+> speech support. Satellite monitoring and soil lab analysis are on the roadmap.”
 
 ## 3:42–4:00 — Team + close
 
@@ -228,7 +238,10 @@ YOLO11x, computer vision, RAG, farming assistant, Idea to Unicorn, PentaFarmers
 - [ ] Model card hard-refreshed: confirm the rendered **AGPL-3.0** agrees with the model
       card and repository; resolve any Apache view before recording
 - [ ] Web dashboard pre-run separately with the same rice image; show that real result
+- [ ] Disease demo uses the actual returned result and advice; homepage sample cards are
+      labeled and are not shown as a live prediction
 - [ ] Market state matches the narration; if fallback, UI shows `Offline snapshot` /
-      `Dated dataset` and the older date; narrate it as dated, not today’s live prices
+      `Dated dataset` and the older date; narrate it as dated and use the `2:04`
+      “latest available” line
 - [ ] No English VO over Bangla TTS in the reveal, disease demo, or advisor section
 - [ ] YouTube upload unlisted, link tested in an incognito window, then paste into the portal

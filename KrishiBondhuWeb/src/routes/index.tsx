@@ -556,15 +556,20 @@ function Hero() {
               className="hidden md:block absolute -right-4 bottom-16 glass rounded-2xl p-4 shadow-card animate-float w-60"
               style={{ animationDelay: "1s" }}
             >
-              <div className="flex items-center gap-2 text-xs text-muted-foreground">
-                <AlertTriangle className="h-3.5 w-3.5 text-primary" />{" "}
-                {t("Disease Detected", "রোগ শনাক্ত")}
+              <div className="flex items-center justify-between gap-2 text-xs text-muted-foreground">
+                <span className="flex items-center gap-2">
+                  <AlertTriangle className="h-3.5 w-3.5 text-primary" />{" "}
+                  {t("Disease Detected", "রোগ শনাক্ত")}
+                </span>
+                <span className="shrink-0 rounded-full bg-muted px-2 py-0.5 text-[10px] font-medium">
+                  {t("Sample result", "নমুনা ফলাফল")}
+                </span>
               </div>
               <div className="mt-1 font-display text-base font-semibold">
                 {t("Rice Blast · 96%", "রাইস ব্লাস্ট · ৯৬%")}
               </div>
               <div className="mt-1 text-[11px] text-muted-foreground">
-                {t("Apply Tricyclazole within 3 days", "৩ দিনের মধ্যে ট্রাইসাইক্লাজল প্রয়োগ করুন")}
+                {t("Sample advice — confirm locally", "নমুনা পরামর্শ — স্থানীয়ভাবে যাচাই করুন")}
               </div>
             </div>
             <div
@@ -995,7 +1000,12 @@ function ModuleDemo({ kind }: { kind: string }) {
         <div className="p-4 bg-card">
           <div className="flex items-center justify-between">
             <div>
-              <div className="text-xs text-muted-foreground">{t("Detected", "শনাক্ত")}</div>
+              <div className="flex items-center gap-2">
+                <div className="text-xs text-muted-foreground">{t("Detected", "শনাক্ত")}</div>
+                <span className="rounded-full bg-muted px-2 py-0.5 text-[10px] font-medium text-muted-foreground">
+                  {t("Sample result", "নমুনা ফলাফল")}
+                </span>
+              </div>
               <div className="font-semibold">
                 {t("Rice Blast (Magnaporthe oryzae)", "রাইস ব্লাস্ট (Magnaporthe oryzae)")}
               </div>
@@ -1138,8 +1148,8 @@ function Modules() {
           </h2>
           <p className="mt-4 text-lg text-muted-foreground">
             {t(
-              "Each module is grounded in Bangladesh's crops, seasons, and market data — live, not mocked.",
-              "প্রতিটি মডিউল বাংলাদেশের ফসল, মৌসুম ও বাজার ডেটায় ভিত্তি করে — লাইভ, নকল নয়।",
+              "Each module is grounded in Bangladesh's crops, seasons, and market data — with live data where available.",
+              "প্রতিটি মডিউল বাংলাদেশের ফসল, মৌসুম ও বাজার ডেটায় ভিত্তি করে — যেখানে প্রযোজ্য সেখানে লাইভ ডেটাসহ।",
             )}
           </p>
         </div>
