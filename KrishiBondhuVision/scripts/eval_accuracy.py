@@ -35,7 +35,6 @@ def label_of(name: str) -> str:
 
 def main():
     model = YOLO(str(MODEL))
-    names = {k.lower(): v for k, v in model.names.items()}
     imgs = sorted(EVAL.glob("*.jpg"))
     if not imgs:
         print("no eval images")
@@ -47,7 +46,7 @@ def main():
         res = model.predict(str(p), conf=THRESHOLDS[1], imgsz=640, verbose=False)[0]
         if len(res.boxes):
             i = int(res.boxes.cls[0].item())
-            pred, conf = names[model.names[i].lower()], float(res.boxes.conf[0].item())
+            pred, conf = model.names[i], float(res.boxes.conf[0].item())
         else:
             pred, conf = "NO DETECTION", 0.0
         ok = None
@@ -58,8 +57,11 @@ def main():
         rows.append((p.name, exp, pred, conf, ok))
 
     include = [r for r in rows if r[4] is not None]
+    if not include:
+        print("no evaluable images (all excluded as coverage gaps)")
+        sys.exit(1)
     right = sum(1 for r in include if r[4])
-    print(f"images evaluated: {len(include)}/37  (excluded: {len(rows) - len(include)} no-model-class)")
+    print(f"images evaluated: {len(include)}/{len(rows)}  (excluded: {len(rows) - len(include)} no-model-class)")
     print(f"ACCURACY @ conf=0.25: {right}/{len(include)} = {right / len(include) * 100:.1f}%\n")
 
     print("per-image (expected -> predicted [conf])")
@@ -87,7 +89,7 @@ def main():
             if not len(res.boxes):
                 continue
             i = int(res.boxes.cls[0].item())
-            pred = names[model.names[i].lower()]
+            pred = model.names[i]
             total += 1
             hits += int(pred.lower() in EXPECT[exp])
         print(f"  conf={thr:.2f}: {hits}/{total} = {hits / total * 100:.1f}%")

@@ -22,10 +22,7 @@ import {
   Brain,
   Eye,
   Globe,
-  Cpu,
   Database,
-  Layers,
-  Zap,
   ShieldCheck,
   AlertTriangle,
   TrendingUp,
@@ -547,7 +544,9 @@ function Hero() {
               </div>
               <div className="mt-2 font-display text-2xl font-semibold">
                 96%{" "}
-                <span className="text-xs font-normal text-primary">{t("Top result", "শীর্ষ ফলাফল")}</span>
+                <span className="text-xs font-normal text-primary">
+                  {t("Top result", "শীর্ষ ফলাফল")}
+                </span>
               </div>
               <div className="mt-2 h-1.5 rounded-full bg-muted overflow-hidden relative">
                 <div className="h-full w-[96%] bg-gradient-primary" />
@@ -618,7 +617,7 @@ function CountUp({
   suffix?: string;
   duration?: number;
 }) {
-  const [val, setVal] = useState(0);
+  const [val, setVal] = useState(end);
   const ref = useRef<HTMLSpanElement>(null);
   const started = useRef(false);
   useEffect(() => {
@@ -654,17 +653,17 @@ function CountUp({
 
 function Stats() {
   const { t } = useLang();
-  const stats = [
-    { label: t("Future Farmers", "ভবিষ্যৎ কৃষক"), value: 100000, suffix: "+", static: false },
-    { label: t("District Coverage", "জেলা কভারেজ"), value: 64, suffix: "", static: false },
-    { label: t("Supported Crops", "সমর্থিত ফসল"), value: 50, suffix: "+", static: false },
-    { label: t("AI Assistant", "এআই সহকারী"), value: 24, suffix: "/7", static: true },
-    {
-      label: t("Detection Accuracy", "শনাক্তকরণ নির্ভুলতা"),
-      value: 95,
-      suffix: "%",
-      static: false,
-    },
+  const stats: {
+    label: string;
+    value: number;
+    suffix: string;
+    static?: boolean;
+  }[] = [
+    { label: t("Disease classes", "রোগ শ্রেণি"), value: 116, suffix: "", static: false },
+    { label: t("Crops covered", "অন্তর্ভুক্ত ফসল"), value: 30, suffix: "+", static: false },
+    { label: t("Districts", "জেলা"), value: 64, suffix: "", static: false },
+    { label: t("Languages", "ভাষা"), value: 2, suffix: "", static: false },
+    { label: t("Availability", "প্রাপ্যতা"), value: 24, suffix: "/7", static: true },
   ];
   return (
     <section className="py-20 border-y border-border/60 bg-card/40 contain-section skip-visibility">
@@ -810,7 +809,7 @@ function Solution() {
   const tags = [
     t("Bilingual-first", "দ্বিভাষিক-ফার্স্ট"),
     t("Bangla-native", "বাংলা-নেটিভ"),
-    t("RAG-grounded", "আরএজি-ভিত্তিক"),
+    t("Agronomy-grounded", "কৃষিজ্ঞান-ভিত্তিক"),
     t("Live market data", "লাইভ বাজারদর"),
     t("Weather-aware", "আবহাওয়া-সচেতন"),
   ];
@@ -828,8 +827,8 @@ function Solution() {
         </h2>
         <p className="mt-6 text-lg text-muted-foreground max-w-2xl mx-auto">
           {t(
-            "KrishiBondhu combines large language models, computer vision, retrieval-grounded agronomy knowledge, and live market + weather data into one bilingual assistant — specialized for Bangladesh's farms, seasons, and soil.",
-            "কৃষিবন্ধু বৃহৎ ভাষা মডেল, কম্পিউটার ভিশন, আরএজি-ভিত্তিক কৃষি জ্ঞান এবং লাইভ বাজারদর ও আবহাওয়ার ডেটাকে একটি দ্বিভাষিক সহকারীতে একত্র করে — বাংলাদেশের জমি, মৌসুম ও মাটির জন্য বিশেষায়িত।",
+            "KrishiBondhu combines computer vision, a bilingual AI advisor, agronomy knowledge, and live market + weather data into one assistant — specialized for Bangladesh's farms, seasons, and soil.",
+            "কৃষিবন্ধু কম্পিউটার ভিশন, দ্বিভাষিক এআই উপদেষ্টা, কৃষিজ্ঞান এবং লাইভ বাজারদর ও আবহাওয়ার ডেটাকে একটি সহকারীতে একত্র করে — বাংলাদেশের জমি, মৌসুম ও মাটির জন্য বিশেষায়িত।",
           )}
         </p>
         <div className="mt-10 flex flex-wrap justify-center gap-2">
@@ -861,7 +860,7 @@ function useModules() {
       features: [
         t("Streaming replies", "স্ট্রিমিং উত্তর"),
         t("Bilingual · EN + বাংলা", "দ্বিভাষিক · ইংরেজি + বাংলা"),
-        t("RAG-grounded agronomy", "আরএজি-ভিত্তিক কৃষিজ্ঞান"),
+        t("Agronomy knowledge", "কৃষিজ্ঞান"),
         t("Weather- & market-aware", "আবহাওয়া ও বাজার-সচেতন"),
         t("Conversation memory", "কথোপকথনের স্মৃতি"),
       ],
@@ -921,12 +920,12 @@ function useModules() {
       tag: "Module 05",
       title: t("Marketplace", "মার্কেটপ্লেস"),
       desc: t(
-        "Live national retail prices from the Department of Agricultural Marketing (DAM), with trends, history charts and an offline fallback.",
-        "কৃষি বিপণন অধিদপ্তরের (ডএএম) লাইভ জাতীয় খুচরা দাম — ধারা, ইতিহাসের চার্ট ও অফলাইন ফলব্যাকসহ।",
+        "Live national retail prices from the Department of Agricultural Marketing (DAM), with bilingual rows and an honest offline fallback.",
+        "কৃষি বিপণন অধিদপ্তরের (ডিএএম) লাইভ জাতীয় খুচরা দাম — দ্বিভাষিক সারি ও সৎ অফলাইন ফলব্যাকসহ।",
       ),
       features: [
         t("Daily national prices", "দৈনিক জাতীয় বাজারদর"),
-        t("Price history charts", "দামের ইতিহাস চার্ট"),
+        t("Clear price table", "পরিষ্কার দামের তালিকা"),
         t("Bilingual units (BN/EN)", "দ্বিভাষিক একক (বাং/ইং)"),
         t("Works offline via fallback", "ফলব্যাকে অফলাইনেও চলে"),
         t("Search by crop", "ফসল অনুযায়ী অনুসন্ধান"),
@@ -1265,8 +1264,8 @@ function How() {
       icon: Brain,
       title: t("AI understands", "এআই বোঝে"),
       desc: t(
-        "Analyzes live district weather, market prices, and retrieval-grounded agronomy knowledge for your farm.",
-        "আপনার জমির জন্য লাইভ জেলাভিত্তিক আবহাওয়া, বাজারদর ও রিট্রিভাল-ভিত্তিক কৃষিজ্ঞান বিশ্লেষণ করে।",
+        "Analyzes live district weather, market prices, and agronomy knowledge for your farm.",
+        "আপনার জমির জন্য লাইভ জেলাভিত্তিক আবহাওয়া, বাজারদর ও কৃষিজ্ঞান বিশ্লেষণ করে।",
       ),
     },
     {
@@ -1314,18 +1313,12 @@ function How() {
 function Tech() {
   const { t } = useLang();
   const tech = [
-    { icon: Brain, name: "LLMs (BN/EN)" },
-    { icon: Eye, name: "Vision · YOLO11x" },
-    { icon: Layers, name: "RAG" },
-    { icon: Database, name: "MCP" },
-    { icon: Zap, name: "FastAPI" },
-    { icon: Bot, name: "React 19" },
-    { icon: Globe, name: "TanStack Start" },
-    { icon: Database, name: "Recharts" },
-    { icon: Cpu, name: "PyTorch" },
-    { icon: Sparkles, name: "Hugging Face" },
-    { icon: Store, name: "DAM Live Feed" },
-    { icon: Clock, name: "n8n" },
+    { icon: Globe, name: t("Cloud AI", "ক্লাউড এআই") },
+    { icon: Eye, name: t("Computer vision", "কম্পিউটার ভিশন") },
+    { icon: CloudSun, name: t("Live weather", "লাইভ আবহাওয়া") },
+    { icon: Store, name: t("Daily market prices", "দৈনিক বাজারদর") },
+    { icon: Database, name: t("Offline cache", "অফলাইন ক্যাশ") },
+    { icon: Languages, name: t("Bilingual", "দ্বিভাষিক") },
   ];
   return (
     <section
@@ -1334,9 +1327,9 @@ function Tech() {
     >
       <div className="mx-auto max-w-7xl px-6">
         <div className="max-w-2xl">
-          <SectionLabel>{t("Technology", "প্রযুক্তি")}</SectionLabel>
+          <SectionLabel>{t("Built for the field", "মাঠের জন্য তৈরি")}</SectionLabel>
           <h2 className="mt-4 text-4xl md:text-5xl font-bold">
-            {t("Built on modern AI infrastructure", "আধুনিক এআই অবকাঠামোতে নির্মিত")}
+            {t("Simple to use. Capable in the cloud.", "ব্যবহারে সহজ, ক্লাউডে শক্তিশালী।")}
           </h2>
         </div>
         <div className="mt-12 grid grid-cols-2 md:grid-cols-4 lg:grid-cols-6 gap-3">
@@ -1402,10 +1395,10 @@ function Testimonials() {
   const list = [
     {
       name: "KrishiDrishti-11X",
-      role: t("Vision model · Ultralytics YOLO11x", "ভিশন মডেল · Ultralytics YOLO11x"),
+      role: t("Crop-disease detector", "ফসল-রোগ ডিটেক্টর"),
       quote: t(
-        "116 disease and health classes across 30+ crops. Trained in Google Colab on merged public crop-disease datasets; recorded validation mAP50 ≈ 0.70.",
-        "৩০+ ফসলের মধ্যে ১১৬টি রোগ ও স্বাস্থ্য শ্রেণি। গুগল কোলাবে একাধিক পাবলিক ক্রপ-ডিজিজ ডেটাসেট মিলিয়ে প্রশিক্ষিত; রেকর্ড করা ভ্যালিডেশন mAP50 ≈ ০.৭০।",
+        "116 disease and health classes across 30+ crops. Trained on merged public crop-disease datasets; the model card publishes its validation results and limitations.",
+        "৩০+ ফসলের মধ্যে ১১৬টি রোগ ও স্বাস্থ্য শ্রেণি। একাধিক পাবলিক ক্রপ-ডিজিজ ডেটাসেটে প্রশিক্ষিত; মডেল কার্ডে ভ্যালিডেশন ফলাফল ও সীমাবদ্ধতা প্রকাশিত।",
       ),
       icon: Award,
       bn: false,
@@ -1414,8 +1407,8 @@ function Testimonials() {
       name: t("Live DAM feed", "লাইভ ডএএম ফিড"),
       role: t("Dept. of Agricultural Marketing", "কৃষি বিপণন অধিদপ্তর"),
       quote: t(
-        "Daily national retail prices with bilingual rows, price-history charts, and an honest static fallback when the source is unreachable.",
-        "দৈনিক জাতীয় খুচরা দাম — দ্বিভাষিক সারি, দামের ইতিহাস চার্ট এবং সোর্স অ্যাক্সেসযোগ্য না হলে সৎ স্ট্যাটিক ফলব্যাক।",
+        "Daily national retail prices with bilingual rows and an honest dated fallback when the source is unreachable.",
+        "দৈনিক জাতীয় খুচরা দাম — দ্বিভাষিক সারি এবং সোর্স অ্যাক্সেসযোগ্য না হলে সৎ ডেটেড ফলব্যাক।",
       ),
       icon: TrendingUp,
       bn: false,
@@ -1484,29 +1477,29 @@ function FAQ() {
     {
       q: t("How accurate is disease detection?", "রোগ শনাক্তকরণ কতটা নির্ভুল?"),
       a: t(
-        "The KrishiDrishti-11X detector (116 classes) records mAP50 ≈ 0.70 and mAP50-95 ≈ 0.69 on its held-out validation split. Real-world accuracy varies with photo angle, light, and crop — treat every diagnosis as advisory and confirm with your local agriculture office.",
-        "KrishiDrishti-11X ডিটেক্টর (১১৬ শ্রেণি) হোল্ড-আউট ভ্যালিডেশনে mAP50 ≈ ০.৭০ ও mAP50-95 ≈ ০.৬৯ রেকর্ড করে। মাঠে নির্ভুলতা ছবির কোণ, আলো ও ফসলের উপর নির্ভর করে — প্রতিটি রোগনির্ণয়কে পরামর্শ হিসেবে নিন এবং স্থানীয় কৃষি অফিসের সাথে নিশ্চিত করুন।",
+        "In our 36-photo test set it got the exact disease right in 22 photos — about 6 in 10. That is a small, mostly-corn test set, so it is not a field-accuracy guarantee. Blurry or dark photos, and crops with few test images, are more likely to be wrong. Treat every diagnosis as advice and confirm with your local agriculture office.",
+        "আমাদের ৩৬টি ছবির টেস্ট সেটে এটি ২২টি সঠিকভাবে শনাক্ত করেছে — প্রায় ১০টির মধ্যে ৬টি। এটি ছোট, বেশিরভাগ ভুট্টার ছবির সেট, তাই মাঠের নির্ভুলতার নিশ্চয়তা নয়। ঝাপসা বা অন্ধকার ছবি এবং কম টেস্ট ছবির ফসলে ভুল হওয়ার সম্ভাবনা বেশি। প্রতিটি রোগনির্ণয়কে পরামর্শ হিসেবে নিন এবং স্থানীয় কৃষি অফিসের সাথে নিশ্চিত করুন।",
       ),
     },
     {
       q: t("Can I use Bangla voice?", "আমি কি বাংলা ভয়েস ব্যবহার করতে পারি?"),
       a: t(
-        "Voice is on the roadmap — the current build is a text assistant, fully bilingual in Bangla and English.",
-        "ভয়েস রোডম্যাপে আছে — বর্তমান বিল্ডটি টেক্সট সহকারী, পুরোপুরি দ্বিভাষিক (বাংলা ও ইংরেজি)।",
+        "Bangla voice input and read-aloud advice are available in the mobile app; the web build is text-only. Voice is handled in the app and is not sent to our backend.",
+        "বাংলা ভয়েস ইনপুট ও পরামর্শ পড়ে শোনানো মোবাইল অ্যাপে পাওয়া যায়; ওয়েব বিল্ডটি টেক্সট-ভিত্তিক। ভয়েস অ্যাপেই প্রসেস হয় এবং আমাদের ব্যাকএন্ডে পাঠানো হয় না।",
       ),
     },
     {
       q: t("Does it work offline?", "এটি কি অফলাইনে কাজ করে?"),
       a: t(
-        "Detection and chat run in the cloud (Hugging Face + a hosted LLM). The market page caches prices and falls back to offline data when the connection drops.",
-        "শনাক্তকরণ ও চ্যাট ক্লাউডে চলে (Hugging Face + হোস্টেড এলএলএম)। বাজারদর পেজ দাম ক্যাশ রাখে এবং সংযোগ বিচ্ছিন্ন হলে অফলাইন ডেটায় ফিরে যায়।",
+        "The AI runs in the cloud, so disease scanning and AI chat need an internet connection. Market prices you've already loaded are cached, so the last prices stay visible if the connection drops.",
+        "এআই ক্লাউডে চলে, তাই রোগ শনাক্তকরণ ও এআই চ্যাটের জন্য ইন্টারনেট প্রয়োজন। আগে লোড করা বাজারদর ক্যাশ থাকে, তাই সংযোগ বিচ্ছিন্ন হলেও সর্বশেষ দাম দেখা যায়।",
       ),
     },
     {
       q: t("How are recommendations generated?", "পরামর্শ কীভাবে তৈরি হয়?"),
       a: t(
-        "By combining the detected disease class, a curated bilingual agronomy knowledge base (retrieval/RAG), your district's live weather, and current national market prices.",
-        "শনাক্ত রোগ শ্রেণি, কিউরেটেড দ্বিভাষিক কৃষিজ্ঞান নলেজ বেস (আরএজি), আপনার জেলার লাইভ আবহাওয়া ও চলতি জাতীয় বাজারদর মিলিয়ে।",
+        "It combines the detected disease, a curated agronomy guide, your district's weather, and current market prices.",
+        "শনাক্ত রোগ, কিউরেটেড কৃষি নির্দেশিকা, আপনার জেলার আবহাওয়া ও চলতি বাজারদর মিলিয়ে।",
       ),
     },
     {
@@ -1519,8 +1512,8 @@ function FAQ() {
     {
       q: t("Is it free?", "এটি কি বিনামূল্যে?"),
       a: t(
-        "Yes — the public demo runs entirely on free hosting tiers. Heavy AI features have per-visitor free-tier limits, and the UI handles those gracefully (retries, wake-up notices).",
-        "হ্যাঁ — পাবলিক ডেমো পুরোপুরি ফ্রি হোস্টিং টায়ারে চলে। ভারী এআই ফিচারে ভিজিটর-প্রতি ফ্রি-টায়ার সীমা আছে, আর UI সেটা সুন্দরভাবে সামলায় (রিট্রাই, জাগরণ বার্তা)।",
+        "Yes — free to use. Heavy AI features have daily limits during the public demo, and the app retries automatically.",
+        "হ্যাঁ — বিনামূল্যে ব্যবহারযোগ্য। পাবলিক ডেমোতে ভারী এআই ফিচারের দৈনিক সীমা আছে, অ্যাপটি স্বয়ংক্রিয়ভাবে আবার চেষ্টা করে।",
       ),
     },
   ];

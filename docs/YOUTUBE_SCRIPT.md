@@ -1,119 +1,179 @@
-# YouTube Demo Script — 3:30–4:30 min, one take, crisp audio
+# YouTube Demo Script — 4:00 target, one take
 
-**Recording setup:** full-screen browser at the live URL
-(https://krishibondhu-ai-web.vercel.app), zoom 90–110%, mic recorded dry, keep
-each screen ~20–35 s. Do every live action for real before recording (Space
-awake, weather page loaded); rehearse once. English voice-over; Bangla on
-screens speaks for itself.
+**Format:** phone-first. Open on the mobile app (Bangla voice + TTS), cut to the web
+dashboard for the platform view. English voice-over; Bangla on screen speaks for itself.
 
-**Title suggestion:** "KrishiBondhu AI — bilingual AI farming assistant
-(Bangla/English) | Idea to Unicorn by Team PentaFarmers"
+**Recording setup:** mirror the Android phone with `scrcpy` at 1080p (or record the
+device screen natively), browser at the live URL, zoom 90–110%, mic recorded dry.
+Pre-open every file and screen; never navigate folders on camera. Rehearse once.
 
----
-
-## 0:00–0:20 — Hook (show landing page)
-> "This is KrishiBondhu AI — an AI farming assistant built for Bangladesh, by
-> students. Snap a photo of a sick crop, and it detects the disease and tells
-> you what to do — in Bangla or English. Everything you see in this video is
-> live, right now, on free cloud infrastructure."
-
-- Show the landing hero. Immediately hit the language toggle once — the entire
-  homepage flips to Bangla, then back. That's the "wow, it's actually bilingual"
-  moment; don't linger on the marketing paragraphs.
-
-## 0:20–0:30 — The problem (one slide, over the dashboard)
-> "Bangladesh's smallholders lose yield to diseases they can't identify in
-> time. Diagnosis normally needs an agronomist most farmers never reach — and
-> existing AI is English-first and lab-trained. KrishiBondhu closes that gap."
-
-- On the dashboard home (`/dashboard`): weather widget, quick actions.
-
-## 0:30–1:10 — Disease detection (the money shot; do it live)
-- Open `/dashboard/disease`, pick a real rice leaf photo that shows blast
-  symptoms (a file from `space-demo/examples/`). Upload.
-- While the result streams in (boxes + confidence):
-> "This is KrishiDrishti-11X — our own detector. 116 disease and health
-> classes across 30+ crops. We trained it on an 89-class public
-> plant-disease dataset merged with the 27 classes of a public Roboflow field
-> dataset — the full training record is embedded in the checkpoint, so anyone
-> can verify it was trained by us — and it records about 0.70 validation mAP."
-- Switch to Bangla advice. Read one step aloud in Bangla.
-> "Advice is generated twice — Bangla and English — in one call, grounded by a
-> retrieval system over a curated agronomy knowledge base."
-
-## 1:10–1:50 — Advisor chat with live context
-- `/dashboard/chat`: type (or paste) in Bangla: "আম বাগানে আগামীকাল স্প্রে করব?
-  (আবহাওয়া দেখে বলো)" — or "Should I spray tomorrow in Naogaon?"
-- While it streams:
-> "Everything the farmer's situation actually needs is folded silently into
-> the answer: the selected district's live weather, today's national market
-> prices, and retrieved agronomy passages. When safer-dose questions come up
-> for garden plants, the system stays on general guidance — never invented
-> doses."
-- Show that weather chip / market chip on the page.
-
-## 1:50–2:20 — Marketplace (live data)
-- `/dashboard/marketplace` — scroll the price table, open a crop's detail.
-> "Daily national retail prices straight from the Department of Agricultural
-> Marketing's own site — scraped bilingually, merged by row order, with an honest
-> fallback to a dated dataset when the source is down. The price-history chart fills
-> in from the local backend's daily snapshots."
-- In the live `space` deployment the history chart shows "Not enough history yet — data
-  builds daily" (the Space has no history endpoint). Either shoot that message as-is (it
-  is honest) or switch to local `fastapi` mode for the chart shot — do not script a chart
-  that isn't there.
-
-## 2:20–2:50 — How it's built (slide/screen each, rapid)
-The under-the-hood montage (queue up minimized windows and switch quickly):
-1. **The Space in Hugging Face** (https://huggingface.co/spaces/hodoly163/krishibondhu-demo)
-   — show app doing GPU predict; mention CPU fallback "so free-tier quota never
-   breaks the demo" and the Space is itself an MCP server.
-2. **Model card** (https://huggingface.co/hodoly163/krishibondhu-jktk) — zoom
-   on the provenance table (Colab, 100 epochs, datasets) and AGPL license.
-3. **GitHub repo** — `KrishiBondhuVision/api` + `mcp-server/` (Stdio+SSE
-   Market MCP) + `docs/` (submission packets).
-4. Optional quick flash: `/agent/run` node trace and `/admin/stats` — both are
-   **local-backend** routes (the API Space serves `/admin/*` only with the token
-   header). Shoot them from the local stack, not from the live web URL.
-> "The whole thing was built AI-native: one spec prompt bootstrapped the
-> product, agents executed with AGENTS.md as standing memory, and every claim
-> I've made so far is machine-verified — accuracy evals, RAG-precision probes,
-> identity-leak probes, GPU-CPU parity checks."
-
-## 2:50–3:20 — Honest limits (30 s of credibility)
-> "What it can't do, we say. The detector has no banana sigatoka class. Voice
-> is on the roadmap. Satellite monitoring is on the roadmap. Accuracy in the
-> field depends on the photo. We label what's measured and what's planned —
-> including on our homepage."
-- Show the homepage "Verified facts" section quickly.
-
-## 3:20–3:40 — Team + CTA
-> "KrishiBondhu AI — by PentaFarmers — Shadman Samin, Ramim Azad, Nusrat Jahan
-> Neha, Jannatul Ferdous Mim, AU Sabbir. Try it live …"
-- Overlay (keep on screen 10 s):
-  - Live demo: https://krishibondhu-ai-web.vercel.app
-  - Direct AI Space: https://hodoly163-krishibondhu-demo.hf.space
-  - App REST API: https://hodoly163-krishibondhu-api.hf.space (/docs for Swagger)
-  - GitHub: https://github.com/Shadman-Samin/KrishiBondhuAIWeb
-> "Snap a photo, get the answer — in the language of the field. Thanks."
+**Title suggestion:**
+`KrishiBondhu AI — Bangla voice + crop disease detection for farmers | Idea to Unicorn`
 
 ---
 
-### Checklist before recording
-- [ ] Demo Space awake + model loaded (upload one photo in the UI once; the demo Space
-      has no `/health` route — the API Space does)
-- [ ] Demo images ready and pre-tested (`space-demo/examples/rice_blast.jpg`,
-      `space-demo/examples/tomato_late_blight.jpg`)
-- [ ] Both language toggles warmed (EN ↔ BN)
-- [ ] End-card overlays prepared (URLs)
-- [ ] Target total length ≤ 4:30
+## Blocking pre-record checks
+
+Do not start recording until every item passes:
+
+- [ ] **App is wired to the live backend.** Disease scan returns real detections and
+      advice (not mock), chat returns a real reply, market and weather return live data.
+      The app is being migrated to the new API Space — verify the installed APK against
+      `https://hodoly163-krishibondhu-api.hf.space` before filming.
+- [ ] **TTS speaks Bangla** and **STT transcribes Bangla** on the recording device.
+      Both run in the app; neither depends on our backend.
+- [ ] Web landing stats band shows real values, not zeros:
+      `116` disease classes · `30+` crops · `64` districts · `2` languages · `24/7`.
+- [ ] Rendered HF model card visibly says **AGPL-3.0** and shows the training record.
+- [ ] Demo Space awake + model loaded; one real scan already run.
+- [ ] Market state known (live DAM rows or dated dataset fallback) so the line matches
+      what is on screen.
+- [ ] Both language toggles pre-warmed (EN ↔ BN).
+
+**If the app is not wired in time:** record the web-only variant (same script, replace
+phone shots with the browser) and present the app as "in migration" in the description.
+Do not film mock screens as if they were live.
 
 ---
 
-## Recording checklist (repeat)
+## 0:00–0:15 — Hook (phone in hand)
 
-- [ ] Space awake (run one real scan through the web UI)
-- [ ] Example image pre-tested
-- [ ] Both language toggles ready (EN ↔ BN)
-- [ ] Record at 1080p; montage screen time ~30 s total
-- [ ] File: `KrishiBondhu-IdeaToUnicorn.mp4` → unlisted YouTube → paste link in portal
+Action: app open on the assistant tab. Tap the mic, ask in Bangla, let the spoken reply
+play.
+
+> "Ask a farming question in Bangla, and KrishiBondhu answers out loud. Snap a sick
+> leaf, and it names the disease and tells you what to do — in Bangla or English.
+> It's built for Bangladesh, and it's live."
+
+## 0:15–0:32 — Problem
+
+Action: cut to the web dashboard home (weather widget + quick actions).
+
+> "For many farmers, identifying crop diseases early is difficult, and expert advice
+> isn't always nearby. KrishiBondhu provides an accessible first step — AI guidance in
+> the language of the field."
+
+## 0:32–1:20 — Disease detection (the centerpiece, live on the phone)
+
+Action: open Disease Scan, pick the pre-tested rice-blast image, run it, wait for the
+real inference, then show boxes + confidence. Switch the advice to Bangla and tap
+read-aloud; let TTS speak one sentence.
+
+> "Meet KrishiDrishti-11X, our crop-disease detector: 116 disease and plant-health
+> classes across more than 30 crops. It's trained on merged public crop-disease
+> datasets. The model card publishes the validation results and the limitations —
+> and real field photos can be harder than test images: angle, light and crop all
+> matter. Treat every diagnosis as advice."
+
+> "Advice is drawn from a curated agronomy guide and written in Bangla and English in
+> one workflow. On the phone, it can read the answer aloud — the voice runs in the app,
+> not through our backend."
+
+## 1:20–1:38 — Cross-platform
+
+Action: cut to the same result on the web dashboard.
+
+> "The same engine runs in the browser, alongside weather, soil guidance, crop calendar
+> and market prices."
+
+## 1:38–2:08 — Advisor with live context (voice in, voice out)
+
+Action: ask by voice on the phone: "আগামীকাল নওগাঁয় স্প্রে করব?" — or type it if the
+recording environment is noisy. Show the answer streaming and the weather/market chips.
+
+> "Every answer is grounded with the selected district's live weather and today's
+> national market prices — so the advice fits the day, not just the disease."
+
+## 2:08–2:38 — Marketplace (web, honest data)
+
+Action: scroll the price table. Show whatever the live state actually is.
+
+> "Daily prices come from the Department of Agricultural Marketing, parsed bilingually.
+> If the government feed is unreachable, the app says so and falls back to a dated
+> dataset — we don't present old prices as today's."
+
+Do **not** switch to local mode to make the history chart look better. If the live
+Space has no history, show the honest "data builds daily" state or skip the chart.
+
+## 2:38–3:08 — Technical montage (three shots only)
+
+Queue these windows before recording and switch quickly:
+
+1. **HF Space** running a real predict; mention CPU fallback.
+2. **Model card** — zoom on `AGPL-3.0`, the provenance table, and the limitations.
+3. **GitHub repo** — `api/`, `mcp-server/`, `docs/`.
+
+> "Under the hood: a cloud demo app, a separate API for app integrations, a hosted AI
+> model, and a market-tools server. The demo can also plug into other apps as a tool
+> server. Everything runs on free cloud tiers, with automatic fallback when the free
+> GPU is busy."
+
+## 3:08–3:33 — Honest limits
+
+Action: quick shot of the homepage "Verified facts" / FAQ section.
+
+> "What it can't do, we say. No banana sigatoka class yet. Our test set is small and
+> mostly corn, so it is not a field-accuracy guarantee. Voice quality depends on the
+> device's Bangla speech support. Satellite and soil lab analysis are roadmap. We
+> label what's measured and what's planned."
+
+## 3:33–3:55 — Team + close
+
+> "KrishiBondhu AI, by PentaFarmers — Shadman Samin, Ramim Azad, Nusrat Jahan Neha,
+> Jannatul Ferdous Mim, AU Sabbir. Try it live, or read the code."
+
+End card on screen for the final 10 seconds — two links only:
+- Live demo: `https://krishibondhu-ai-web.vercel.app`
+- GitHub: `https://github.com/Shadman-Samin/KrishiBondhuAIWeb`
+
+---
+
+## YouTube description (paste as-is)
+
+```
+KrishiBondhu AI — a bilingual (Bangla/English) farming assistant by Team PentaFarmers.
+
+Snap a crop photo for disease detection with treatment advice, or ask a farming
+question by voice. The mobile app adds Bangla speech input and read-aloud advice;
+the web dashboard adds weather, soil guidance, crop calendar and market prices.
+
+Built AI-native: KrishiDrishti-11X (YOLO11x, 116 disease/health classes, 30+ crops),
+RAG-grounded bilingual advice, live district weather, and daily market prices from
+Bangladesh's Department of Agricultural Marketing.
+
+Live demo: https://krishibondhu-ai-web.vercel.app
+GitHub: https://github.com/Shadman-Samin/KrishiBondhuAIWeb
+AI demo Space: https://hodoly163-krishibondhu-demo.hf.space
+App REST API (Swagger): https://hodoly163-krishibondhu-api.hf.space/docs
+Model card: https://huggingface.co/hodoly163/krishibondhu-jktk
+
+Honest limits: our test set is small and mostly corn; results are published in the
+repo and are not a field-diagnosis guarantee. No banana sigatoka class yet. Market
+prices fall back to a dated dataset (and say so) when the government feed is
+unreachable.
+
+Chapters:
+0:00 Voice-first hook
+0:15 The problem
+0:32 Disease detection on the phone
+1:20 Same engine on the web
+1:38 Advisor with live weather + market context
+2:08 Marketplace
+2:38 How it's built
+3:08 Honest limits
+3:33 Team + links
+```
+
+**Tags:** KrishiBondhu, Bangladesh agriculture, crop disease detection, Bangla AI,
+YOLO11x, computer vision, RAG, farming assistant, Idea to Unicorn, PentaFarmers
+
+---
+
+## Pre-flight checklist (repeat before every take)
+
+- [ ] Phone at 100%, notifications off, Do Not Disturb on
+- [ ] scrcpy 1080p, no cursor on screen
+- [ ] App: scan + chat + TTS + STT verified against the live backend
+- [ ] Web: stats band animates to real values; FAQ voice answer matches the app
+- [ ] Market state matches the narration
+- [ ] YouTube upload unlisted, link tested in an incognito window, then paste into the portal

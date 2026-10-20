@@ -187,7 +187,7 @@ marketplace honest offline.
 2. **Acquisition** — tick: API Pull / SDK integrations · Automated Flows (n8n, cron) · MCP Servers for data access · Scrapers/crawlers (regular `urllib`+regex marquee scrape — we did not use Playwright/Scrapy, so prefer the plain "Scrapers / crawlers used" option).
 3. **Parsing, Formats & Cleaning** — tick formats: JSON · HTML · Markdown · Images (+ YAML if judges count config, else skip). Text: regex marquee parse + row-order merge for bilingual DAM feeds; strict JSON schemas for detections/advice; market rows require crop+price+unit or are dropped (never 500); YOLO eval excludes out-of-vocabulary classes explicitly.
 4. **Storage** — tick: Cache / KV. (No SQL/vector/graph database — the TF-IDF store and JSON snapshots are filesystem/in-memory. **Be honest — judges like a lean lifecycle.**)
-5. **Visualization** — tick: Recharts. Details: price-history charts, bilingual labels.
+5. **Visualization** — tick: Recharts. Details: bilingual price tables; price-history charts fill in local `fastapi` mode (the production Space has no history endpoint).
 6. **Insights** — tick: Deep Learning (PyTorch) · LLM Inference / RAG over data · Rule Engine / Heuristics · Statistical Analysis. (No classical-ML credit claimed beyond the detector itself.)
 7. **Pipelines & Orchestration** — tick Orchestration: n8n + cron-style daily cache; Scheduling: daily market snapshot.
 8. **Outbound** — tick Outbound APIs (REST endpoints + MCP tools as tool-calls); "Webhooks & exports": skip unless we expose one.
@@ -199,9 +199,9 @@ marketplace honest offline.
 
 ## 4. Truth-drift ledger (things NOT to claim anywhere)
 
-- No "95% accuracy" / "top 10 crops validated by BARI" — use mAP50 0.699 (in-checkpoint) or the homepage's verified-facts cards.
+- No "95% accuracy" / "top 10 crops validated by BARI" — cite the measured test result (`docs/EVAL_RESULTS.md`: 22/36 at conf 0.25) or the model card's validation metrics (mAP50 0.699); never round up.
 - No invented testimonials (removed from the landing page in commit `11a30eb`).
-- No voice claims (roadmap), no satellite monitoring claims (roadmap), no uptime-robot claims.
+- No cloud/web voice claims: the mobile app's Bangla TTS/STT run on-device. No satellite monitoring claims (roadmap), no uptime-robot claims.
 - No LoRA; no vector DB (TF-IDF store is keyword-sparse, not embeddings); Ollama listed as runbook only.
 - SUBMISSION_NOTES §8/§11 corrected to Gradio-Space wording (UptimeRobot/Docker lines updated).
 - No "CORS locked to the Vercel origin" (default is `*`; `CORS_ORIGINS` can lock it, but the live demo does not).

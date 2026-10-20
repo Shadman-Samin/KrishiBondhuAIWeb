@@ -19,7 +19,7 @@ Monorepo layout (no root package.json — each folder is self-contained):
 | `mcp-server/` | Standalone MCP market-tool server (Stdio + SSE) | Active |
 | `docs/` | Deploy log, submission packet, scripts | Active |
 | `start-dev.bat` | One-click local launcher (build + SSR + FastAPI + ngrok) | Active |
-| `Krsishi-Bondhu-AI-App/` | Flutter app (typo'd folder name) — **abandoned, do not work on it** unless explicitly asked |
+| `Krsishi-Bondhu-AI-App/` | Flutter app (typo'd folder name) — separately maintained, backend migration to the API Space in progress; adds on-device TTS/STT and is included in the demo video. Local tree is a stale mock-only snapshot; don't refactor unless asked |
 
 Git: single repo `https://github.com/Shadman-Samin/KrishiBondhuAIWeb.git` (both root and subrepos point here). KrishiBondhuWeb is also Lovable-connected.
 Live: web `https://krishibondhu-ai-web.vercel.app` (Vercel project `krishibondhu-ai-web`, `prj_UykhoU0eQDsJvaAoH9tmyat2gDht`, framework `tanstack-start-lovable`) · Space `https://hodoly163-krishibondhu-demo.hf.space` (hardware `zero-a10g`, Gradio, `demo.launch(mcp_server=True)`) · API Space (app backend) `https://hodoly163-krishibondhu-api.hf.space` (hardware `zero-a10g`, Gradio-SDK mount of FastAPI via uvicorn; free tier = max 2 ZeroGPU Spaces, both used).
