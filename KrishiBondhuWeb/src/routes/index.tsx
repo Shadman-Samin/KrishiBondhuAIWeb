@@ -562,7 +562,7 @@ function Hero() {
                   {t("Disease Detected", "রোগ শনাক্ত")}
                 </span>
                 <span className="shrink-0 rounded-full bg-muted px-2 py-0.5 text-[10px] font-medium">
-                  {t("Sample result", "নমুনা ফলাফল")}
+                  {t("Sample", "নমুনা")}
                 </span>
               </div>
               <div className="mt-1 font-display text-base font-semibold">
