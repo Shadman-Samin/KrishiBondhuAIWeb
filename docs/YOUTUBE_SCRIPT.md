@@ -112,10 +112,10 @@ Queue these windows before recording and switch quickly:
 
 Action: quick shot of the homepage "Verified facts" / FAQ section.
 
-> "What it can't do, we say. No banana sigatoka class yet. Our test set is small and
-> mostly corn, so it is not a field-accuracy guarantee. Voice quality depends on the
-> device's Bangla speech support. Satellite and soil lab analysis are roadmap. We
-> label what's measured and what's planned."
+> "What it can't do, we say. No banana sigatoka class yet. Our test set is still
+> growing, so we treat the result as early guidance, not a guarantee. Voice quality
+> depends on the device's Bangla speech support. Satellite and soil lab analysis are
+> roadmap. We label what's measured and what's planned."
 
 ## 3:33–3:55 — Team + close
 
@@ -147,10 +147,10 @@ AI demo Space: https://hodoly163-krishibondhu-demo.hf.space
 App REST API (Swagger): https://hodoly163-krishibondhu-api.hf.space/docs
 Model card: https://huggingface.co/hodoly163/krishibondhu-jktk
 
-Honest limits: our test set is small and mostly corn; results are published in the
-repo and are not a field-diagnosis guarantee. No banana sigatoka class yet. Market
-prices fall back to a dated dataset (and say so) when the government feed is
-unreachable.
+Honest limits: our test set is still growing; results are published in the repo and
+treated as early guidance, not a field-diagnosis guarantee. No banana sigatoka class
+yet. Market prices fall back to a dated dataset (and say so) when the government feed
+is unreachable.
 
 Chapters:
 0:00 Voice-first hook

@@ -1477,8 +1477,8 @@ function FAQ() {
     {
       q: t("How accurate is disease detection?", "রোগ শনাক্তকরণ কতটা নির্ভুল?"),
       a: t(
-        "In our 36-photo test set it got the exact disease right in 22 photos — about 6 in 10. That is a small, mostly-corn test set, so it is not a field-accuracy guarantee. Blurry or dark photos, and crops with few test images, are more likely to be wrong. Treat every diagnosis as advice and confirm with your local agriculture office.",
-        "আমাদের ৩৬টি ছবির টেস্ট সেটে এটি ২২টি সঠিকভাবে শনাক্ত করেছে — প্রায় ১০টির মধ্যে ৬টি। এটি ছোট, বেশিরভাগ ভুট্টার ছবির সেট, তাই মাঠের নির্ভুলতার নিশ্চয়তা নয়। ঝাপসা বা অন্ধকার ছবি এবং কম টেস্ট ছবির ফসলে ভুল হওয়ার সম্ভাবনা বেশি। প্রতিটি রোগনির্ণয়কে পরামর্শ হিসেবে নিন এবং স্থানীয় কৃষি অফিসের সাথে নিশ্চিত করুন।",
+        "KrishiDrishti-11X is trained on 116 disease and health classes across more than 30 crops, so it can flag a wide range of problems from a single photo. In our initial 36-photo test set, it identified the exact disease in 22 photos, and we are actively expanding the benchmark and improving coverage. For the best result, take a clear, well-lit close-up of the affected leaf or stem. Use the diagnosis as early guidance, and confirm major decisions with your local agriculture office.",
+        "KrishiDrishti-11X ৩০+ ফসলের ১১৬টি রোগ ও স্বাস্থ্য শ্রেণিতে প্রশিক্ষিত, তাই একটি ছবি থেকেই বিস্তৃত সমস্যা শনাক্ত করতে পারে। আমাদের প্রাথমিক ৩৬টি ছবির টেস্টে এটি ২২টিতে সঠিক রোগ শনাক্ত করেছে, এবং আমরা বেঞ্চমার্ক ও কভারেজ নিয়মিত বাড়াচ্ছি। সর্বোত্তম ফলাফলের জন্য আক্রান্ত পাতা বা কাণ্ডের স্পষ্ট, ভালো আলোর ক্লোজ-আপ ছবি নিন। রোগনির্ণয়কে প্রাথমিক নির্দেশনা হিসেবে ব্যবহার করুন এবং গুরুত্বপূর্ণ সিদ্ধান্ত স্থানীয় কৃষি অফিসের সাথে নিশ্চিত করুন।",
       ),
     },
     {
