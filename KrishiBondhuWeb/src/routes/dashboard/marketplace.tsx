@@ -61,9 +61,11 @@ function MarketplacePage() {
       try {
         const data = await fetchMarketPrices();
         if (!alive) return;
+        const isDataset = data.sources?.includes("dataset") ?? false;
+        const newestRowDate = data.rows.reduce((max, r) => (r.date > max ? r.date : max), "");
         setRows(data.rows);
-        setUpdatedAt(data.updated_at);
-        setLive(true);
+        setUpdatedAt(isDataset ? newestRowDate || data.updated_at : data.updated_at);
+        setLive(!isDataset);
       } catch {
         if (!alive) return;
         const fb = fallbackRows();
@@ -151,7 +153,7 @@ function MarketplacePage() {
               <Database className="h-3 w-3" />
               {live
                 ? t("DAM · Government of Bangladesh", "কৃষি বিপণন অধিদপ্তর · বাংলাদেশ সরকার")
-                : t("Static data", "স্থির তথ্য")}
+                : t("Dated dataset", "তারিখযুক্ত ডেটাসেট")}
             </span>
             {updatedAt && <span>{t(`Updated: ${updatedAt}`, `আপডেট: ${updatedAt}`)}</span>}
           </div>

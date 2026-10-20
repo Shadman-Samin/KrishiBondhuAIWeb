@@ -23,7 +23,7 @@ Do not start recording until every item passes:
 - [ ] **TTS speaks Bangla** and **STT transcribes Bangla** on the recording device.
       Both run in the app; neither depends on our backend.
 - [ ] Web landing stats band shows real values, not zeros:
-      `116` disease classes · `30+` crops · `64` districts · `2` languages · `24/7`.
+      `116` disease classes · `30+` crops · `10` regions · `2` languages · `24/7`.
 - [ ] Rendered HF model card visibly says **AGPL-3.0** and shows the training record.
 - [ ] Demo Space awake + model loaded; one real scan already run.
 - [ ] Market state known (live DAM rows or dated dataset fallback) so the line matches
@@ -36,16 +36,16 @@ Do not film mock screens as if they were live.
 
 ---
 
-## 0:00–0:15 — Hook (phone in hand)
+## 0:00–0:20 — Hook (phone in hand)
 
 Action: app open on the assistant tab. Tap the mic, ask in Bangla, let the spoken reply
-play.
+play. Do **not** narrate over the Bangla reply — let it finish, then deliver the English line.
 
 > "Ask a farming question in Bangla, and KrishiBondhu answers out loud. Snap a sick
 > leaf, and it names the disease and tells you what to do — in Bangla or English.
 > It's built for Bangladesh, and it's live."
 
-## 0:15–0:32 — Problem
+## 0:20–0:37 — Problem
 
 Action: cut to the web dashboard home (weather widget + quick actions).
 
@@ -53,7 +53,7 @@ Action: cut to the web dashboard home (weather widget + quick actions).
 > isn't always nearby. KrishiBondhu provides an accessible first step — AI guidance in
 > the language of the field."
 
-## 0:32–1:20 — Disease detection (the centerpiece, live on the phone)
+## 0:37–1:25 — Disease detection (the centerpiece, live on the phone)
 
 Action: open Disease Scan, pick the pre-tested rice-blast image, run it, wait for the
 real inference, then show boxes + confidence. Switch the advice to Bangla and tap
@@ -69,22 +69,23 @@ read-aloud; let TTS speak one sentence.
 > one workflow. On the phone, it can read the answer aloud — the voice runs in the app,
 > not through our backend."
 
-## 1:20–1:38 — Cross-platform
+## 1:25–1:43 — Cross-platform
 
 Action: cut to the same result on the web dashboard.
 
 > "The same engine runs in the browser, alongside weather, soil guidance, crop calendar
 > and market prices."
 
-## 1:38–2:08 — Advisor with live context (voice in, voice out)
+## 1:43–2:13 — Advisor with live context (voice in, voice out)
 
 Action: ask by voice on the phone: "আগামীকাল নওগাঁয় স্প্রে করব?" — or type it if the
-recording environment is noisy. Show the answer streaming and the weather/market chips.
+recording environment is noisy. Show the answer streaming, then tap read-aloud and let
+one sentence play before showing the weather/market chips. No English VO over the TTS.
 
 > "Every answer is grounded with the selected district's live weather and today's
 > national market prices — so the advice fits the day, not just the disease."
 
-## 2:08–2:38 — Marketplace (web, honest data)
+## 2:13–2:43 — Marketplace (web, honest data)
 
 Action: scroll the price table. Show whatever the live state actually is.
 
@@ -95,7 +96,7 @@ Action: scroll the price table. Show whatever the live state actually is.
 Do **not** switch to local mode to make the history chart look better. If the live
 Space has no history, show the honest "data builds daily" state or skip the chart.
 
-## 2:38–3:08 — Technical montage (three shots only)
+## 2:43–3:13 — Technical montage (three shots only)
 
 Queue these windows before recording and switch quickly:
 
@@ -103,12 +104,12 @@ Queue these windows before recording and switch quickly:
 2. **Model card** — zoom on `AGPL-3.0`, the provenance table, and the limitations.
 3. **GitHub repo** — `api/`, `mcp-server/`, `docs/`.
 
-> "Under the hood: a cloud demo app, a separate API for app integrations, a hosted AI
-> model, and a market-tools server. The demo can also plug into other apps as a tool
-> server. Everything runs on free cloud tiers, with automatic fallback when the free
-> GPU is busy."
+> "Under the hood, the web app connects to our hosted AI demo, while the mobile app
+> integrates through a separate REST API. A standalone MCP server exposes market tools
+> to compatible clients. The vision model uses GPU inference with CPU fallback when
+> free-tier GPU capacity is unavailable."
 
-## 3:08–3:33 — Honest limits
+## 3:13–3:38 — Honest limits
 
 Action: quick shot of the homepage "Verified facts" / FAQ section.
 
@@ -117,7 +118,7 @@ Action: quick shot of the homepage "Verified facts" / FAQ section.
 > depends on the device's Bangla speech support. Satellite and soil lab analysis are
 > roadmap. We label what's measured and what's planned."
 
-## 3:33–3:55 — Team + close
+## 3:38–4:00 — Team + close
 
 > "KrishiBondhu AI, by PentaFarmers — Shadman Samin, Ramim Azad, Nusrat Jahan Neha,
 > Jannatul Ferdous Mim, AU Sabbir. Try it live, or read the code."
@@ -154,14 +155,14 @@ is unreachable.
 
 Chapters:
 0:00 Voice-first hook
-0:15 The problem
-0:32 Disease detection on the phone
-1:20 Same engine on the web
-1:38 Advisor with live weather + market context
-2:08 Marketplace
-2:38 How it's built
-3:08 Honest limits
-3:33 Team + links
+0:20 The problem
+0:37 Disease detection on the phone
+1:25 Same engine on the web
+1:43 Advisor with live weather + market context
+2:13 Marketplace
+2:43 How it's built
+3:13 Honest limits
+3:38 Team + links
 ```
 
 **Tags:** KrishiBondhu, Bangladesh agriculture, crop disease detection, Bangla AI,
@@ -174,6 +175,10 @@ YOLO11x, computer vision, RAG, farming assistant, Idea to Unicorn, PentaFarmers
 - [ ] Phone at 100%, notifications off, Do Not Disturb on
 - [ ] scrcpy 1080p, no cursor on screen
 - [ ] App: scan + chat + TTS + STT verified against the live backend
-- [ ] Web: stats band animates to real values; FAQ voice answer matches the app
-- [ ] Market state matches the narration
+- [ ] Chat read-aloud works on the installed APK; otherwise retitle the section
+      "Voice input with live context"
+- [ ] Web: stats settle at `116 / 30+ / 10 / 2 / 24/7`; no zeros on screen
+- [ ] Model card hard-refreshed: rendered license says **AGPL-3.0** (ignore cached Apache view)
+- [ ] Market state matches the narration; if fallback, UI shows `Offline snapshot` /
+      `Dated dataset` and the older date
 - [ ] YouTube upload unlisted, link tested in an incognito window, then paste into the portal

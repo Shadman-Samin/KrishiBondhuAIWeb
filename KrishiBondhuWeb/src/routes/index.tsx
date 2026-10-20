@@ -661,7 +661,7 @@ function Stats() {
   }[] = [
     { label: t("Disease classes", "রোগ শ্রেণি"), value: 116, suffix: "", static: false },
     { label: t("Crops covered", "অন্তর্ভুক্ত ফসল"), value: 30, suffix: "+", static: false },
-    { label: t("Districts", "জেলা"), value: 64, suffix: "", static: false },
+    { label: t("Regions", "অঞ্চল"), value: 10, suffix: "", static: false },
     { label: t("Languages", "ভাষা"), value: 2, suffix: "", static: false },
     { label: t("Availability", "প্রাপ্যতা"), value: 24, suffix: "/7", static: true },
   ];
