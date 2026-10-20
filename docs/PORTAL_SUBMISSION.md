@@ -24,8 +24,9 @@ detection with treatment advice in seconds — backed by KrishiDrishti-11X, a
 116-class YOLO11x model we trained on merged public crop-disease datasets —
 plus a RAG-grounded AI chat advisor wired to live district weather and daily
 national market prices from the Department of Agricultural Marketing. The whole
-product runs 24/7 on free cloud tiers: Vercel + Hugging Face, with automatic
-CPU fallback when free GPU quotas run out.
+product runs on free cloud tiers: Vercel + Hugging Face, with automatic
+CPU fallback when free GPU quotas run out and a short cold-start wake after
+inactivity.
 ```
 
 ### Public Summary

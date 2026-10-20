@@ -13,8 +13,8 @@ Monorepo layout (no root package.json — each folder is self-contained):
 | Path | What | Status |
 |---|---|---|
 | `KrishiBondhuWeb/` | TanStack Start web client — **Vercel rootDir**, auto-deploys on push to `main` | Active — main product |
-| `space-demo/` | Gradio Space app (`app.py`) — the production AI backend for the **web** | Active — 24/7 demo |
-| `space-api/` | Glue for the **app-rest** Space (`hodoly163/krishibondhu-api`): uvicorn (:7860) + private Gradio for the ZeroGPU handshake | Active — 24/7 app REST |
+| `space-demo/` | Gradio Space app (`app.py`) — the production AI backend for the **web** | Active — public demo |
+| `space-api/` | Glue for the **app-rest** Space (`hodoly163/krishibondhu-api`): uvicorn (:7860) + private Gradio for the ZeroGPU handshake | Active — public app REST |
 | `KrishiBondhuVision/` | Python FastAPI backend (full local mode: model, LLM, market, RAG, agent, admin, MCP) | Active |
 | `mcp-server/` | Standalone MCP market-tool server (Stdio + SSE) | Active |
 | `docs/` | Deploy log, submission packet, scripts | Active |
@@ -27,7 +27,7 @@ Live: web `https://krishibondhu-ai-web.vercel.app` (Vercel project `krishibondhu
 ## 2. Architecture (dual-mode)
 
 ```
-PRODUCTION (24/7)
+PRODUCTION (hosted)
   Vercel SSR web (krishibondhu-ai-web.vercel.app)
      browser → @gradio/client → HF Space (hodoly163-krishibondhu-demo)
         ├─ GPU YOLO predict, auto CPU fallback on quota/GPU errors

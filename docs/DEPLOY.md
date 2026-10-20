@@ -1,4 +1,4 @@
-# Deploy — 24/7 Public Demo (HF Spaces + Vercel + Groq)
+# Deploy — Public Demo (HF Spaces + Vercel + Groq)
 
 ## LIVE: App-compat REST backend Space (free ZeroGPU) ✅ 2026-10-19
 

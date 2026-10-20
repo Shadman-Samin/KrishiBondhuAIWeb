@@ -22,22 +22,35 @@ Do not start recording until every item passes:
 - [ ] **No testimonial implication:** the farmer is not named and is not presented as a
       real customer. If a real farmer appears, get consent; otherwise shoot hands, boots
       and field only.
-- [ ] **App is wired to the live backend.** Disease scan returns real detections and
-      advice (not mock), chat returns a real reply, market and weather return live data.
-      The app is being migrated to the new API Space — verify the installed APK against
-      `https://hodoly163-krishibondhu-api.hf.space` before filming.
+- [ ] **App is wired to the live API.** Disease scan and chat verified against the live
+      API; weather and marketplace verified against their actual data sources; Bangla STT
+      and TTS tested on the installed device. Scan returns real detections and advice (not
+      mock), and chat returns a real reply. The app is being migrated to the new API Space
+      — verify the installed APK against `https://hodoly163-krishibondhu-api.hf.space`
+      before filming.
 - [ ] **TTS speaks Bangla** and **STT transcribes Bangla** on the recording device.
       Both run in the app; neither depends on our backend.
 - [ ] **Web stats settle at** `116` disease classes · `30+` crops · `10` regions · `2`
-      languages · `24/7`; no zeros on screen.
-- [ ] **Model card hard-refreshed:** rendered license says **AGPL-3.0** (ignore the cached
-      Apache view).
+      languages · `Cloud hosted`; no zeros on screen. Confirm in a real browser, not a
+      cached snapshot.
+- [ ] **Model card hard-refreshed:** confirm the rendered **AGPL-3.0** agrees with the
+      model card and repository. If the Apache view reappears, resolve it before
+      recording — do not ignore it.
 - [ ] **Demo Space awake + model loaded;** one real scan already run.
-- [ ] **Market state known** (live DAM rows or dated dataset fallback) so the line matches
-      what is on screen.
+- [ ] **Market state known** (live DAM rows or clearly labeled dated fallback) so the line
+      matches what is on screen. If fallback, narrate it as dated, never as today’s live
+      prices.
+- [ ] **Web result pre-run separately** with the same rice image; the phone result does
+      not appear on the web automatically.
 - [ ] **Both language toggles pre-warmed** (EN ↔ BN).
 - [ ] **No English VO over any Bangla TTS** — in the reveal, disease advice, or advisor
       section.
+
+**What “one take” means:** record one continuous narration take, then edit the visuals
+around it. For the opening, pre-render `0:00–0:48` B-roll as a single 48-second clip with
+the lower-third baked in, load it as an OBS Media Source, read the VO live, and switch to
+the `scrcpy` phone scene at `0:48`. Alternatively, record one continuous screen capture
+with the B-roll preloaded; the narration-first edit is recommended.
 
 **If the app is not wired in time:** record the web-only variant (same script, replace
 phone shots with the browser) and present the app as “in migration” in the description.
@@ -49,28 +62,33 @@ Do not film mock screens as if they were live.
 
 **Action:** wide rice field at sunrise, dew on the leaves, footsteps in mud. Cut to hands
 parting the plants, then a close-up of brown, spindle-shaped spots. Hold on the leaf. No
-phone, no logo, no product UI. Lower-third: **“Illustrative scenario.”**
+phone, no logo, no product UI. Lower-third: **“Illustrative scenario.”** Let the leaf
+close-up linger silently after the last sentence.
 
-> “Picture this. Just after sunrise, a farmer walks into their rice field. The leaves are
-> still wet. One patch looked healthy last week. Today, brown, spindle-shaped spots are
-> spreading across the blades. They turn a leaf over in their hand. Blast? Brown spot?
-> Something else? They don’t know. They don’t know whether to spray, wait, or ask someone.
-> And expert advice isn’t always within reach. Every day they wait feels like a day the
-> crop could slip away.”
+> “Picture a farmer walking through a rice field just after sunrise. The leaves are wet,
+> and a patch that looked healthy last week now has brown, spindle-shaped spots.
+>
+> Blast? Brown spot? Something else?
+>
+> They don’t know whether to spray, wait, or ask for help—and expert advice may not be
+> nearby. A wrong decision can cost time they don’t have.”
 
 ## 0:30–0:48 — The uncertainty
 
 **Action:** stay on the leaf, then a slow shot of a sprayer in the background and the
-farmer’s hand holding a phone, screen still off. The lower-third fades.
+farmer’s hand holding a phone, screen still off. At **0:42**, as the product name lands,
+the screen lights up with the app UI. Lower-third fades; cut to the live phone scene at
+**0:48**.
 
-> “That uncertainty is the hardest part. Not the spots — the not knowing. That’s the
-> moment KrishiBondhu AI is built for: a second opinion, in your hand, in your language.”
+> “The hardest part isn't just the spots; it's not knowing what to do next. KrishiBondhu
+> is built to offer a first step: a second opinion in the farmer's language.”
 
 ## 0:48–1:08 — The reveal: Bangla in, Bangla out
 
 **Action:** cut to the phone, assistant tab open. Tap the mic and ask in Bangla:
-**“এই ধানের পাতায় কী রোগ হয়েছে?”** Let the spoken Bangla reply play fully. Do not
-narrate over it. On-screen text: **“Bangla in · Bangla out.”**
+**“ধানের পাতায় বাদামী মাকড়সার মতো দাগ হলে কী করব?”** — “What should I do if there are
+brown spindle-shaped spots on rice leaves?” Let the spoken Bangla reply play fully. Do
+not narrate over it. On-screen text: **“Bangla in · Bangla out.”**
 
 > “Ask in Bangla. Hear the answer in Bangla. No typing. No English required.”
 
@@ -80,18 +98,20 @@ narrate over it. On-screen text: **“Bangla in · Bangla out.”**
 real inference, then show boxes + confidence. Switch the advice to Bangla and tap
 read-aloud; let TTS speak one sentence.
 
-> “This is KrishiDrishti-11X, our crop-disease detector: 116 disease and plant-health
-> classes across more than 30 crops, trained on merged public crop-disease datasets. The
-> model card publishes the validation results and the limitations. Real field photos can
-> be harder than test images — angle, light and crop all matter — so treat every diagnosis
-> as advice.”
+> “Or, instead of describing it, just snap a photo.”
 
-> “Advice is drawn from a curated agronomy guide, in Bangla and English. On the phone, it
-> can read the answer aloud — the voice runs in the app, not through our backend.”
+> “Meet KrishiDrishti-11X, our crop-disease detector covering 116 disease and plant-health
+> classes across more than 30 crops. The model card publishes its training record,
+> validation results and limitations. Real field photos vary in angle and lighting, so
+> treat every result as early guidance.”
+
+> “Advice is grounded in a curated agronomy guide, in Bangla and English. The phone can
+> read the answer aloud using its own speech features.”
 
 ## 1:51–2:04 — Cross-platform
 
-**Action:** cut to the same result on the web dashboard.
+**Action:** pre-run the same rice image in the web dashboard before recording, then cut to
+that real browser result. Do not imply the phone’s result appears on the web automatically.
 
 > “The same engine runs in the browser, alongside weather, soil guidance, crop calendar
 > and market prices.”
@@ -107,7 +127,8 @@ one sentence play before showing the weather/market chips. No English VO over th
 
 ## 2:32–2:57 — Marketplace (web, honest data)
 
-**Action:** scroll the price table. Show whatever the live state actually is.
+**Action:** scroll the price table. Show whatever the live state actually is. If it is on
+fallback, call it a dated snapshot; never narrate it as today’s live prices.
 
 > “Daily prices come from the Department of Agricultural Marketing, parsed bilingually.
 > If the government feed is unreachable, the app says so and falls back to a dated
@@ -198,12 +219,16 @@ YOLO11x, computer vision, RAG, farming assistant, Idea to Unicorn, PentaFarmers
 - [ ] Phone at 100%, notifications off, Do Not Disturb on
 - [ ] scrcpy 1080p, no cursor on screen
 - [ ] Story lower-third reads **“Illustrative scenario”**; no named farmer or testimonial claim
-- [ ] App: scan + chat + TTS + STT verified against the live backend
+- [ ] App: disease scan and chat verified against the live API; weather and marketplace
+      verified against their actual data sources; Bangla STT and TTS tested on the
+      installed device
 - [ ] Chat read-aloud works on the installed APK; otherwise retitle the section
       “Voice input with live context”
-- [ ] Web: stats settle at `116 / 30+ / 10 / 2 / 24/7`; no zeros on screen
-- [ ] Model card hard-refreshed: rendered license says **AGPL-3.0**
+- [ ] Web: stats settle at `116 / 30+ / 10 / 2 / Cloud hosted`; no zeros on screen
+- [ ] Model card hard-refreshed: confirm the rendered **AGPL-3.0** agrees with the model
+      card and repository; resolve any Apache view before recording
+- [ ] Web dashboard pre-run separately with the same rice image; show that real result
 - [ ] Market state matches the narration; if fallback, UI shows `Offline snapshot` /
-      `Dated dataset` and the older date
+      `Dated dataset` and the older date; narrate it as dated, not today’s live prices
 - [ ] No English VO over Bangla TTS in the reveal, disease demo, or advisor section
 - [ ] YouTube upload unlisted, link tested in an incognito window, then paste into the portal

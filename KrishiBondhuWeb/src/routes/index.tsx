@@ -28,7 +28,6 @@ import {
   TrendingUp,
   Users,
   Award,
-  Clock,
   Target,
   Languages,
   Moon,
@@ -658,12 +657,19 @@ function Stats() {
     value: number;
     suffix: string;
     static?: boolean;
+    text?: string;
   }[] = [
     { label: t("Disease classes", "রোগ শ্রেণি"), value: 116, suffix: "", static: false },
     { label: t("Crops covered", "অন্তর্ভুক্ত ফসল"), value: 30, suffix: "+", static: false },
     { label: t("Regions", "অঞ্চল"), value: 10, suffix: "", static: false },
     { label: t("Languages", "ভাষা"), value: 2, suffix: "", static: false },
-    { label: t("Availability", "প্রাপ্যতা"), value: 24, suffix: "/7", static: true },
+    {
+      label: t("Hosting", "হোস্টিং"),
+      value: 0,
+      suffix: "",
+      static: true,
+      text: t("Cloud hosted", "ক্লাউড হোস্টেড"),
+    },
   ];
   return (
     <section className="py-20 border-y border-border/60 bg-card/40 contain-section skip-visibility">
@@ -671,8 +677,14 @@ function Stats() {
         <div className="grid grid-cols-2 md:grid-cols-5 gap-8">
           {stats.map((s) => (
             <div key={s.label} className="text-center">
-              <div className="font-display text-4xl md:text-5xl font-bold text-gradient">
-                {s.static ? (
+              <div
+                className={`font-display font-bold text-gradient ${
+                  s.text ? "text-2xl md:text-3xl" : "text-4xl md:text-5xl"
+                }`}
+              >
+                {s.text ? (
+                  s.text
+                ) : s.static ? (
                   <>
                     {s.value}
                     {s.suffix}
@@ -1678,7 +1690,7 @@ function Footer() {
           </div>
           <div className="flex items-center gap-4">
             <span className="flex items-center gap-1">
-              <Clock className="h-3 w-3" /> {t("24/7 AI", "২৪/৭ এআই")}
+              <Globe className="h-3 w-3" /> {t("Cloud hosted", "ক্লাউড হোস্টেড")}
             </span>
             <span className="flex items-center gap-1">
               <Target className="h-3 w-3" /> {t("116-class detector", "১১৬-শ্রেণি ডিটেক্টর")}

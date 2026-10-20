@@ -1,6 +1,6 @@
 # KrishiBondhu API — Backend Integration Guide
 
-Backend contract for any client (the Flutter app). One cloud-hosted REST backend, 24/7 on a free public URL — no tunnel, no local server, no auth.
+Backend contract for any client (the Flutter app). One cloud-hosted REST backend on a free public URL — no tunnel, no local server, no auth. Free-tier Spaces can cold-start after inactivity; allow a minute or two for the first request.
 
 ## 1. Base URL
 

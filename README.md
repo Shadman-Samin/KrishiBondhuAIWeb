@@ -2,7 +2,7 @@
 
 > **Bangladeshi farming assistant** — crop disease detection, bilingual AI advisor (English/Bengali), weather, soil, market prices, and crop calendar. Built by **Team PentaFarmers**.
 
-## Live demo (24/7)
+## Live demo
 
 | Piece | URL |
 |---|---|
@@ -28,7 +28,7 @@ Seed the demo Space's live "predict a photo" examples or the Vercel app end-to-e
 ## Architecture
 
 ```
-                      PRODUCTION (24/7, free tiers)
+                      PRODUCTION (free tiers; cold start possible)
      ┌────────────────────────────────────────────────┐
      │  Vercel  —  TanStack Start SSR web app         │
      │  https://krishibondhu-ai-web.vercel.app        │

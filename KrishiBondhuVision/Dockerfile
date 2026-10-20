@@ -1,4 +1,4 @@
-# KrishiBondhuVision — FastAPI + YOLO backend for 24/7 hosts
+# KrishiBondhuVision — FastAPI + YOLO backend for hosted deployments
 # (Hugging Face Spaces Docker, Render, Railway). Serves API only; the
 # frontend deploys separately on Vercel pointing at this service.
 FROM python:3.10-slim
