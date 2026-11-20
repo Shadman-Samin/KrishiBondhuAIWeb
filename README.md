@@ -167,6 +167,17 @@ For mobile work, use its separate repository rather than any local mobile snapsh
 | Understand the model and its limits | [Vision model card](https://huggingface.co/hodoly163/krishibondhu-jktk) |
 | Connect an MCP client | [MCP tools and usage guide](mcp-server/MCP.md) |
 
+## Team PentaFarmers
+
+Six people building KrishiBondhu AI together.
+
+- **Shadman Samin** - Team Lead
+- Ramim Azad
+- Nusrat Jahan Neha
+- Jannatul Ferdous Mim
+- AU Sabbir
+- Hossain Zihad
+
 ## License
 
 Our application code is proprietary: all rights reserved. The vision model is an AGPL-3.0-licensed Ultralytics YOLO11x derivative; see the [model card](https://huggingface.co/hodoly163/krishibondhu-jktk). Third-party software retains its respective licenses. See the mobile repository for its licensing information.
