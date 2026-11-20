@@ -11,7 +11,7 @@
 </p>
 
 <p align="center">
-  <a href="https://krishibondhu-ai-web.vercel.app"><img src="https://img.shields.io/badge/Open_Web_App-16A34A?style=for-the-badge" alt="Open the web app" /></a>
+  <a href="https://krishibondhu-ai-web.vercel.app/dashboard"><img src="https://img.shields.io/badge/Open_Web_App-16A34A?style=for-the-badge" alt="Open the web app dashboard" /></a>
   <a href="https://github.com/ausabbir76/Krsishi-Bondhu-AI-App/releases/download/V1/Krishi-Bondhu-AI-arm64-v8a.apk"><img src="https://img.shields.io/badge/Download_Android-183D2A?style=for-the-badge&amp;logo=android&amp;logoColor=white" alt="Download the Android V1 ARM64 APK" /></a>
   <a href="https://www.youtube.com/watch?v=KZEimU8eRxo"><img src="https://img.shields.io/badge/Watch_Demo-8C682A?style=for-the-badge&amp;logo=youtube&amp;logoColor=white" alt="Watch the three-minute project demo" /></a>
 </p>
@@ -43,22 +43,26 @@
     <td width="50%" valign="top">
       <h3>01 / Crop Disease Scan</h3>
       <p>Upload a crop photo. KrishiDrishti-11X checks 116 disease and health classes and returns detection boxes, confidence scores, and bilingual advice.</p>
-      <a href="https://hodoly163-krishibondhu-demo.hf.space">Try a crop photo &rarr;</a>
+      <a href="https://krishibondhu-ai-web.vercel.app/dashboard/disease">Try a crop photo &rarr;</a>
     </td>
     <td width="50%" valign="top">
       <h3>02 / Farming Advisor</h3>
       <p>Ask in Bangla or English. The web client can include your selected district's weather and market context in the conversation.</p>
-      <a href="https://krishibondhu-ai-web.vercel.app">Open the assistant &rarr;</a>
+      <a href="https://krishibondhu-ai-web.vercel.app/dashboard/chat">Open the assistant &rarr;</a>
     </td>
   </tr>
   <tr>
     <td valign="top">
       <h3>03 / Weather And Prices</h3>
       <p>District forecasts from OpenWeather and national retail prices from DAM. Check each price row's source and date before making a decision.</p>
+      <a href="https://krishibondhu-ai-web.vercel.app/dashboard/weather">Check weather &rarr;</a><br />
+      <a href="https://krishibondhu-ai-web.vercel.app/dashboard/marketplace">View market prices &rarr;</a>
     </td>
     <td valign="top">
       <h3>04 / Seasonal Guidance</h3>
       <p>Planting and harvesting calendars, plus general or regional soil guidance. Soil guidance is not a laboratory test.</p>
+      <a href="https://krishibondhu-ai-web.vercel.app/dashboard/crop-calendar">View crop calendar &rarr;</a><br />
+      <a href="https://krishibondhu-ai-web.vercel.app/dashboard/soil">Explore soil guidance &rarr;</a>
     </td>
   </tr>
 </table>
@@ -161,7 +165,7 @@ For mobile work, use its separate repository rather than any local mobile snapsh
 
 | Explore | Link |
 |---|---|
-| Try the vision model and advisor directly | [Interactive AI demo](https://hodoly163-krishibondhu-demo.hf.space) |
+| Try the crop scanner and farming advisor | [Crop disease scan](https://krishibondhu-ai-web.vercel.app/dashboard/disease) and [AI farming advisor](https://krishibondhu-ai-web.vercel.app/dashboard/chat) |
 | Integrate with the REST backend | [Swagger API docs](https://hodoly163-krishibondhu-api.hf.space/docs) and [mobile API contract](docs/API_FOR_APP.md) |
 | Develop or deploy the web app | [Frontend guide](KrishiBondhuWeb/README.md) and [deployment notes](docs/DEPLOY.md) |
 | Understand the model and its limits | [Vision model card](https://huggingface.co/hodoly163/krishibondhu-jktk) |
