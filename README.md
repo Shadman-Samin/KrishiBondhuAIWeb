@@ -1,203 +1,130 @@
 # KrishiBondhu AI
 
-> **Bangladeshi farming assistant** — crop disease detection, bilingual AI advisor (English/Bengali), weather, soil, market prices, and crop calendar. Built by **Team PentaFarmers**.
+A farming assistant for Bangladesh, built by **Team PentaFarmers**. Check a crop photo for signs of disease, ask farming questions in Bangla or English, and find weather forecasts, market prices, and seasonal guidance.
 
-## Live demo
+## Try It
 
-| Piece | URL |
+| Start here | Link |
 |---|---|
-| **Web app** (frontend + AI dashboard) | <https://krishibondhu-ai-web.vercel.app> |
-| **AI demo Space** (vision model + advisor, Gradio) | <https://hodoly163-krishibondhu-demo.hf.space> |
-| **App REST API** (integrators; Swagger at `/docs`) | <https://hodoly163-krishibondhu-api.hf.space> |
+| Use the web app | [Open KrishiBondhu AI](https://krishibondhu-ai-web.vercel.app) |
+| Download the Android app | [Download V1 APK for ARM64 phones](https://github.com/ausabbir76/Krsishi-Bondhu-AI-App/releases/download/V1/Krishi-Bondhu-AI-arm64-v8a.apk) |
+| Find app releases and other builds | [Latest mobile release](https://github.com/ausabbir76/Krsishi-Bondhu-AI-App/releases/latest) |
+| Explore the mobile source code | [KrishiBondhu AI Flutter app](https://github.com/ausabbir76/Krsishi-Bondhu-AI-App) |
+| Try the AI directly | [Interactive AI demo](https://hodoly163-krishibondhu-demo.hf.space) |
 
-Seed the demo Space's live "predict a photo" examples or the Vercel app end-to-end (disease → advisory → chat → market). Free-tier hosting: both Spaces sleep after ~48 h of inactivity and take a minute or two to wake — the first request just needs a retry.
+The hosted AI needs an internet connection. Free hosting can take a minute or two to wake after inactivity; if a request fails during startup, wait and retry. Detection may take longer while the model loads.
 
----
+## Android App
 
-## What it does
+The Flutter app is maintained in its [own repository](https://github.com/ausabbir76/Krsishi-Bondhu-AI-App). Its current source includes crop-photo scans, chat, district weather, market prices, and voice input/output in Bangla and English. Voice support depends on the device's speech services and available languages.
 
-- **Disease detection** — upload a crop photo; the **KrishiDrishti-11X** vision model (Ultralytics YOLO11x, 116 disease/health classes across 30+ crops) returns bounding boxes + confidence, then a hosted LLM turns detections into farmer-friendly, bilingual action steps.
-- **AI advisor chat** — bilingual streaming chat that silently consumes your selected district's weather and today's national market prices to ground its answers.
-- **Weather** — district-level forecasts (OpenWeather).
-- **Market prices** — daily national prices from Bangladesh's Department of Agricultural Marketing (DAM), scraped bilingually. If the source is unreachable the API degrades to a dated shipped dataset instead of failing; price-history charts fill in from the local backend's daily snapshots.
-- **Soil info + crop calendar** — per-crop, per-season guidance.
-- **Bilingual by default** — every screen and every AI output is available in English and Bengali.
+1. Download the **ARM64 APK** above for most recent Android phones.
+2. Open the downloaded APK. Android may ask you to allow installation from your browser or file manager; enable it only for the installation if needed.
+3. Open the app and allow microphone access if you want to use voice input.
 
----
+The [V1 release page](https://github.com/ausabbir76/Krsishi-Bondhu-AI-App/releases/tag/V1) also includes an x86 APK for compatible devices or emulators. No iOS download is linked here. **The V1 APK may differ from the latest source code**; check the mobile repository and release notes for updates.
 
-## Architecture
+## What It Does
 
-```
-                      PRODUCTION (free tiers; cold start possible)
-     ┌────────────────────────────────────────────────┐
-     │  Vercel  —  TanStack Start SSR web app         │
-     │  https://krishibondhu-ai-web.vercel.app        │
-     └───────────────┬────────────────────────────────┘
-                     │ browser calls the AI Space directly (@gradio/client)
-                     ▼
-     ┌────────────────────────────────────────────────┐
-     │  HF Space: demo — Gradio app                   │
-     │  • KrishiDrishti-11X detection (GPU, auto CPU  │
-     │    fallback under free-tier quota limits)      │
-     │  • hosted LLM advisor + chat (Groq free tier)  │
-     │  • bilingual outputs (EN + BN), market table   │
-     └────────────────────────────────────────────────┘
-
-     Separate entry point for app integrators (not called by the web app):
-     ┌────────────────────────────────────────────────┐
-     │  HF Space: API — FastAPI REST (second Space)   │
-     │  /disease/detect  /assistant/chat              │
-     │  /market/prices   /weather/forecast            │
-     │  Swagger UI at /docs                           │
-     └────────────────────────────────────────────────┘
-
-                      LOCAL DEVELOPMENT
-     ┌────────────────────────────────────────────────┐
-     │  start-dev.bat  →  FastAPI  (:8000) + ngrok    │
-     │  same model + local LLM (LM Studio) + market   │
-     │  scrape + app-compat endpoints + MCP server    │
-     └───────────────┬────────────────────────────────┘
-                     ▼
-     ┌────────────────────────────────────────────────┐
-     │  frontend — bun dev (:8080) / serve.mjs (:8001)│
-     └────────────────────────────────────────────────┘
-```
-
-The frontend speaks to **two interchangeable backend modes** (`VITE_BACKEND`):
-
-- `space` — calls the Gradio Space directly (what production uses; needs no local backend).
-- `fastapi` — same-origin calls to the local FastAPI backend (full-featured dev mode).
-
-No backend URLs are hard-coded; origins come from env only.
-
----
-
-## Tech stack
-
-| Layer | Technology |
+| Feature | What to expect |
 |---|---|
-| Frontend | [TanStack Start](https://tanstack.com/start) + React 19 + Vite 8 + Tailwind CSS 4, shadcn/Radix UI, Recharts, react-markdown |
-| AI vision | Ultralytics YOLO11x fine-tune, **KrishiDrishti-11X**, 116 classes — [HF model](https://huggingface.co/hodoly163/krishibondhu-jktk) |
-| AI advisor | Any OpenAI-compatible LLM endpoint — hosted Groq in production, LM Studio locally |
-| Backend (local mode) | Python FastAPI + MCP server (market tools over Stdio/SSE) + n8n DAM scrape workflow |
-| Hosting | Vercel (web) · Hugging Face Spaces (AI) · ngrok (local dev tunnel) |
-| Live data | DAM market prices · OpenWeather forecast |
-| Package/runtime | Bun, Node, Python 3.10 |
+| Crop disease detection | Upload a crop photo to KrishiDrishti-11X, our 116-class vision model, for detection boxes, confidence scores, and bilingual advice. |
+| AI farming advisor | Ask questions in Bangla or English. The web client can include selected district weather and market context in the conversation. |
+| Weather | District forecasts powered by OpenWeather. |
+| Market prices | National retail prices from Bangladesh's Department of Agricultural Marketing (DAM), with cached or dated fallback data when the live source is unavailable. Check the displayed source and date. |
+| Crop calendar | Seasonal planting and harvesting guidance. |
+| Soil guidance | General or regional guidance; it is not a laboratory soil test. |
 
----
+AI results can be wrong. A confidence score is not a guarantee of a correct diagnosis. Confirm serious crop problems and chemical treatments with a qualified agricultural adviser and follow the product label. Satellite and soil-analysis API responses are previews, not live satellite measurements or lab results.
 
-## Project structure
+## How It Works
 
-```
-KrishiBondhuAIWeb/
-├── KrishiBondhuWeb/      # TanStack Start frontend (Vercel root)
-│   ├── src/routes/       # landing + dashboard pages
-│   ├── src/lib/          # API clients: space-client.ts (Space) / model-api.ts (FastAPI)
-│   └── src/data/         # crops, diseases KB, market fallback, weather
-├── KrishiBondhuVision/   # Python FastAPI backend (local full mode)
-│   ├── api/              # server, market scraper, RAG store, agent loop, admin, MCP
-│   ├── models/           # jktk_x.pt (KrishiDrishti-11X weights; HF-downloaded)
-│   └── scripts/          # accuracy eval + model download helpers
-├── space-demo/           # the Gradio Space app (production AI backend for the web)
-├── space-api/            # the app REST API Space (FastAPI over uvicorn, ZeroGPU handshake)
-├── mcp-server/           # standalone MCP market-tool server
-├── docs/                 # deployment log, API contract, submission packet, pitch/script docs
-└── start-dev.bat         # one-click local launcher
+There are two hosted AI entry points:
+
+```text
+Web app on Vercel ----> Gradio AI demo on Hugging Face Spaces
+Flutter mobile app --> FastAPI REST API on Hugging Face Spaces
 ```
 
----
+Both use the crop vision model and a hosted language model for advice. Detection tries GPU processing and can fall back to CPU when GPU access fails. Weather comes from OpenWeather; market data comes from DAM.
 
-## Getting started
+The REST backend also includes retrieval from a small curated agronomy knowledge base, a fixed LangGraph advice workflow, and price-history tools. Its Chroma vectors are lexical TF-IDF, and its Kuzu graph is manually curated. DuckDB stores price snapshots; the experimental trend endpoint needs at least three dated observations. These backend capabilities are separate from the public web app's Gradio path. The n8n snapshot workflow and Ollama models have been exercised locally; they are not scheduled or served in production.
 
-### Option A — run the frontend against the live cloud (easiest, no backend needed)
+For integrations, start with the [interactive REST API documentation](https://hodoly163-krishibondhu-api.hf.space/docs) and the [mobile API contract](docs/API_FOR_APP.md).
 
-```bash
-cd KrishiBondhuWeb
+## Repository Guide
+
+| Path | Purpose |
+|---|---|
+| [KrishiBondhuWeb/](KrishiBondhuWeb/) | TanStack Start, React, and Tailwind web app; deployed on Vercel. |
+| [KrishiBondhuVision/](KrishiBondhuVision/) | Python FastAPI backend, detection, retrieval, market data, and evaluation scripts. |
+| [space-demo/](space-demo/) | Gradio AI service used by the production web app. |
+| [space-api/](space-api/) | Hosting glue for the mobile/integrator REST service. |
+| [mcp-server/](mcp-server/) | Read-only market-data tools for MCP clients. |
+| [docs/](docs/) | API contracts, deployment notes, and project documentation. |
+| [start-dev.bat](start-dev.bat) | Windows launcher for a configured local stack. |
+
+For mobile development, use the [separately maintained Flutter repository](https://github.com/ausabbir76/Krsishi-Bondhu-AI-App), rather than any local mobile snapshot in this repository.
+
+## Run The Web App Locally
+
+The simplest development setup uses the hosted AI, so no local model download is needed. Install [Git](https://git-scm.com/) and [Bun](https://bun.sh/) first.
+
+```sh
+git clone https://github.com/Shadman-Samin/KrishiBondhuAIWeb.git
+cd KrishiBondhuAIWeb/KrishiBondhuWeb
 bun install
-
-# .env.local:
-#   VITE_BACKEND=space
-#   VITE_SPACE_URL=https://hodoly163-krishibondhu-demo.hf.space
-#   VITE_OPENWEATHER_API_KEY=your_openweather_key
-
-bun run dev    # http://localhost:8080
 ```
 
-### Option B — full local stack (Windows)
+Create `KrishiBondhuWeb/.env.local` using [.env.example](KrishiBondhuWeb/.env.example). The main settings are:
 
-```bat
-.\start-dev.bat
+```dotenv
+VITE_BACKEND=space
+VITE_SPACE_URL=https://hodoly163-krishibondhu-demo.hf.space
+VITE_OPENWEATHER_API_KEY=your_openweather_key
+
+VITE_FIREBASE_API_KEY=your_firebase_web_api_key
+VITE_FIREBASE_AUTH_DOMAIN=your-project.firebaseapp.com
+VITE_FIREBASE_PROJECT_ID=your-project
+VITE_FIREBASE_APP_ID=your_firebase_app_id
 ```
 
-Builds the frontend, then starts: `node serve.mjs` (:8001, SSR) → FastAPI (:8000, model + local LLM + market) → ngrok tunnel. Requires **LM Studio** running on `127.0.0.1:1234` with an OpenAI-compatible model loaded; backend settings live in `KrishiBondhuVision/.env` (`ADVISE_URL`, `ADVISE_MODEL`, `ADVISE_API_KEY`).
+The current web source uses Firebase sign-in for the dashboard. Enable Google and/or email/password sign-in and authorize your local domain in Firebase. Without the required Firebase configuration, the dashboard displays a sign-in-unavailable notice. See the [frontend setup guide](KrishiBondhuWeb/README.md#authentication-firebase-auth) for the full configuration.
 
-### Option C — manual dev backend
-
-```bash
-cd KrishiBondhuVision
-python -m venv .venv && .venv\Scripts\pip install -r requirements.txt
-.venv\Scripts\python -m uvicorn api.server:app --port 8000
-# in another terminal:
-cd ../KrishiBondhuWeb && bun run build && node serve.mjs
+```sh
+bun run dev
 ```
 
-The YOLO weights auto-download from Hugging Face on first run if missing.
+Open **http://localhost:8080**. Weather requires an OpenWeather key. Keep local environment files and provider credentials out of Git.
 
----
+### Use A Local Backend
 
-## Frontend environment variables
+For backend development, use Python 3.10 and install the dependencies in a virtual environment. From `KrishiBondhuVision/`, on Windows PowerShell:
 
-| Variable | Purpose |
+```powershell
+python -m venv .venv
+.\.venv\Scripts\python.exe -m pip install -r requirements.txt
+.\.venv\Scripts\python.exe -m uvicorn api.server:app --host 127.0.0.1 --port 8000
+```
+
+The detection weights download from Hugging Face when first needed. Configure the language-model endpoint with `ADVISE_URL`, `ADVISE_MODEL`, and `ADVISE_API_KEY` in the backend's local `.env`; set `ADVISE_HOSTED` for the chosen hosted/local mode. Weather uses `OPENWEATHER_API_KEY`. The [model runtime guide](KrishiBondhuVision/MODELS.md) covers local LLM setup.
+
+Set `VITE_BACKEND=fastapi` in the frontend environment and restart `bun run dev`. The Vite development server forwards API requests to port 8000. Frontend Firebase configuration is still required.
+
+The root `start-dev.bat` is an alternative for an already configured Windows environment: it builds the web app, starts its SSR server and FastAPI, then opens an ngrok tunnel. It assumes local tools and LLM settings are ready and stops processes on its configured ports; inspect it before use.
+
+## Further Reading
+
+| Resource | Contents |
 |---|---|
-| `VITE_BACKEND` | `space` (production, default on Vercel) or `fastapi` (local) |
-| `VITE_SPACE_URL` | Gradio Space API base URL |
-| `VITE_OPENWEATHER_API_KEY` | Weather data |
-
-Backend env (`KrishiBondhuVision/.env` or Space secrets): `ADVISE_URL`, `ADVISE_MODEL`, `ADVISE_API_KEY` (LLM endpoint + credentials); `OPENWEATHER_API_KEY`; `CORS_ORIGINS`; `ADMIN_TOKEN`. All secrets live in hosts' env/secret stores — never committed.
-
----
-
-## Local API surface (FastAPI mode)
-
-| Method & path | Purpose |
-|---|---|
-| `POST /predict` | Crop image → detections `{class, conf, box}` + top-1 |
-| `POST /advise` | Detections → bilingual advice `{en, bn}` (RAG-grounded) |
-| `POST /chat` · `POST /chat/stream` | Advisor chat (JSON / SSE) |
-| `GET /market-prices` (+ `/history`) | Live DAM prices + rolling history |
-| `GET /health` | Model liveness |
-| `POST /agent/run` | Agentic intent→retrieve→advise→verify loop with trace |
-| `GET /admin/stats` · `/admin/audit` | Token usage + audit trail (token-gated) |
-| `POST /disease/detect` · `/assistant/chat` · `GET /market/prices` · `/weather/forecast` · `/satellite/analysis` · `POST /soil/analyze` | App-compat REST shapes (same on the API Space; satellite/soil are preview stubs) |
-| MCP | `krishibondhu-market` tools over Stdio + SSE (`mcp-server/`) |
-
-The demo Space exposes the same core skills (`/predict`, chat, market) through its own Gradio API, which `space-client.ts` speaks; the API Space serves the plain REST contract for app integrators. Full endpoint detail, verified live: [`docs/API_FOR_APP.md`](docs/API_FOR_APP.md) (Swagger: <https://hodoly163-krishibondhu-api.hf.space/docs>).
-
----
-
-## Documentation
-
-| Doc | Contents |
-|---|---|
-| [`AGENTS.md`](AGENTS.md) | Repo guide for AI agents: architecture, invariants, gotchas |
-| [`docs/API_FOR_APP.md`](docs/API_FOR_APP.md) | App REST contract, verified live (Swagger at `/docs`) |
-| [`docs/DEPLOY.md`](docs/DEPLOY.md) | Cloud deployment log + verification notes |
-| [`docs/SUBMISSION_NOTES.md`](docs/SUBMISSION_NOTES.md) | Competition submission texts (per-field) |
-| [`docs/PORTAL_SUBMISSION.md`](docs/PORTAL_SUBMISSION.md) | Copy-paste portal packet + truth-drift ledger |
-| [`docs/ACCESS_NOTE.md`](docs/ACCESS_NOTE.md) | Access note for judges |
-| [`docs/YOUTUBE_SCRIPT.md`](docs/YOUTUBE_SCRIPT.md) | Demo video script + recording checklist |
-| [`docs/PITCH_OUTLINE.md`](docs/PITCH_OUTLINE.md) · [`docs/FIGMA_PLAN.md`](docs/FIGMA_PLAN.md) | Pitch deck outline · Figma deliverables |
-| [`KrishiBondhuWeb/README.md`](KrishiBondhuWeb/README.md) | Frontend structure, backend switch, gotchas |
-| [`KrishiBondhuVision/MODELS.md`](KrishiBondhuVision/MODELS.md) | LLM runtime/model run log |
-| [`mcp-server/MCP.md`](mcp-server/MCP.md) | MCP disclosure: servers built and used |
-| [`docs/n8n-dam-scrape.json`](docs/n8n-dam-scrape.json) | n8n workflow template for the DAM scrape |
-
----
-
-## Related projects
-
-- Mobile app — [KrishiBondhu AI app](https://github.com/ausabbir76/Krsishi-Bondhu-AI-App): a Flutter client maintained separately by another developer; it consumes this repo's App REST API.
+| [Frontend guide](KrishiBondhuWeb/README.md) | Authentication, environment variables, routes, build commands, and deployment. |
+| [Mobile app repository](https://github.com/ausabbir76/Krsishi-Bondhu-AI-App) | Flutter setup, voice permissions, backend configuration, and app builds. |
+| [Mobile app releases](https://github.com/ausabbir76/Krsishi-Bondhu-AI-App/releases) | Published APKs and release notes. |
+| [REST API contract](docs/API_FOR_APP.md) | Request/response formats and hosting behavior. |
+| [Deployment notes](docs/DEPLOY.md) | Hosting setup and verification history. |
+| [Vision model card](https://huggingface.co/hodoly163/krishibondhu-jktk) | Model provenance, metrics, and license. |
+| [MCP guide](mcp-server/MCP.md) | Market tools, transports, and usage disclosures. |
 
 ## License
 
-Proprietary — all rights reserved for our application code. The vision model is an AGPL-3.0-licensed Ultralytics YOLO11x derivative; see the [model card](https://huggingface.co/hodoly163/krishibondhu-jktk) for details.
+Proprietary: all rights reserved for our application code. The vision model is an AGPL-3.0-licensed Ultralytics YOLO11x derivative; see the [model card](https://huggingface.co/hodoly163/krishibondhu-jktk) for details. Third-party software retains its respective licenses. See the separate mobile repository for its licensing information.
