@@ -1,0 +1,23 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1200" height="280" viewBox="0 0 1200 280" fill="none">
+  <title>KrishiBondhu AI: field intelligence for Bangladesh</title>
+  <desc>A forest-green banner with the KrishiBondhu name, a leaf mark, and illustrated field rows. Farming guidance in Bangla and English, built by Team PentaFarmers.</desc>
+  <rect width="1200" height="280" rx="16" fill="#0A110D"/>
+  <path d="M746 0H1184C1192.84 0 1200 7.16 1200 16V264C1200 272.84 1192.84 280 1184 280H746V0Z" fill="#183D2A"/>
+  <g stroke="#F3F5EF" stroke-opacity=".12" stroke-width="1.5">
+    <path d="M746 240C866 112 984 110 1200 180"/>
+    <path d="M746 264C866 136 984 134 1200 204"/>
+    <path d="M770 280C890 160 1008 158 1200 228"/>
+    <path d="M820 280C926 186 1044 184 1200 252"/>
+    <path d="M880 280C980 214 1080 212 1200 276"/>
+  </g>
+  <g transform="translate(914 42) scale(5.6)" stroke="#DDECCB" stroke-width="1.55" stroke-linecap="round" stroke-linejoin="round">
+    <path d="M11 20A7 7 0 0 1 9.8 6.9C15.5 4.9 17 3.5 19 2C20 4 21 6.5 21 10C21 15.5 16.22 20 11 20Z"/>
+    <path d="M2 21C2 18 3.85 15.64 7.08 15C9.5 14.52 12 13 13 12"/>
+  </g>
+  <rect x="48" y="39" width="7" height="7" rx="1" fill="#16A34A"/>
+  <text x="68" y="47" fill="#B9CFBE" font-family="monospace" font-size="13" letter-spacing="2">MADE FOR BANGLADESH</text>
+  <text x="46" y="130" fill="#F3F5EF" font-family="Space Grotesk, Trebuchet MS, sans-serif" font-size="66" font-weight="700" letter-spacing="-3">KrishiBondhu AI</text>
+  <text x="48" y="172" fill="#D5E2D8" font-family="Inter, Verdana, sans-serif" font-size="23">Better decisions. From the field.</text>
+  <path d="M48 209H697" stroke="#2C4434"/>
+  <text x="48" y="242" fill="#A8BBAE" font-family="monospace" font-size="13" letter-spacing="1">CROP PHOTOS / FARMING QUESTIONS / SEASONAL GUIDANCE</text>
+</svg>
